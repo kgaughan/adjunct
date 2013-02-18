@@ -31,5 +31,5 @@ setup(
     ],
 
     author=META['author'],
-    author_email=META['email']
+    author_email=META['email'],
 )

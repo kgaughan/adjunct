@@ -18,6 +18,7 @@ __all__ = (
 )
 
 
+# pylint: disable-msg=R0904
 class LinkExtractor(HTMLParser.HTMLParser):
     """
     A simple subclass of `HTMLParser` for extracting <link> tags from the
@@ -43,6 +44,11 @@ class LinkExtractor(HTMLParser.HTMLParser):
 
     @staticmethod
     def extract(fh):
+        """
+        Extract the link tags from header of a HTML document to be read from
+        the file object, `fh`. The return value is a list of dicts where the
+        values of each are the attributes of the link elements encountered.
+        """
         parser = LinkExtractor()
         with contextlib.closing(parser):
             while not parser.finished:
@@ -53,6 +59,7 @@ class LinkExtractor(HTMLParser.HTMLParser):
         return parser.collected
 
 
+# pylint: disable-msg=C0103
 class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     """
     Pulls the fields out of an XML oEmbed document.
@@ -98,6 +105,11 @@ def fetch_links(url):
 
 
 def fetch_oembed_document(url, max_width=None, max_height=None):
+    """
+    Fetch the oEmbed document for a resource at `url` from the provider. If you
+    want to constrain the dimensions of the thumbnail, specify the maximum
+    width in `max_width` and the maximum height in `max_height`.
+    """
     # Append on the height and width parameters if needed.
     additional = {}
     for key, value in (('maxwidth', max_width), ('maxheight', max_height)):
@@ -119,6 +131,9 @@ def fetch_oembed_document(url, max_width=None, max_height=None):
 
 
 def parse_xml_oembed_response(fh):
+    """
+    Parse the fields from an XML OEmbed document.
+    """
     handler = OEmbedContentHandler()
     xml.sax.parse(fh, handler)
     return handler.fields

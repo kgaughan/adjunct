@@ -58,6 +58,13 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     Pulls the fields out of an XML oEmbed document.
     """
 
+    valid_fields = set([
+        'type', 'version', 'title', 'cache_age',
+        'author_name', 'author_url',
+        'provider_name', 'provider_url',
+        'thumbnail_url', 'thumbnail_width', 'thumbnail_height',
+    ])
+
     def __init__(self):
         xml.sax.handler.ContentHandler.__init__(self)
         self.current_field = None
@@ -72,7 +79,7 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
             self.current_value = ''
 
     def endElement(self, name):
-        if self.depth == 2:
+        if self.depth == 2 and self.current_field in self.valid_fields:
             self.fields[self.current_field] = self.current_value
         self.depth -= 1
 

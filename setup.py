@@ -3,7 +3,7 @@
 from __future__ import with_statement
 
 from setuptools import setup, find_packages
-from buildkit import *
+from adjunct.buildkit import *
 
 
 META = get_metadata('adjunct/__init__.py')
@@ -14,7 +14,7 @@ setup(
     version=META['version'],
     description='Sundry libraries',
     long_description=read('README'),
-    url='',
+    url='https://github.com/kgaughan/adjunct/',
     license='MIT',
     packages=find_packages(exclude='tests'),
     zip_safe=False,

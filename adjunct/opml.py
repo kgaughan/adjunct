@@ -90,9 +90,7 @@ class _Handler(xml.sax.handler.ContentHandler):
             outline = Outline()
             self.outline_stack[-1].append(outline)
             self.outline_stack.append(outline)
-            outline.attrs = dict(
-                (name, attrs.getValue(name))
-                for name in attrs.getNames())
+            outline.attrs = dict(attrs.items())
 
     def endElement(self, tag):  # pylint: disable=C0103
         self.tag_stack.pop()

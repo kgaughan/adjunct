@@ -26,12 +26,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import contextlib
-import HTMLParser
 import json
 import urllib
 import urllib2
 import xml.sax
 import xml.sax.handler
+
+from adjunct import discovery
 
 
 __all__ = (
@@ -41,46 +42,6 @@ __all__ = (
 __version__ = '0.1.0'
 __author__ = 'Keith Gaughan'
 __email__ = 'k@stereochro.me'
-
-# pylint: disable-msg=R0904
-class LinkExtractor(HTMLParser.HTMLParser):
-    """
-    A simple subclass of `HTMLParser` for extracting <link> tags from the
-    header of a HTML document.
-    """
-
-    def __init__(self):
-        HTMLParser.HTMLParser.__init__(self)
-        self.active = False
-        self.finished = False
-        self.collected = []
-
-    def handle_starttag(self, tag, attrs):
-        if tag == 'head':
-            self.active = True
-        elif self.active and tag == 'link':
-            self.collected.append(dict(attrs))
-
-    def handle_endtag(self, tag):
-        if tag == 'head':
-            self.active = False
-            self.finished = True
-
-    @staticmethod
-    def extract(fh):
-        """
-        Extract the link tags from header of a HTML document to be read from
-        the file object, `fh`. The return value is a list of dicts where the
-        values of each are the attributes of the link elements encountered.
-        """
-        parser = LinkExtractor()
-        with contextlib.closing(parser):
-            while not parser.finished:
-                chunk = fh.read(2048)
-                if chunk == '':
-                    break
-                parser.feed(chunk)
-        return parser.collected
 
 
 # pylint: disable-msg=C0103
@@ -117,15 +78,6 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     def characters(self, content):
         if self.depth == 2:
             self.current_value += content
-
-
-def fetch_links(url):
-    """
-    Extract the <link> tags from the HTML document at the given URL.
-    """
-    fh = urllib2.urlopen(url)
-    with contextlib.closing(fh):
-        return LinkExtractor.extract(fh)
 
 
 def fetch_oembed_document(url, max_width=None, max_height=None):
@@ -196,7 +148,7 @@ def get_oembed(url, max_width=None, max_height=None):
     """
     Given a URL, fetch its associated oEmbed information.
     """
-    oembed_url = find_first_oembed_link(fetch_links(url))
+    oembed_url = find_first_oembed_link(discovery.fetch_links(url))
     if oembed_url is None:
         return None
     return fetch_oembed_document(oembed_url, max_width, max_height)

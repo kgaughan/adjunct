@@ -7,7 +7,7 @@ from adjunct import discovery
 
 
 __all__ = (
-    'FeedExtractor',
+    'discover_feeds',
 )
 
 
@@ -90,3 +90,12 @@ class FeedExtractor(discovery.LinkExtractor):
                     del attrs['rel']
                     discovery.LinkExtractor.append(self, attrs)
                     self.added.add(attrs['href'])
+
+
+def discover_feeds(url):
+    """
+    Discover any feeds at the given URL.
+    """
+    return sorted(
+        discovery.fetch_links(url, FeedExtractor),
+        key=lambda feed: ORDER[feed['type']])

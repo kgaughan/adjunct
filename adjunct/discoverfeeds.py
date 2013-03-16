@@ -11,24 +11,31 @@ __all__ = (
 )
 
 
+# Acceptable feed  types, sorted by priority.
+ACCEPTABLE = (
+    'application/atom+xml',
+    'application/rdf+xml',
+    'application/rss+xml',
+)
+
+# Used when ordering feeds.
+ORDER = dict(
+    (mimetype, i_type)
+    for i_type, mimetype in enumerate(ACCEPTABLE))
+
+GUESSES = {
+    'application/rss+xml': ('.rss', 'rss.xml', '/rss', '/rss/', '/feed/'),
+    'application/rdf+xml': ('.rdf', 'rdf.xml', '/rdf', '/rdf/'),
+    'application/atom+xml': ('.atom', 'atom.xml', '/atom', '/atom/'),
+}
+
+
 # pylint: disable-msg=R0904
 class FeedExtractor(discovery.LinkExtractor):
     """
     Extract any link or anchor elements that look like they might refer to
     feeds.
     """
-
-    ACCEPTABLE = (
-        'application/atom+xml',
-        'application/rdf+xml',
-        'application/rss+xml',
-    )
-
-    GUESSES = {
-        'application/rss+xml': ('.rss', 'rss.xml', '/rss', '/rss/', '/feed/'),
-        'application/rdf+xml': ('.rdf', 'rdf.xml', '/rdf', '/rdf/'),
-        'application/atom+xml': ('.atom', 'atom.xml', '/atom', '/atom/'),
-    }
 
     def __init__(self, base):
         discovery.LinkExtractor.__init__(self, base)
@@ -41,7 +48,7 @@ class FeedExtractor(discovery.LinkExtractor):
             if 'href' in attrs:
                 attrs['@data'] = ''
                 attrs.setdefault('type', self.guess_feed_type(attrs['href']))
-                if attrs['type'] in self.ACCEPTABLE:
+                if attrs['type'] in ACCEPTABLE:
                     attrs.setdefault('rel', 'feed')
                     self.anchor = attrs
         else:
@@ -71,14 +78,15 @@ class FeedExtractor(discovery.LinkExtractor):
         # Reasonable assumption: we're dealing with <a> elements, and by this
         # time, we should've encountered any <base> elements we care about.
         href = self.fix_href(href)
-        for mimetype, endings in self.GUESSES.iteritems():
+        for mimetype, endings in GUESSES.iteritems():
             if href.lower().endswith(endings):
                 return mimetype
         return None
 
     def append(self, attrs):
         if attrs['rel'] in ('alternate', 'feed'):
-            if 'type' in attrs and attrs['type'].lower() in self.ACCEPTABLE:
+            if 'type' in attrs and attrs['type'].lower() in ACCEPTABLE:
                 if 'href' in attrs and attrs['href'] not in self.added:
+                    del attrs['rel']
                     discovery.LinkExtractor.append(self, attrs)
                     self.added.add(attrs['href'])

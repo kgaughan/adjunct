@@ -68,6 +68,8 @@ class FeedExtractor(discovery.LinkExtractor):
         """
         Guess the MIME type of a link based off of its ending.
         """
+        # Reasonable assumption: we're dealing with <a> elements, and by this
+        # time, we should've encountered any <base> elements we care about.
         href = self.fix_href(href)
         for mimetype, endings in self.GUESSES.iteritems():
             if href.lower().endswith(endings):

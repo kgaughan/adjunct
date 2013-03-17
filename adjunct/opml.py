@@ -104,6 +104,8 @@ class _Handler(xml.sax.handler.ContentHandler):
             self.outline_stack[-1].append(outline)
             self.outline_stack.append(outline)
             outline.attrs = dict(attrs.items())
+            for attr in ('isComment', 'isBreakpoint'):
+                outline.attrs.setdefault(attr, 'false')
 
     def endElement(self, tag):  # pylint: disable=C0103
         self.tag_stack.pop()

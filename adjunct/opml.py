@@ -12,9 +12,16 @@ import xml.sax.handler
 
 __all__ = (
     'Outline',
+    'OpmlError',
     'parse', 'parse_string',
     'parse_timestamp',
 )
+
+
+class OpmlError(Exception):
+    """
+    Raised when there's a problem parsing an OPML document.
+    """
 
 
 class Outline(list):
@@ -86,8 +93,11 @@ class _Handler(xml.sax.handler.ContentHandler):
         self.current = None
 
     def startElement(self, tag, attrs):  # pylint: disable=C0103
-        if tag not in self.nesting[self._get_parent_tag()]:
-            raise Exception('WAT')
+        expected = self.nesting[self._get_parent_tag()]
+        if tag not in expected:
+            raise OpmlError(
+                'Got <%s>, expected <%s>' % (tag, '|'.join(expected)))
+
         self.tag_stack.append(tag)
         if tag == 'outline':
             outline = Outline()

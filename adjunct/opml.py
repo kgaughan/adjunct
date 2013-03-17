@@ -4,6 +4,8 @@ A simple, nay, simplistic! OPML_ parser.
 .. _OPML: http://dev.opml.org/spec2.html
 """
 
+import datetime
+import email.utils
 import xml.sax
 import xml.sax.handler
 
@@ -11,6 +13,7 @@ import xml.sax.handler
 __all__ = (
     'Outline',
     'parse', 'parse_string',
+    'parse_timestamp',
 )
 
 
@@ -102,6 +105,14 @@ class _Handler(xml.sax.handler.ContentHandler):
         parent = self._get_parent_tag()
         if content != '' and parent in self.head_tags:
             self.root.attrs[parent] = content
+
+
+def parse_timestamp(ts):
+    """
+    Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
+    """
+    return datetime.datetime.utcfromtimestamp(
+        email.utils.mktime_tz(email.utils.parsedate_tz(ts)))
 
 
 def parse(fh):

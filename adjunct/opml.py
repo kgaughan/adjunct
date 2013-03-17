@@ -35,7 +35,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     Implements the mechanics of parsing an OPML document.
     """
 
-    meta_tags = [
+    head_tags = [
         'title',
         'dateCreated',
         'dateModified',
@@ -56,7 +56,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     nesting = {
         None: ['opml'],
         'opml': ['head', 'body'],
-        'head': meta_tags,
+        'head': head_tags,
         'body': ['outline'],
         'outline': ['outline'],
     }
@@ -100,7 +100,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     def characters(self, content):
         content = content.strip()
         parent = self._get_parent_tag()
-        if content != '' and parent in self.meta_tags:
+        if content != '' and parent in self.head_tags:
             self.root.attrs[parent] = content
 
 

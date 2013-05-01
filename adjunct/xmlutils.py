@@ -43,8 +43,6 @@ class XMLBuilder(object):
     ...         xml += 'Within'
     ...     xml += 'After'
     ...     xml.tag('leaf', 'Another')
-    ... # doctest: +ELLIPSIS
-    <adjunct.xmlutils.XMLBuilder object at 0x...>
     >>> print xml.as_string()
     <?xml version="1.0" encoding="utf-8"?>
     <root xmlns="tag:talideon.com,2013:test">Before<leaf>Within</leaf>After<leaf>Another</leaf></root>
@@ -83,7 +81,6 @@ class XMLBuilder(object):
         for value in values:
             self.generator.characters(value)
         self.generator.endElement(tag)
-        return self
 
     def append(self, other):
         """

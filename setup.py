@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import with_statement
-
 from setuptools import setup, find_packages
 from adjunct.buildkit import *
 
@@ -17,18 +15,17 @@ setup(
     url='https://github.com/kgaughan/adjunct/',
     license='MIT',
     packages=find_packages(exclude='tests'),
-    zip_safe=False,
+    zip_safe=True,
     install_requires=read_requirements('requirements.txt'),
-    include_package_data=True,
 
-    classifiers=[
+    classifiers=(
         'Development Status :: 4 - Beta',
         'Environment :: Other Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-    ],
+    ),
 
     author=META['author'],
     author_email=META['email'],

@@ -34,6 +34,14 @@ def read_requirements(requirements_path):
     with open(requirements_path, 'r') as fh:
         for line in fh:
             line = line.strip()
-            if line != '' and not line.startswith(to_ignore):
+            if line == '' or line.startswith(to_ignore):
+                continue
+            if line.startswith('-r '):
+                requirements += read_requirements(
+                    os.path.realpath(
+                        os.path.join(
+                            os.path.dirname(requirements_path),
+                            line.split(' ', 1)[1].lstrip())))
+            else:
                 requirements.append(line)
     return requirements

@@ -4,12 +4,9 @@ from setuptools import setup, find_packages
 from adjunct.buildkit import *
 
 
-META = get_metadata('adjunct/__init__.py')
-
-
 setup(
     name='adjunct',
-    version=META['version'],
+    version='0.1.1',
     description='Sundry libraries',
     long_description=read('README'),
     url='https://github.com/kgaughan/adjunct/',
@@ -27,6 +24,6 @@ setup(
         'Programming Language :: Python',
     ),
 
-    author=META['author'],
-    author_email=META['email'],
+    author='Keith Gaughan',
+    author_email='k@stereochro.me',
 )

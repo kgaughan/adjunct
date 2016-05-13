@@ -1,7 +1,19 @@
 #!/usr/bin/env python
 
+import os.path
+import sys
+
 from setuptools import setup, find_packages
-from adjunct.buildkit import *
+
+
+def read(*filenames):
+    """Read files relative to the executable."""
+    files = []
+    for filename in filenames:
+        full_path = os.path.join(os.path.dirname(sys.argv[0]), filename)
+        with open(full_path, 'r') as fh:
+            files.append(fh.read())
+    return "\n\n".join(files)
 
 
 setup(
@@ -11,9 +23,8 @@ setup(
     long_description=read('README'),
     url='https://github.com/kgaughan/adjunct/',
     license='MIT',
-    packages=find_packages(exclude='tests'),
+    packages=find_packages(exclude=['tests']),
     zip_safe=True,
-    install_requires=read_requirements('requirements.txt'),
 
     classifiers=(
         'Development Status :: 4 - Beta',

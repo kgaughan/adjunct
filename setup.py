@@ -26,6 +26,8 @@ setup(
     packages=find_packages(exclude=['tests']),
     zip_safe=True,
 
+    test_suite='tests.suite',
+
     classifiers=(
         'Development Status :: 4 - Beta',
         'Environment :: Other Environment',

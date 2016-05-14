@@ -30,14 +30,21 @@ class Outline(list):
     the outlines nested within it as elements.
     """
 
-    def __init__(self, *args, **kwargs):
-        super(Outline, self).__init__(*args, **kwargs)
-        self.attrs = {}
+    def __init__(self, attrs=None, items=(), root=False):
+        super(Outline, self).__init__()
+        self.attrs = {} if attrs is None else attrs
+        self.root = root
+        self.extend(items)
 
     def __repr__(self):
+        args = []
+        if self.root:
+            args.append("root=True")
+        if len(self.attrs) > 0:
+            args.append("attrs=%r" % self.attrs)
         if len(self) > 0:
-            return '<Outline %r %r>' % (self.attrs, list(self))
-        return '<Outline %r>' % (self.attrs,)
+            args.append("items=%r" % list(self))
+        return "Outline(%s)" % ', '.join(args)
 
 
 class _Handler(xml.sax.handler.ContentHandler):
@@ -85,7 +92,7 @@ class _Handler(xml.sax.handler.ContentHandler):
         return None if len(self.tag_stack) == 0 else self.tag_stack[-1]
 
     def startDocument(self):  # pylint: disable=C0103
-        self.root = Outline()
+        self.root = Outline(root=True)
         self.outline_stack = [self.root]
         self.tag_stack = []
 

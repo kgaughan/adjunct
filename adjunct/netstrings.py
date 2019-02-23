@@ -35,16 +35,16 @@ def netstring_reader(fd):
                 break
             if len(buffered) > 10:
                 raise MalformedNetstring("Length too long")
-            if not ch.isdigit():
-                # Must be made up of digits.
-                raise MalformedNetstring("Bad length")
             if ch == b"0" and buffered == b"":
                 if fd.read(1) != b":":
                     raise MalformedNetstring("Disallowed leading zero")
                 buffered = ch
                 break
             buffered += ch
-        size = int(buffered.decode(), 10)
+        try:
+            size = int(buffered.decode(), 10)
+        except ValueError:
+            raise MalformedNetstring("Bad length")
         payload = b""
         while size > 0:
             buffered = fd.read(size)

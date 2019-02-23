@@ -13,6 +13,9 @@ class NetstringReaderTest(unittest.TestCase):
         self.assertListEqual(parse(b"1:a,"), [b"a"])
         self.assertListEqual(parse(b"2:ab,"), [b"ab"])
 
+    def test_long_string(self):
+        self.assertListEqual(parse(b"10:abcdezxcvb,"), [b"abcdezxcvb"])
+
     def test_series(self):
         self.assertListEqual(parse(b"0:,0:,"), [b"", b""])
         self.assertListEqual(parse(b"1:a,1:a,"), [b"a", b"a"])

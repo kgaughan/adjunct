@@ -27,13 +27,15 @@ def netstring_reader(fd):
     """
     while True:
         buffered = b""
+        n = 0
         while True:
             ch = fd.read(1)
             if ch == b"":
                 return
             if ch == b":":
                 break
-            if len(buffered) > 10:
+            n += 1
+            if n > 10:
                 raise MalformedNetstring("Length too long")
             if ch == b"0" and buffered == b"":
                 if fd.read(1) != b":":

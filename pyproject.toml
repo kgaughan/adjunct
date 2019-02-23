@@ -8,6 +8,9 @@ author = "Keith Gaughan"
 author-email = "k@stereochro.me"
 home-page = "https://github.com/kgaughan/adjunct"
 requires-python = ">=3.3"
+dev-requires = [
+	"coverage",
+]
 description-file = "README.rst"
 classifiers = [
 	"Development Status :: 4 - Beta",

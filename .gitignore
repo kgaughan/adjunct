@@ -17,3 +17,4 @@ __pycache__
 /.venv
 *.db
 *.bak
+/coverage_html_report/

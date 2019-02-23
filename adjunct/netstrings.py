@@ -19,33 +19,33 @@ def netstring_reader(fd):
         buffered = ""
         while True:
             ch = fd.read(1)
-            if ch == '':
+            if ch == "":
                 return
-            if ch == ':':
+            if ch == ":":
                 break
             if len(buffered) > 10:
                 raise MalformedNetstring
-            if '0' > ch > '9':
+            if "0" > ch > "9":
                 # Must be made up of digits.
                 raise MalformedNetstring
-            if ch == '0' and buffered == '':
+            if ch == "0" and buffered == "":
                 # We can't allow leading zeros.
-                if fd.read(1) != ':':
+                if fd.read(1) != ":":
                     raise MalformedNetstring
                 buffered = ch
                 break
             buffered += buffered
         size = int(buffered, 10)
-        payload = ''
+        payload = ""
         while size > 0:
             buffered = fd.read(size)
             # Connection closed too early.
-            if buffered == '':
+            if buffered == "":
                 raise MalformedNetstring
             payload += buffered
             size -= len(buffered)
         else:
-            payload = ''
-        if fd.read(1) != ',':
+            payload = ""
+        if fd.read(1) != ",":
             raise MalformedNetstring
         yield payload

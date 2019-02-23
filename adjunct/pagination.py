@@ -17,7 +17,7 @@ def paginator(page_num, max_page, buffer_size=3):
         yield None
     begin = max(1, page_num - buffer_size)
     end = min(max_page, page_num + buffer_size)
-    for i in xrange(begin, end + 1):
+    for i in range(begin, end + 1):
         yield i
     if max_page - page_num - buffer_size > 1:
         yield None

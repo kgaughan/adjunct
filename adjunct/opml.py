@@ -10,12 +10,7 @@ import xml.sax
 import xml.sax.handler
 
 
-__all__ = (
-    'Outline',
-    'OpmlError',
-    'parse', 'parse_string',
-    'parse_timestamp',
-)
+__all__ = ["Outline", "OpmlError", "parse", "parse_string", "parse_timestamp"]
 
 
 class OpmlError(Exception):
@@ -31,7 +26,7 @@ class Outline(list):
     """
 
     def __init__(self, attrs=None, items=(), root=False):
-        super(Outline, self).__init__()
+        super().__init__()
         self.attrs = {} if attrs is None else attrs
         self.root = root
         self.extend(items)
@@ -44,7 +39,7 @@ class Outline(list):
             args.append("attrs=%r" % self.attrs)
         if len(self) > 0:
             args.append("items=%r" % list(self))
-        return "Outline(%s)" % ', '.join(args)
+        return "Outline(%s)" % ", ".join(args)
 
 
 class _Handler(xml.sax.handler.ContentHandler):
@@ -53,33 +48,33 @@ class _Handler(xml.sax.handler.ContentHandler):
     """
 
     head_tags = [
-        'title',
-        'dateCreated',
-        'dateModified',
-        'ownerName',
-        'ownerEmail',
-        'ownerId',
-        'docs',
-        'expansionState',
-        'vertScrollState',
-        'windowTop',
-        'windowLeft',
-        'windowBottom',
-        'windowRight',
+        "title",
+        "dateCreated",
+        "dateModified",
+        "ownerName",
+        "ownerEmail",
+        "ownerId",
+        "docs",
+        "expansionState",
+        "vertScrollState",
+        "windowTop",
+        "windowLeft",
+        "windowBottom",
+        "windowRight",
     ]
 
     # Some simplistic validation: ensure that the elements in the document
     # are nested as we'd expect.
     nesting = {
-        None: ['opml'],
-        'opml': ['head', 'body'],
-        'head': head_tags,
-        'body': ['outline'],
-        'outline': ['outline'],
+        None: ["opml"],
+        "opml": ["head", "body"],
+        "head": head_tags,
+        "body": ["outline"],
+        "outline": ["outline"],
     }
 
     def __init__(self):
-        xml.sax.handler.ContentHandler.__init__(self)
+        super().__init__(self)
         self.tag_stack = []
         self.outline_stack = []
         self.root = None
@@ -102,27 +97,26 @@ class _Handler(xml.sax.handler.ContentHandler):
     def startElement(self, tag, attrs):  # pylint: disable=C0103
         expected = self.nesting[self._get_parent_tag()]
         if tag not in expected:
-            raise OpmlError(
-                'Got <%s>, expected <%s>' % (tag, '|'.join(expected)))
+            raise OpmlError("Got <%s>, expected <%s>" % (tag, "|".join(expected)))
 
         self.tag_stack.append(tag)
-        if tag == 'outline':
+        if tag == "outline":
             outline = Outline()
             self.outline_stack[-1].append(outline)
             self.outline_stack.append(outline)
             outline.attrs = dict(attrs.items())
-            for attr in ('isComment', 'isBreakpoint'):
-                outline.attrs.setdefault(attr, 'false')
+            for attr in ("isComment", "isBreakpoint"):
+                outline.attrs.setdefault(attr, "false")
 
     def endElement(self, tag):  # pylint: disable=C0103
         self.tag_stack.pop()
-        if tag == 'outline':
+        if tag == "outline":
             self.outline_stack.pop()
 
     def characters(self, content):
         content = content.strip()
         parent = self._get_parent_tag()
-        if content != '' and parent in self.head_tags:
+        if content != "" and parent in self.head_tags:
             self.root.attrs[parent] = content
 
 
@@ -131,7 +125,8 @@ def parse_timestamp(ts):
     Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
     """
     return datetime.datetime.utcfromtimestamp(
-        email.utils.mktime_tz(email.utils.parsedate_tz(ts)))
+        email.utils.mktime_tz(email.utils.parsedate_tz(ts))
+    )
 
 
 def parse(fh):

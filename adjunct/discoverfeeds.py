@@ -6,27 +6,19 @@ Feed discovery.
 from adjunct import discovery
 
 
-__all__ = (
-    'discover_feeds',
-)
+__all__ = ["discover_feeds"]
 
 
 # Acceptable feed  types, sorted by priority.
-ACCEPTABLE = (
-    'application/atom+xml',
-    'application/rdf+xml',
-    'application/rss+xml',
-)
+ACCEPTABLE = ["application/atom+xml", "application/rdf+xml", "application/rss+xml"]
 
 # Used when ordering feeds.
-ORDER = dict(
-    (mimetype, i_type)
-    for i_type, mimetype in enumerate(ACCEPTABLE))
+ORDER = dict((mimetype, i_type) for i_type, mimetype in enumerate(ACCEPTABLE))
 
 GUESSES = {
-    'application/rss+xml': ('.rss', 'rss.xml', '/rss', '/rss/', '/feed/'),
-    'application/rdf+xml': ('.rdf', 'rdf.xml', '/rdf', '/rdf/'),
-    'application/atom+xml': ('.atom', 'atom.xml', '/atom', '/atom/'),
+    "application/rss+xml": (".rss", "rss.xml", "/rss", "/rss/", "/feed/"),
+    "application/rdf+xml": (".rdf", "rdf.xml", "/rdf", "/rdf/"),
+    "application/atom+xml": (".atom", "atom.xml", "/atom", "/atom/"),
 }
 
 
@@ -38,18 +30,18 @@ class FeedExtractor(discovery.LinkExtractor):
     """
 
     def __init__(self, base):
-        discovery.LinkExtractor.__init__(self, base)
+        super().__init__(self, base)
         self.anchor = None
         self.added = set()
 
     def handle_starttag(self, tag, attrs):
-        if tag.lower() == 'a' and self.anchor is None:
+        if tag.lower() == "a" and self.anchor is None:
             attrs = discovery.fix_attributes(attrs)
-            if 'href' in attrs:
-                attrs['@data'] = ''
-                attrs.setdefault('type', self.guess_feed_type(attrs['href']))
-                if attrs['type'] in ACCEPTABLE:
-                    attrs.setdefault('rel', 'feed')
+            if "href" in attrs:
+                attrs["@data"] = ""
+                attrs.setdefault("type", self.guess_feed_type(attrs["href"]))
+                if attrs["type"] in ACCEPTABLE:
+                    attrs.setdefault("rel", "feed")
                     self.anchor = attrs
         else:
             discovery.LinkExtractor.handle_starttag(self, tag, attrs)
@@ -57,13 +49,13 @@ class FeedExtractor(discovery.LinkExtractor):
     def handle_data(self, data):
         # We only use the interstitial text as the title if none was provided
         # on the anchor element itself.
-        if self.anchor is not None and 'title' not in self.anchor:
-            self.anchor['@data'] += data
+        if self.anchor is not None and "title" not in self.anchor:
+            self.anchor["@data"] += data
 
     def handle_endtag(self, tag):
-        if tag.lower() == 'a' and self.anchor is not None:
-            self.anchor.setdefault('title', self.anchor['@data'])
-            del self.anchor['@data']
+        if tag.lower() == "a" and self.anchor is not None:
+            self.anchor.setdefault("title", self.anchor["@data"])
+            del self.anchor["@data"]
             self.append(self.anchor)
             self.anchor = None
         else:
@@ -78,18 +70,18 @@ class FeedExtractor(discovery.LinkExtractor):
         # Reasonable assumption: we're dealing with <a> elements, and by this
         # time, we should've encountered any <base> elements we care about.
         href = self.fix_href(href)
-        for mimetype, endings in GUESSES.iteritems():
+        for mimetype, endings in GUESSES.items():
             if href.lower().endswith(endings):
                 return mimetype
         return None
 
     def append(self, attrs):
-        if attrs['rel'] in ('alternate', 'feed'):
-            if 'type' in attrs and attrs['type'].lower() in ACCEPTABLE:
-                if 'href' in attrs and attrs['href'] not in self.added:
-                    del attrs['rel']
+        if attrs["rel"] in ("alternate", "feed"):
+            if "type" in attrs and attrs["type"].lower() in ACCEPTABLE:
+                if "href" in attrs and attrs["href"] not in self.added:
+                    del attrs["rel"]
                     discovery.LinkExtractor.append(self, attrs)
-                    self.added.add(attrs['href'])
+                    self.added.add(attrs["href"])
 
 
 def discover_feeds(url):
@@ -97,5 +89,5 @@ def discover_feeds(url):
     Discover any feeds at the given URL.
     """
     return sorted(
-        discovery.fetch_links(url, FeedExtractor),
-        key=lambda feed: ORDER[feed['type']])
+        discovery.fetch_links(url, FeedExtractor), key=lambda feed: ORDER[feed["type"]]
+    )

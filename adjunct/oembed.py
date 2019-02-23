@@ -4,19 +4,15 @@ An oEmbed_ client library.
 .. _oEmbed: http://oembed.com/
 """
 
-import contextlib
 import json
-import urllib
-import urllib2
+from urllib import parse, request
 import xml.sax
 import xml.sax.handler
 
 from adjunct import discovery
 
 
-__all__ = (
-    'get_oembed',
-)
+__all__ = ["get_oembed"]
 
 
 # pylint: disable-msg=C0103
@@ -25,15 +21,22 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     Pulls the fields out of an XML oEmbed document.
     """
 
-    valid_fields = set([
-        'type', 'version', 'title', 'cache_age',
-        'author_name', 'author_url',
-        'provider_name', 'provider_url',
-        'thumbnail_url', 'thumbnail_width', 'thumbnail_height',
-    ])
+    valid_fields = [
+        "type",
+        "version",
+        "title",
+        "cache_age",
+        "author_name",
+        "author_url",
+        "provider_name",
+        "provider_url",
+        "thumbnail_url",
+        "thumbnail_width",
+        "thumbnail_height",
+    ]
 
     def __init__(self):
-        xml.sax.handler.ContentHandler.__init__(self)
+        super().__init__()
         self.current_field = None
         self.current_value = None
         self.depth = 0
@@ -43,7 +46,7 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
         self.depth += 1
         if self.depth == 2:
             self.current_field = name
-            self.current_value = ''
+            self.current_value = ""
 
     def endElement(self, name):
         if self.depth == 2 and self.current_field in self.valid_fields:
@@ -63,18 +66,18 @@ def fetch_oembed_document(url, max_width=None, max_height=None):
     """
     # Append on the height and width parameters if needed.
     additional = {}
-    for key, value in (('maxwidth', max_width), ('maxheight', max_height)):
+    for key, value in (("maxwidth", max_width), ("maxheight", max_height)):
         if value is not None:
             additional[key] = value
     if len(additional) > 0:
-        url = "%s&%s" % (url, urllib.urlencode(additional))
+        url = "%s&%s" % (url, parse.urlencode(additional))
 
-    request = urllib2.Request(
-        url, headers={'Accept': ', '.join(ACCEPTABLE_TYPES.keys())})
-    fh = urllib2.urlopen(request)
-    with contextlib.closing(fh):
+    req = request.Request(
+        url, headers={"Accept": ", ".join(list(ACCEPTABLE_TYPES.keys()))}
+    )
+    with request.urlopen(req) as fh:
         info = fh.info()
-        content_type = info.get('content-type', None)
+        content_type = info.get("content-type", None)
         if content_type in ACCEPTABLE_TYPES:
             parser = ACCEPTABLE_TYPES[content_type]
             return parser(fh)
@@ -95,15 +98,15 @@ def parse_xml_oembed_response(fh):
 # text/xml (which is deprecated, IIRC) is being used rather than
 # application/xml. Just to be perverse, let's support all of that.
 ACCEPTABLE_TYPES = {
-    'application/json': json.load,
-    'application/json+oembed': json.load,
-    'application/xml': parse_xml_oembed_response,
-    'application/xml+oembed': parse_xml_oembed_response,
-    'text/xml': parse_xml_oembed_response,
-    'text/xml+oembed': parse_xml_oembed_response,
+    "application/json": json.load,
+    "application/json+oembed": json.load,
+    "application/xml": parse_xml_oembed_response,
+    "application/xml+oembed": parse_xml_oembed_response,
+    "text/xml": parse_xml_oembed_response,
+    "text/xml+oembed": parse_xml_oembed_response,
 }
 
-LINK_TYPES = [key for key in ACCEPTABLE_TYPES if key.endswith('+oembed')]
+LINK_TYPES = [key for key in ACCEPTABLE_TYPES if key.endswith("+oembed")]
 
 
 def find_first_oembed_link(links):
@@ -112,10 +115,10 @@ def find_first_oembed_link(links):
     """
     for link in links:
         # For safety's sake.
-        if 'rel' not in link or 'type' not in link or 'href' not in link:
+        if "rel" not in link or "type" not in link or "href" not in link:
             continue
-        if link['rel'] == 'alternate' and link['type'] in LINK_TYPES:
-            return link['href']
+        if link["rel"] == "alternate" and link["type"] in LINK_TYPES:
+            return link["href"]
     return None
 
 

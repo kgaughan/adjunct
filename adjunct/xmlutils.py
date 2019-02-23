@@ -3,14 +3,11 @@ XML utilities.
 """
 
 import contextlib
+import io
 from xml.sax import saxutils
-try:
-    import cStringIO as stringio
-except ImportError:
-    import StringIO as stringio
 
 
-class XMLBuilder(object):
+class XMLBuilder:
     """
     XML document builder. The code is purposely namespace ignorant: it's up to
     user to supply appropriate `xmlns` attributes as needed.
@@ -27,7 +24,7 @@ class XMLBuilder(object):
     <root xmlns="tag:talideon.com,2013:test">Before<leaf>Within</leaf>After<leaf>Another</leaf></root>
     """
 
-    def __init__(self, out=None, encoding='utf-8'):
+    def __init__(self, out=None, encoding="utf-8"):
         """
         `out` should be a file-like object to write the document to. If none
         is provided, a buffer is created.
@@ -36,7 +33,7 @@ class XMLBuilder(object):
         as no other sensible value can be returned.
         """
         if out is None:
-            self.buffer = stringio.StringIO()
+            self.buffer = io.StringIO()
             out = self.buffer
         else:
             self.buffer = None
@@ -60,6 +57,9 @@ class XMLBuilder(object):
         for value in values:
             self.generator.characters(value)
         self.generator.endElement(tag)
+
+    def __getattr__(self, tag):
+        return lambda *values, **attrs: self.tag(tag, *values, **attrs)
 
     def append(self, other):
         """

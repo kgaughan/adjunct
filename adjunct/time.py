@@ -18,8 +18,8 @@ def date(timestamp, fmt=None, tz=None):
     .. _RFC 3339: http://tools.ietf.org/html/rfc3339
     """
     if fmt is None:
-        fmt = '%Y-%m-%dT%H:%M:%S' + ('Z' if tz is None else '%z')
-    dt = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+        fmt = "%Y-%m-%dT%H:%M:%S" + ("Z" if tz is None else "%z")
+    dt = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
     if tz is not None:
         dt = dt.astimezone(tz)
     return dt.strftime(fmt)

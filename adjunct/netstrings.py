@@ -4,6 +4,8 @@ Simple netstring_ reader implemented as a generator.
 .. _netstring: http://cr.yp.to/proto/netstrings.txt
 """
 
+import io
+
 
 class MalformedNetstring(Exception):
     """
@@ -11,41 +13,45 @@ class MalformedNetstring(Exception):
     """
 
 
+def parse(ns):
+    """
+    Parse a bytestring of netstrings.
+    """
+    with io.BytesIO(ns) as fh:
+        return list(netstring_reader(fh))
+
+
 def netstring_reader(fd):
     """
     Reads a sequence of netstrings from the given file object.
     """
     while True:
-        buffered = ""
+        buffered = b""
         while True:
             ch = fd.read(1)
-            if ch == "":
+            if ch == b"":
                 return
-            if ch == ":":
+            if ch == b":":
                 break
             if len(buffered) > 10:
-                raise MalformedNetstring
-            if "0" > ch > "9":
+                raise MalformedNetstring("Length too long")
+            if not ch.isdigit():
                 # Must be made up of digits.
-                raise MalformedNetstring
-            if ch == "0" and buffered == "":
-                # We can't allow leading zeros.
-                if fd.read(1) != ":":
-                    raise MalformedNetstring
+                raise MalformedNetstring("Bad length")
+            if ch == b"0" and buffered == b"":
+                if fd.read(1) != b":":
+                    raise MalformedNetstring("Disallowed leading zero")
                 buffered = ch
                 break
-            buffered += buffered
-        size = int(buffered, 10)
-        payload = ""
+            buffered += ch
+        size = int(buffered.decode(), 10)
+        payload = b""
         while size > 0:
             buffered = fd.read(size)
-            # Connection closed too early.
-            if buffered == "":
-                raise MalformedNetstring
+            if buffered == b"":
+                raise MalformedNetstring("Connection closed too early")
             payload += buffered
             size -= len(buffered)
-        else:
-            payload = ""
-        if fd.read(1) != ",":
-            raise MalformedNetstring
+        if fd.read(1) != b",":
+            raise MalformedNetstring("Missing trailing comma")
         yield payload

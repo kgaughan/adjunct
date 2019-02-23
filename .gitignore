@@ -16,3 +16,4 @@ __pycache__
 # Other random nonsense
 /.venv
 *.db
+*.bak

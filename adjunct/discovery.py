@@ -2,7 +2,6 @@
 Discovery via HTML <link> elements.
 """
 
-
 import contextlib
 from html.parser import HTMLParser
 from urllib import parse, request
@@ -66,7 +65,7 @@ class LinkExtractor(HTMLParser):
         with contextlib.closing(parser):
             while not parser.finished:
                 chunk = fh.read(2048)
-                if chunk == "":
+                if not chunk:
                     break
                 parser.feed(chunk)
 

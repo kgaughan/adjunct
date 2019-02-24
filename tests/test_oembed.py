@@ -21,5 +21,12 @@ class OEmbedXMLParserTest(unittest.TestCase):
         )
         fields = parse_xml_oembed_response(fh)
         self.assertDictEqual(
-            fields, {"version": "1.0", "type": "photo", "title": "This is a title"}
+            fields,
+            {
+                "version": "1.0",
+                "type": "photo",
+                "title": "This is a title",
+                "width": "300",
+                "height": "300",
+            },
         )

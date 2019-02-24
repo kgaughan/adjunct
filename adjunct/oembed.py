@@ -33,6 +33,9 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
         "thumbnail_url",
         "thumbnail_width",
         "thumbnail_height",
+        "width",
+        "height",
+        "html",
     ]
 
     def __init__(self):

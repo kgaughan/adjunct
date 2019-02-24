@@ -117,11 +117,10 @@ def find_first_oembed_link(links):
     Search for the first valid oEmbed link.
     """
     for link in links:
-        # For safety's sake.
-        if "rel" not in link or "type" not in link or "href" not in link:
-            continue
-        if link["rel"] == "alternate" and link["type"] in LINK_TYPES:
-            return link["href"]
+        if link.get("rel") == "alternate" and link.get("type") in LINK_TYPES:
+            url = link.get("href")
+            if url is not None:
+                return url
     return None
 
 

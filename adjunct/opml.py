@@ -74,7 +74,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     }
 
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         self.tag_stack = []
         self.outline_stack = []
         self.root = None

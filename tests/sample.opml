@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.0">
+  <head>
+    <title>Sample OPML file</title>
+  </head>
+  <body>
+    <outline text="News">
+      <outline text="Euronews" type="rss" xmlUrl="http://feeds.feedburner.com/euronews/en/news"/>
+      <outline text="Reuters Top News" type="rss" xmlUrl="http://feeds.reuters.com/reuters/topNews"/>
+    </outline>
+    <outline text="Tech">
+      <outline text="Coding Horror" type="rss" xmlUrl="http://feeds.feedburner.com/codinghorror"/>
+    </outline>
+    <outline text="Personal">
+      <outline text="Can't Hack" type="rss" xmlUrl="https://i.canthack.it/feeds/all.xml"/>
+    </outline>
+  </body>
+</opml>

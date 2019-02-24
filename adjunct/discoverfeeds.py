@@ -30,7 +30,7 @@ class FeedExtractor(discovery.LinkExtractor):
     """
 
     def __init__(self, base):
-        super().__init__(self, base)
+        super().__init__(base)
         self.anchor = None
         self.added = set()
 

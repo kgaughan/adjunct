@@ -73,7 +73,7 @@ def fetch_oembed_document(url, max_width=None, max_height=None):
         url = "%s&%s" % (url, parse.urlencode(additional))
 
     req = request.Request(
-        url, headers={"Accept": ", ".join(list(ACCEPTABLE_TYPES.keys()))}
+        url, headers={"Accept": ", ".join(ACCEPTABLE_TYPES.keys())}
     )
     with request.urlopen(req) as fh:
         info = fh.info()

@@ -5,7 +5,7 @@ Date/time utilities.
 import datetime
 
 
-def date(timestamp, fmt=None, tz=None):
+def date(timestamp, fmt="%Y-%m-%dT%H:%M:%S%z", tz=datetime.timezone.utc):
     """
     Formatting of SQLite timestamps.
 
@@ -17,9 +17,5 @@ def date(timestamp, fmt=None, tz=None):
     .. _ISO 8601: http://en.wikipedia.org/wiki/ISO_8601
     .. _RFC 3339: http://tools.ietf.org/html/rfc3339
     """
-    if fmt is None:
-        fmt = "%Y-%m-%dT%H:%M:%S" + ("Z" if tz is None else "%z")
     dt = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    if tz is not None:
-        dt = dt.astimezone(tz)
-    return dt.strftime(fmt)
+    return dt.replace(tzinfo=tz).strftime(fmt)

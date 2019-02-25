@@ -44,7 +44,7 @@ class FeedExtractor(discovery.LinkExtractor):
                     attrs.setdefault("rel", "feed")
                     self.anchor = attrs
         else:
-            discovery.LinkExtractor.handle_starttag(self, tag, attrs)
+            super().handle_starttag(tag, attrs)
 
     def handle_data(self, data):
         # We only use the interstitial text as the title if none was provided
@@ -59,7 +59,7 @@ class FeedExtractor(discovery.LinkExtractor):
             self.append(self.anchor)
             self.anchor = None
         else:
-            discovery.LinkExtractor.handle_endtag(self, tag)
+            super().handle_endtag(tag)
             # Force scanning of the whole document.
             self.finished = False
 
@@ -80,7 +80,7 @@ class FeedExtractor(discovery.LinkExtractor):
             if "type" in attrs and attrs["type"].lower() in ACCEPTABLE:
                 if "href" in attrs and attrs["href"] not in self.added:
                     del attrs["rel"]
-                    discovery.LinkExtractor.append(self, attrs)
+                    super().append(attrs)
                     self.added.add(attrs["href"])
 
 

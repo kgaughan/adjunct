@@ -1,6 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
+source = adjunct
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -17,4 +18,4 @@ exclude_lines =
 ignore_errors = True
 
 [html]
-directory = coverage_html_report
+directory = coverage_html

@@ -10,6 +10,7 @@
 /MANIFEST
 _build/
 /cover
+/coverage_*
 .coverage
 .tox
 __pycache__

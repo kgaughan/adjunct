@@ -3,7 +3,7 @@ Feed discovery.
 """
 
 
-from adjunct import discovery
+from . import discovery
 
 
 __all__ = ["discover_feeds"]

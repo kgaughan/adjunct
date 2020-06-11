@@ -9,7 +9,7 @@ from urllib import parse, request
 import xml.sax
 import xml.sax.handler
 
-from adjunct import discovery
+from . import discovery
 
 
 __all__ = ["get_oembed"]

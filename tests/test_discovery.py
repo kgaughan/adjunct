@@ -5,17 +5,16 @@ from adjunct.discovery import LinkExtractor
 
 
 class LinkExtractorTest(unittest.TestCase):
-
     def test_empty(self):
-        buf = io.StringIO(
-            """<!DOCTYPE html>
+        buf = io.BytesIO(
+            b"""<!DOCTYPE html>
 <html></html>"""
         )
         self.assertListEqual(LinkExtractor.extract(buf), [])
 
     def test_one_link(self):
-        buf = io.StringIO(
-            """<!DOCTYPE html>
+        buf = io.BytesIO(
+            b"""<!DOCTYPE html>
 <html>
     <head>
         <link rel="foo" href="bar">
@@ -23,13 +22,12 @@ class LinkExtractorTest(unittest.TestCase):
 </html>"""
         )
         self.assertListEqual(
-            LinkExtractor.extract(buf),
-            [{"href": "bar", "rel": "foo"}],
+            LinkExtractor.extract(buf), [{"href": "bar", "rel": "foo"}],
         )
 
     def test_one_link_with_base(self):
-        buf = io.StringIO(
-            """<!DOCTYPE html>
+        buf = io.BytesIO(
+            b"""<!DOCTYPE html>
 <html>
     <head>
         <link rel="foo" href="bar">

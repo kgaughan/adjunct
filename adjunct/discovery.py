@@ -84,6 +84,9 @@ def fix_attributes(attrs):
     result = {}
     for attr, value in attrs:
         attr = attr.lower()
+        if value is None:
+            result[attr] = True  # The attribute is present, but has no value
+            continue
         if attr in ("rel", "type"):
             value = value.lower()
         result[attr] = value.strip()

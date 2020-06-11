@@ -75,9 +75,8 @@ def fetch_oembed_document(url, max_width=None, max_height=None):
     if len(additional) > 0:
         url = "%s&%s" % (url, parse.urlencode(additional))
 
-    req = request.Request(
-        url, headers={"Accept": ", ".join(ACCEPTABLE_TYPES.keys())}
-    )
+    headers = {"Accept": ", ".join(ACCEPTABLE_TYPES.keys())}
+    req = request.Request(url, headers=headers)
     with request.urlopen(req) as fh:
         info = fh.info()
         content_type = info.get("content-type", None)

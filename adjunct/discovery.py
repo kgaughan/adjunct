@@ -67,7 +67,7 @@ class LinkExtractor(HTMLParser):
                 chunk = fh.read(2048)
                 if not chunk:
                     break
-                parser.feed(chunk)
+                parser.feed(chunk.decode("UTF-8"))
 
         # Canonicalise the URL paths.
         for link in parser.collected:

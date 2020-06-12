@@ -3,7 +3,8 @@ Test utilities for creating WSGI fixtures for testing HTTP clients.
 """
 
 import contextlib
-import http.client
+from http import client
+import io
 import json
 import multiprocessing
 from wsgiref.simple_server import make_server
@@ -76,27 +77,74 @@ def extract_environment(environ):
     )
 
 
-def json_response(start_response, response, headers=None):
+def _al_contains(al, key):
+    """
+    Treating `al` as an association list (a list of two-tuples), return `True`
+    if `key` is a key value.
+    """
+    return any(k == key for k, _ in al)
+
+
+def response(start_response, code, body="", headers=None):
     if headers is None:
         headers = []
-    serialised = json.dumps(response)
-    start_response(
-        "200 OK",
-        [
-            ("Content-Length", str(len(serialised))),
-            ("Content-Type", "application/json; charset=UTF-8"),
-        ]
-        + headers,
-    )
-    return [serialised]
+    headers.append(("Content-Length", str(len(body))))
+    start_response(f"{code} {client.responses[code]}", headers)
+    return [body]
+
+
+def json_response(start_response, body, headers=None):
+    headers = [("Content-Type", "application/json; charset=UTF-8")]
+    return response(start_response, 200, body=json.dumps(body), headers=headers)
 
 
 def basic_response(start_response, code, body=""):
-    start_response(
-        "%d %s" % (code, http.client.responses[code]),
-        [
-            ("Content-Length", str(len(body))),
-            ("Content-Type", "text/plain; charset=UTF-8"),
-        ],
-    )
-    return [body]
+    headers = [("Content-Type", "text/plain; charset=UTF-8")]
+    return response(start_response, code, body)
+
+
+class FakeSocket:
+    """
+    Just enough of the socket interface implemented to do for testing.
+    """
+
+    def __init__(self, body):
+        super()
+        self._body = io.BytesIO(body)
+
+    def makefile(self, mode, bufsize=None):
+        if mode != "rb":
+            raise client.UnimplementedFileMode()
+        return self._body
+
+
+def make_fake_http_response_msg(code=200, body="", headers=None):
+    if headers is None:
+        headers = []
+    elif isinstance(headers, dict):
+        headers = list(headers.items())
+
+    msg = client.HTTPMessage()
+    msg.set_payload(body)
+    msg.add_header("Content-Length", str(len(body)))
+
+    has_content_type = False
+    for key, value in headers:
+        if key.lower() == "content-type":
+            has_content_type = True
+        if isinstance(value, tuple) and len(value) == 2:
+            value, params = value
+            msg.add_header(key, value, **params)
+        else:
+            msg.add_header(key, value)
+    if not has_content_type:
+        msg.add_header("Content-Type", "application/octet-stream")
+    status = f"HTTP/1.0 {code} {client.responses[code]}\r\n"
+    return status.encode("UTF-8") + msg.as_bytes()
+
+
+def make_fake_http_response(code=200, body="", headers=None):
+    sock = FakeSocket(make_fake_http_response_msg(code, body, headers))
+    response = client.HTTPResponse(sock)
+    response.begin()
+    return response

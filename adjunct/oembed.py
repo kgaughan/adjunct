@@ -4,6 +4,7 @@ An oEmbed_ client library.
 .. _oEmbed: http://oembed.com/
 """
 
+import cgi
 import json
 from urllib import parse, request
 import xml.sax
@@ -61,25 +62,29 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
             self.current_value += content
 
 
+def _build_url(url, max_width, max_height):
+    additional = []
+    for key, value in (("maxwidth", max_width), ("maxheight", max_height)):
+        if value is not None:
+            additional.append((key, value))
+    if len(additional) > 0:
+        url += "&" + parse.urlencode(additional)
+    return url
+
+
 def fetch_oembed_document(url, max_width=None, max_height=None):
     """
     Fetch the oEmbed document for a resource at `url` from the provider. If you
     want to constrain the dimensions of the thumbnail, specify the maximum
     width in `max_width` and the maximum height in `max_height`.
     """
-    # Append on the height and width parameters if needed.
-    additional = {}
-    for key, value in (("maxwidth", max_width), ("maxheight", max_height)):
-        if value is not None:
-            additional[key] = value
-    if len(additional) > 0:
-        url = "%s&%s" % (url, parse.urlencode(additional))
-
     headers = {"Accept": ", ".join(ACCEPTABLE_TYPES.keys())}
-    req = request.Request(url, headers=headers)
+    req = request.Request(_build_url(url, max_width, max_height), headers=headers)
     with request.urlopen(req) as fh:
         info = fh.info()
-        content_type = info.get("content-type", None)
+        content_type, _ = cgi.parse_header(
+            info.get("content-type", "application/octet-stream")
+        )
         if content_type in ACCEPTABLE_TYPES:
             parser = ACCEPTABLE_TYPES[content_type]
             return parser(fh)

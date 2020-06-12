@@ -1,11 +1,13 @@
+COVERAGE:=python3 -m coverage
+
 tests:
 	python3 -m unittest
 
 coverage:
-	coverage run --source adjunct -m unittest
-	coverage report
+	$(COVERAGE) run --source adjunct -m unittest
+	$(COVERAGE) report
 
-report:
-	coverage html
+report: coverage
+	$(COVERAGE) html
 
 .PHONY: tests coverage report

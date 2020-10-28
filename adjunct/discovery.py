@@ -2,6 +2,7 @@
 Discovery via HTML <link> elements.
 """
 
+import cgi
 import contextlib
 from html.parser import HTMLParser
 from urllib import parse, request
@@ -55,7 +56,7 @@ class LinkExtractor(HTMLParser):
         return parse.urljoin(self.base, href)
 
     @classmethod
-    def extract(cls, fh, base="."):
+    def extract(cls, fh, base=".", encoding="UTF-8"):
         """
         Extract the link tags from header of a HTML document to be read from
         the file object, `fh`. The return value is a list of dicts where the
@@ -63,11 +64,10 @@ class LinkExtractor(HTMLParser):
         """
         parser = cls(base)
         with contextlib.closing(parser):
-            while not parser.finished:
-                chunk = fh.read(2048)
-                if not chunk:
+            for chunk in safe_slurp(fh, encoding=encoding):
+                parser.feed(chunk)
+                if parser.finished:
                     break
-                parser.feed(chunk.decode("UTF-8"))
 
         # Canonicalise the URL paths.
         for link in parser.collected:
@@ -75,6 +75,32 @@ class LinkExtractor(HTMLParser):
                 link["href"] = parser.fix_href(link["href"])
 
         return parser.collected
+
+
+def safe_slurp(fh, chunk_size=65536, encoding="UTF-8"):
+    """
+    Safely convert file object, converting it to the given file encoding.
+
+    This handles situations such as UTF-8 characters on chunk boundaries
+    gracefully.
+    """
+    prelude = None
+    while True:
+        chunk = fh.read(chunk_size)
+        if not chunk:
+            break
+        if prelude is not None:
+            chunk = prelude + chunk
+            prelude = None
+        try:
+            decoded = chunk.decode(encoding)
+        except UnicodeDecodeError as exc:
+            # If the error is at the start, there's a genuine issue.
+            if exc.start == 0:
+                raise
+            decoded = chunk[: exc.start].decode()
+            prelude = chunk[exc.start :]
+        yield decoded
 
 
 def fix_attributes(attrs):
@@ -97,6 +123,21 @@ def fetch_links(url, extractor=LinkExtractor):
     """
     Extract the <link> tags from the HTML document at the given URL.
     """
+    links = []
+
     req = request.Request(url, headers={"User-Agent": "adjunct-discovery/1.0"})
     with request.urlopen(req) as fh:
-        return extractor.extract(fh, url)
+        info = fh.info()
+        for name, value in info.items():
+            if name.lower() == "link":
+                href, attrs = cgi.parse_header(value)
+                attrs["href"] = parse.urljoin(url, href)
+                links.append(attrs)
+
+        content_type = info.get("Content-Type", "application/octet-stream")
+        content_type, attrs = cgi.parse_header(content_type)
+        if content_type in ("text/html", "application/xhtml+xml"):
+            encoding = attrs.get("charset", "UTF-8")
+            links += extractor.extract(fh, url, encoding=encoding)
+
+    return links

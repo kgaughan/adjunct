@@ -37,6 +37,17 @@ class SingleValue:
     def __iter__(self):
         return iter([self])
 
+    def flatten(self):
+        for key, value in self.attrs.items():
+            for pair in value._flatten(key):
+                yield pair
+
+    def to_meta(self):
+        return "\n".join(
+            f'<meta property="{html.escape(key)}" content="{html.escape(value)}">'
+            for key, value in self.flatten()
+        )
+
     def _flatten(self, prefix):
         if self.content is not None:
             yield (prefix, self.content)
@@ -103,17 +114,6 @@ class Root(SingleValue):
         for item in self.get_all(prop):
             last = item
         return last
-
-    def flatten(self):
-        for key, value in self.attrs.items():
-            for pair in value._flatten(key):
-                yield pair
-
-    def to_meta(self):
-        return "\n".join(
-            f'<meta property="{html.escape(key)}" content="{html.escape(value)}">'
-            for key, value in self.flatten()
-        )
 
     def __str__(self):
         return self.to_meta()

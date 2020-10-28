@@ -24,6 +24,7 @@ class Extractor(HTMLParser):
         self.finished = False
         self.base = base
         self.collected = []
+        self.properties = []
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
@@ -35,6 +36,8 @@ class Extractor(HTMLParser):
                 self.append(attrs)
             elif tag == "base" and "href" in attrs:
                 self.base = parse.urljoin(self.base, attrs["href"])
+            elif tag == "meta" and "property" in attrs and "content" in attrs:
+                self.properties.append((attrs["property"], attrs["content"]))
 
     def handle_endtag(self, tag):
         if tag.lower() == "head":

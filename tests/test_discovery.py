@@ -1,16 +1,16 @@
 import io
 import unittest
 
-from adjunct.discovery import LinkExtractor
+from adjunct.discovery import Extractor
 
 
-class LinkExtractorTest(unittest.TestCase):
+class ExtractorTest(unittest.TestCase):
     def test_empty(self):
         buf = io.BytesIO(
             b"""<!DOCTYPE html>
 <html></html>"""
         )
-        self.assertListEqual(LinkExtractor.extract(buf), [])
+        self.assertListEqual(Extractor.extract(buf).collected, [])
 
     def test_one_link(self):
         buf = io.BytesIO(
@@ -22,7 +22,7 @@ class LinkExtractorTest(unittest.TestCase):
 </html>"""
         )
         self.assertListEqual(
-            LinkExtractor.extract(buf), [{"href": "bar", "rel": "foo"}],
+            Extractor.extract(buf).collected, [{"href": "bar", "rel": "foo"}],
         )
 
     def test_one_link_with_base(self):
@@ -36,6 +36,6 @@ class LinkExtractorTest(unittest.TestCase):
 </html>"""
         )
         self.assertListEqual(
-            LinkExtractor.extract(buf),
+            Extractor.extract(buf).collected,
             [{"href": "http://example.com/bar", "rel": "foo"}],
         )

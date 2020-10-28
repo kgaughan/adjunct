@@ -23,7 +23,7 @@ GUESSES = {
 
 
 # pylint: disable-msg=R0904
-class FeedExtractor(discovery.LinkExtractor):
+class FeedExtractor(discovery.Extractor):
     """
     Extract any link or anchor elements that look like they might refer to
     feeds.

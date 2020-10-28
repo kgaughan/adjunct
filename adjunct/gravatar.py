@@ -21,7 +21,11 @@ def make_gravatar(email, size=64, default="identicon", rating="pg"):
     For information on the parameters, see:
     https://en.gravatar.com/site/implement/images/
     """
-    params = {"s": str(size), "d": default, "r": rating}
+    params = {
+        "s": str(size),
+        "d": default,
+        "r": rating,
+    }
 
     # Omit the protocol so it'll work cleanly over both HTTP and HTTPS.
     return "//www.gravatar.com/avatar/%s?%s" % (

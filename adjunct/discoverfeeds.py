@@ -89,5 +89,6 @@ def discover_feeds(url):
     Discover any feeds at the given URL.
     """
     return sorted(
-        discovery.fetch_links(url, FeedExtractor), key=lambda feed: ORDER[feed["type"]]
+        discovery.fetch_links(url, FeedExtractor),
+        key=(lambda feed: ORDER[feed["type"]]),
     )

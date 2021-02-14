@@ -5,7 +5,7 @@ Date/time utilities.
 import datetime
 
 
-def date(timestamp, fmt="%Y-%m-%dT%H:%M:%S%z", tz=datetime.timezone.utc):
+def date(dt, fmt="%Y-%m-%dT%H:%M:%S%z", tz=datetime.timezone.utc):
     """
     Formatting of SQLite timestamps.
 
@@ -17,5 +17,14 @@ def date(timestamp, fmt="%Y-%m-%dT%H:%M:%S%z", tz=datetime.timezone.utc):
     .. _ISO 8601: http://en.wikipedia.org/wiki/ISO_8601
     .. _RFC 3339: http://tools.ietf.org/html/rfc3339
     """
-    dt = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    return dt.replace(tzinfo=tz).strftime(fmt)
+    return parse_dt(dt, tz).strftime(fmt)
+
+
+def parse_dt(dt, tz=datetime.timezone.utc):
+    """
+    Parse an SQLite datetime, treating it as UTC.
+
+    If you want it treated naively, pass `None` as the timezone.
+    """
+    parsed = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    return parsed if tz is None else parsed.replace(tzinfo=tz)

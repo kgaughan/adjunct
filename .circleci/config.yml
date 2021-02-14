@@ -39,7 +39,10 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            python3 -m unittest
+            make report
+
+      - store_artifacts:
+          path: coverage_html
 
 workflows:
   build:

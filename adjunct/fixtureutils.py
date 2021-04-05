@@ -100,7 +100,7 @@ def json_response(start_response, body, headers=None):
 
 def basic_response(start_response, code, body=""):
     headers = [("Content-Type", "text/plain; charset=UTF-8")]
-    return response(start_response, code, body)
+    return response(start_response, code, body, headers=headers)
 
 
 class FakeSocket:
@@ -112,7 +112,7 @@ class FakeSocket:
         super()
         self._body = io.BytesIO(body)
 
-    def makefile(self, mode, bufsize=None):
+    def makefile(self, mode, bufsize=None):  # pylint: disable=unused-argument
         if mode != "rb":
             raise client.UnimplementedFileMode()
         return self._body
@@ -145,6 +145,6 @@ def make_fake_http_response_msg(code=200, body="", headers=None):
 
 def make_fake_http_response(code=200, body="", headers=None):
     sock = FakeSocket(make_fake_http_response_msg(code, body, headers))
-    response = client.HTTPResponse(sock)
-    response.begin()
-    return response
+    res = client.HTTPResponse(sock)
+    res.begin()
+    return res

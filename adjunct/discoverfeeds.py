@@ -5,7 +5,6 @@ Feed discovery.
 
 from . import discovery
 
-
 __all__ = ["discover_feeds"]
 
 
@@ -22,7 +21,6 @@ GUESSES = {
 }
 
 
-# pylint: disable-msg=R0904
 class FeedExtractor(discovery.Extractor):
     """
     Extract any link or anchor elements that look like they might refer to
@@ -60,8 +58,6 @@ class FeedExtractor(discovery.Extractor):
             self.anchor = None
         else:
             super().handle_endtag(tag)
-            # Force scanning of the whole document.
-            self.finished = False
 
     def guess_feed_type(self, href):
         """

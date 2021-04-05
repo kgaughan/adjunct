@@ -7,9 +7,9 @@ from unittest import mock
 from adjunct.fixtureutils import FakeSocket, make_fake_http_response
 from adjunct.oembed import (
     _build_url,
-    parse_xml_oembed_response,
-    find_first_oembed_link,
     fetch_oembed_document,
+    find_first_oembed_link,
+    parse_xml_oembed_response,
 )
 
 

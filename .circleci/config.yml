@@ -17,7 +17,6 @@ jobs:
 
       - restore_cache:
           keys:
-            - pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "adjunct/__init__.py" }}
             - pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}
             - pip-{{ .Branch }}-
             - pip-
@@ -27,19 +26,24 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install flit
-            flit install --symlink
+            pip install poetry
 
       - save_cache:
           paths:
             - venv
-          key: pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "adjunct/__init__.py" }}
+          key: pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}
 
       - run:
           name: run tests
           command: |
             . venv/bin/activate
             make report
+
+      - run:
+          name: run linters
+          command: |
+            . venv/bin/activate
+            make lint
 
       - store_artifacts:
           path: coverage_html

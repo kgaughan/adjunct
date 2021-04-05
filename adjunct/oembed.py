@@ -13,11 +13,9 @@ import xml.sax.handler
 
 from . import discovery
 
-
 __all__ = ["get_oembed"]
 
 
-# pylint: disable-msg=C0103
 class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     """
     Pulls the fields out of an XML oEmbed document.
@@ -155,3 +153,14 @@ def convert_image_to_rich(data):
     )
     del data["url"]
     return data
+
+
+def fetch_data(url):
+    if url:
+        data = get_oembed(url)
+        if data:
+            if data["type"] == "image":
+                return convert_image_to_rich(data)
+            if data["type"] == "video":
+                return data
+    return None

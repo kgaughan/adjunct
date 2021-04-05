@@ -3,7 +3,6 @@ import unittest
 
 from adjunct import discovery, ogp
 
-
 HERE = os.path.dirname(__file__)
 
 
@@ -38,7 +37,8 @@ class OPGTest(unittest.TestCase):
         attrs = dict(videos[0].flatten())
         self.assertEqual(videos[0].content, attrs["secure_url"])
         self.assertSetEqual(
-            set(attrs.keys()), {"secure_url", "type", "width", "height"},
+            set(attrs.keys()),
+            {"secure_url", "type", "width", "height"},
         )
 
     def test_meta(self):

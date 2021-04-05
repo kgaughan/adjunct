@@ -1,10 +1,9 @@
 import unittest
 
-from adjunct.netstrings import parse, MalformedNetstring
+from adjunct.netstrings import MalformedNetstring, parse
 
 
 class NetstringReaderTest(unittest.TestCase):
-
     def test_empty(self):
         self.assertListEqual(parse(b""), [])
 

@@ -4,12 +4,10 @@ import unittest
 
 from adjunct import opml
 
-
 HERE = os.path.dirname(__file__)
 
 
 class OPMLTest(unittest.TestCase):
-
     def test_parse_file(self):
         with open(os.path.join(HERE, "sample.opml")) as fh:
             doc = opml.parse(fh)

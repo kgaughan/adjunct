@@ -9,7 +9,6 @@ import email.utils
 import xml.sax
 import xml.sax.handler
 
-
 __all__ = [
     "Outline",
     "OpmlError",
@@ -92,21 +91,21 @@ class _Handler(xml.sax.handler.ContentHandler):
         """
         return None if len(self.tag_stack) == 0 else self.tag_stack[-1]
 
-    def startDocument(self):  # pylint: disable=C0103
+    def startDocument(self):
         self.root = Outline(root=True)
         self.outline_stack = [self.root]
         self.tag_stack = []
 
-    def endDocument(self):  # pylint: disable=C0103
+    def endDocument(self):
         self.current = None
 
-    def startElement(self, tag, attrs):  # pylint: disable=C0103
+    def startElement(self, name, attrs):
         expected = self.nesting[self._get_parent_tag()]
-        if tag not in expected:
-            raise OpmlError("Got <%s>, expected <%s>" % (tag, "|".join(expected)))
+        if name not in expected:
+            raise OpmlError("Got <%s>, expected <%s>" % (name, "|".join(expected)))
 
-        self.tag_stack.append(tag)
-        if tag == "outline":
+        self.tag_stack.append(name)
+        if name == "outline":
             outline = Outline()
             self.outline_stack[-1].append(outline)
             self.outline_stack.append(outline)
@@ -114,9 +113,9 @@ class _Handler(xml.sax.handler.ContentHandler):
             for attr in ("isComment", "isBreakpoint"):
                 outline.attrs.setdefault(attr, "false")
 
-    def endElement(self, tag):  # pylint: disable=C0103
+    def endElement(self, name):
         self.tag_stack.pop()
-        if tag == "outline":
+        if name == "outline":
             self.outline_stack.pop()
 
     def characters(self, content):

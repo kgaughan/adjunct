@@ -6,7 +6,6 @@ A reCAPTCHA_ client library.
 
 from urllib import parse, request
 
-
 __all__ = ["make_markup", "check"]
 
 

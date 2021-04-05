@@ -5,7 +5,6 @@ from adjunct.xmlutils import XMLBuilder
 
 
 class XMLBuilderTest(unittest.TestCase):
-
     def test_basics(self):
         xml = XMLBuilder()
         self.assertIsNotNone(xml.buffer)

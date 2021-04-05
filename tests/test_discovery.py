@@ -22,7 +22,8 @@ class ExtractorTest(unittest.TestCase):
 </html>"""
         )
         self.assertListEqual(
-            Extractor.extract(buf).collected, [{"href": "bar", "rel": "foo"}],
+            Extractor.extract(buf).collected,
+            [{"href": "bar", "rel": "foo"}],
         )
 
     def test_one_link_with_base(self):

@@ -10,6 +10,9 @@ jobs:
     docker:
       - image: circleci/python:<< parameters.version >>
 
+    environment:
+      CRYPTOGRAPHY_DONT_BUILD_RUST: "1"
+
     working_directory: ~/repo
 
     steps:
@@ -17,7 +20,6 @@ jobs:
 
       - restore_cache:
           keys:
-            - pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "adjunct/__init__.py" }}
             - pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}
             - pip-{{ .Branch }}-
             - pip-
@@ -27,19 +29,25 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install flit
-            flit install --symlink
+            pip install poetry
+            poetry update --no-ansi -n
 
       - save_cache:
           paths:
             - venv
-          key: pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}-{{ checksum "adjunct/__init__.py" }}
+          key: pip-{{ .Branch }}-{{ checksum "pyproject.toml" }}
 
       - run:
           name: run tests
           command: |
             . venv/bin/activate
             make report
+
+      - run:
+          name: run linters
+          command: |
+            . venv/bin/activate
+            make lint
 
       - store_artifacts:
           path: coverage_html
@@ -50,4 +58,4 @@ workflows:
       - build:
           matrix:
             parameters:
-              version: ["3.6", "3.7", "3.8", "3.9"]
+              version: ["3.7", "3.8", "3.9"]

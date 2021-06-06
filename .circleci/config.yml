@@ -41,7 +41,10 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            make report
+            make tests
+
+      - store_test_results:
+          path: junit.xml
 
       - run:
           name: run linters

@@ -6,14 +6,7 @@ build:
 	poetry build --format wheel
 
 tests: develop
-	poetry run python3 -m unittest
-
-coverage: develop
-	poetry run coverage run --source adjunct -m unittest
-	poetry run coverage report
-
-report: coverage
-	poetry run coverage html
+	poetry run pytest --junitxml=junit.xml
 
 tidy: develop
 	poetry run black adjunct tests
@@ -26,4 +19,4 @@ lint: develop
 	poetry run flake8 --max-line-length=105 --ignore=E203 --per-file-ignores="adjunct/oembed.py:N802 adjunct/opml.py:N802" adjunct
 	poetry run pylint adjunct
 
-.PHONY: build develop tests coverage report tidy lint
+.PHONY: build develop tests tidy lint

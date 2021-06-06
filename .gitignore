@@ -20,3 +20,4 @@ __pycache__
 *.bak
 /coverage_html_report/
 /*.lock
+/junit.xml

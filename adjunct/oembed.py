@@ -11,11 +11,10 @@ from urllib import parse, request
 import xml.sax
 import xml.sax.handler
 
-from . import discovery
-
 __all__ = ["get_oembed"]
 
 
+# pylint: disable-msg=C0103
 class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     """
     Pulls the fields out of an XML oEmbed document.
@@ -130,14 +129,19 @@ def find_first_oembed_link(links):
     return None
 
 
-def get_oembed(url, max_width=None, max_height=None):
+def get_oembed(links, max_width=None, max_height=None):
     """
     Given a URL, fetch its associated oEmbed information.
     """
-    oembed_url = find_first_oembed_link(discovery.fetch_links(url))
-    if oembed_url is None:
-        return None
-    return fetch_oembed_document(oembed_url, max_width, max_height)
+    oembed_url = find_first_oembed_link(links)
+    if oembed_url:
+        doc = fetch_oembed_document(oembed_url, max_width, max_height)
+        if doc:
+            if doc["type"] == "image":
+                return convert_image_to_rich(doc)
+            if doc["type"] == "video":
+                return doc
+    return None
 
 
 def convert_image_to_rich(data):
@@ -153,14 +157,3 @@ def convert_image_to_rich(data):
     )
     del data["url"]
     return data
-
-
-def fetch_data(url):
-    if url:
-        data = get_oembed(url)
-        if data:
-            if data["type"] == "image":
-                return convert_image_to_rich(data)
-            if data["type"] == "video":
-                return data
-    return None

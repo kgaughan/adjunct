@@ -6,7 +6,7 @@ from adjunct import discovery, ogp
 HERE = os.path.dirname(__file__)
 
 
-class OPGTest(unittest.TestCase):
+class TestOPG(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(HERE, "ogp.html"), "rb") as fh:
             self.properties = discovery.Extractor.extract(fh).properties
@@ -59,4 +59,41 @@ class OPGTest(unittest.TestCase):
 <meta property="twitter:player:height" content="467">
 <meta property="twitter:player:width" content="350">
 """
+        self.assertEqual(meta.strip(), expected.strip())
+
+
+class TestMultiValue(unittest.TestCase):
+    def setUp(self):
+        properties = [
+            ("og:title", "Testing"),
+            ("og:title", "Testing Again"),
+            ("og:video", "http://example.com/video1.mpg"),
+            ("og:video:height", "52"),
+            ("og:video:width", "25"),
+            ("og:video", "http://example.com/video2.mpg"),
+            ("og:video:height", "64"),
+            ("og:video:width", "46"),
+        ]
+        self.root = ogp.Root.from_list(properties)
+
+    def test_multivalue(self):
+        items = list(self.root.get_all("og:title"))
+        self.assertEqual(len(items), 2)
+        self.assertListEqual(
+            [str(item) for item in items],
+            ["Testing", "Testing Again"],
+        )
+
+    def test_flatten(self):
+        meta = str(self.root)
+        expected = """
+<meta property="og:title" content="Testing">
+<meta property="og:title" content="Testing Again">
+<meta property="og:video" content="http://example.com/video1.mpg">
+<meta property="og:video:height" content="52">
+<meta property="og:video:width" content="25">
+<meta property="og:video" content="http://example.com/video2.mpg">
+<meta property="og:video:height" content="64">
+<meta property="og:video:width" content="46">
+        """
         self.assertEqual(meta.strip(), expected.strip())

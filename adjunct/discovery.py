@@ -128,6 +128,9 @@ def fetch_links(url, extractor=Extractor):
         for name, value in info.items():
             if name.lower() == "link":
                 href, attrs = cgi.parse_header(value)
+                if not href.startswith("<") or not href.endswith(">"):
+                    continue
+                href = href[1:-1]
                 attrs["href"] = parse.urljoin(url, href)
                 links.append(attrs)
 

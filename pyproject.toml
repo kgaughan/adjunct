@@ -45,7 +45,7 @@ disable = "R,C0114,C0115,C0116,raise-missing-from"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=adjunct --junitxml=junit.xml --cov-report html"
+addopts = "-ra -q --cov=adjunct --junitxml=tests/results.xml --cov-report html"
 testpaths = [
     "tests",
 ]

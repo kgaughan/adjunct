@@ -6,7 +6,7 @@ build:
 	poetry build --format wheel
 
 tests: develop
-	poetry run pytest --junitxml=junit.xml
+	poetry run pytest
 
 tidy: develop
 	poetry run black adjunct tests

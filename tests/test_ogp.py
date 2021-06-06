@@ -10,9 +10,7 @@ class OPGTest(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(HERE, "ogp.html"), "rb") as fh:
             self.properties = discovery.Extractor.extract(fh).properties
-        self.root = ogp.Root()
-        for prop, content in self.properties:
-            self.root.insert(prop, content)
+        self.root = ogp.Root.from_list(self.properties)
 
     def test_size(self):
         self.assertEqual(len(self.properties), 16)

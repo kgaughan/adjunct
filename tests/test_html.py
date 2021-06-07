@@ -4,38 +4,31 @@ import unittest
 from adjunct import html
 
 
-def parse(fixture):
-    parser = html.Parser()
-    parser.feed(fixture)
-    parser.close()
-    return parser.root
-
-
 class TestParser(unittest.TestCase):
     def test_empty(self):
-        root = parse("")
+        root = html.parse("")
         self.assertEqual(len(root), 0)
         self.assertDictEqual(root.attrs, {})
 
     def test_simple(self):
-        root = parse("<a>")
+        root = html.parse("<a>")
         self.assertEqual(len(root), 1)
         self.assertEqual(root[0].tag, "a")
 
     def test_simple_nesting(self):
-        root = parse("<b><a>")
+        root = html.parse("<b><a>")
         self.assertEqual(len(root), 1)
         self.assertEqual(root[0].tag, "b")
         self.assertEqual(root[0][0].tag, "a")
 
     def test_self_closing(self):
-        root = parse("<br><hr>")
+        root = html.parse("<br><hr>")
         self.assertEqual(len(root), 2)
         self.assertEqual(root[0].tag, "br")
         self.assertEqual(root[1].tag, "hr")
 
     def test_text_embedding(self):
-        root = parse("a<br>b<hr>c")
+        root = html.parse("a<br>b<hr>c")
         self.assertEqual(len(root), 5)
         self.assertIsInstance(root[0], str)
         self.assertEqual(root[0], "a")
@@ -48,12 +41,32 @@ class TestParser(unittest.TestCase):
         self.assertIsInstance(root[4], str)
         self.assertEqual(root[4], "c")
 
+    def test_startend(self):
+        root = html.parse("<br/>")
+        self.assertEqual(len(root), 1)
+        with io.StringIO() as fh:
+            root.serialize(fh)
+            self.assertEqual(fh.getvalue(), "<br>")
+
+    def test_closing_extra(self):
+        root = html.parse("<br></br>")
+        self.assertEqual(len(root), 1)
+        with io.StringIO() as fh:
+            root.serialize(fh)
+            self.assertEqual(fh.getvalue(), "<br>")
+
+    def test_unbalanced(self):
+        root = html.parse("<p><div></p></div>")
+        with io.StringIO() as fh:
+            root.serialize(fh)
+            self.assertEqual(fh.getvalue(), "<p><div></div></p>")
+
 
 class TestElement(unittest.TestCase):
     def assert_html(self, a, b):
-        with io.StringIO() as fo:
-            parse(a).serialize(fo)
-            self.assertEqual(fo.getvalue(), b)
+        with io.StringIO() as fh:
+            html.parse(a).serialize(fh)
+            self.assertEqual(fh.getvalue(), b)
 
     def test_simple(self):
         self.assert_html("", "")

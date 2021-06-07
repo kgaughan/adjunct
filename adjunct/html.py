@@ -1,14 +1,20 @@
 """
-Futz with OEmbed data to fix it up.
+HTML parsing and serialisation support.
 """
 
 import dataclasses
-import html
+from html import escape
 from html.parser import HTMLParser
 import io
 import logging
 
 logger = logging.getLogger(__name__)
+
+__all__ = [
+    "Element",
+    "escape",
+    "Parser",
+]
 
 # See: https://html.spec.whatwg.org/multipage/syntax.html#void-elements
 SELF_CLOSING = {
@@ -29,6 +35,24 @@ SELF_CLOSING = {
     "track",
     "wbr",
 }
+
+
+def make(tag, attrs, close=None):
+    """
+    Helper for quickly constructing a HTML tag.
+    """
+    attr_list = []
+    for name, value in attrs.items():
+        if value is None:
+            attr_list.append(f" {name}")
+        else:
+            attr_list.append(f' {name}="{escape(value, quote=True)}"')
+    result = f"<{tag}{''.join(attr_list)}>"
+    if close is None:
+        close = tag not in SELF_CLOSING
+    if close:
+        result += f"</{tag}>"
+    return result
 
 
 @dataclasses.dataclass
@@ -54,11 +78,11 @@ class Element:
             for key, value in self.attrs.items():
                 dest.write(" " + key)
                 if value is not None:
-                    dest.write('="' + html.escape(value, quote=True) + '"')
+                    dest.write('="' + escape(value, quote=True) + '"')
             dest.write(">")
         for child in self.children:
             if isinstance(child, str):
-                dest.write(html.escape(child, quote=False))
+                dest.write(escape(child, quote=False))
             elif isinstance(child, Element):
                 child.serialize(dest)
         if self.tag is not None and self.tag not in SELF_CLOSING:
@@ -88,7 +112,7 @@ class Parser(HTMLParser):
             self.stack.append(elem)
 
     def handle_startendtag(self, tag, attrs):
-        elem = Element(tag=tag, attrs=attrs)
+        elem = Element(tag=tag, attrs=dict(attrs))
         self.top.children.append(elem)
 
     def handle_endtag(self, tag):
@@ -105,4 +129,11 @@ class Parser(HTMLParser):
     def error(self, message):
         # This method is undocumented in HTMLParser, but pylint is moaning
         # about it, so...
-        logger.error("Error in Parser: %s", message)
+        logger.error("Error in Parser: %s", message)  # pragma: no cover
+
+
+def parse(markup) -> Element:
+    parser = Parser()
+    parser.feed(markup)
+    parser.close()
+    return parser.root

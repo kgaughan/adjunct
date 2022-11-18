@@ -38,10 +38,11 @@ def fixture(app, returns_app=False):
     proc = multiprocessing.Process(target=start_server, args=(app, queue, returns_app))
     proc.start()
     if proc.exitcode is not None:  # pragma: no cover
-        raise RuntimeError("%s didn't start" % str(app))
+        raise RuntimeError(f"{app} didn't start")
 
     try:
-        yield "http://%s:%s/" % queue.get(timeout=5)
+        hostname, port = queue.get(timeout=5)
+        yield f"http://{hostname}:{port}/"
     finally:
         if proc.exitcode is None:
             proc.terminate()

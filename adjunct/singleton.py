@@ -20,7 +20,7 @@ def mutex(filename):
             with mutex(__file__):
                 main()
     """
-    with open(filename, "r") as fh:
+    with open(filename, "rb") as fh:
         try:
             try:
                 fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)

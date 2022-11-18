@@ -41,9 +41,9 @@ class Outline(list):
         if self.root:
             args.append("root=True")
         if len(self.attrs) > 0:
-            args.append("attrs=%r" % self.attrs)
+            args.append(f"attrs={self.attrs!r}")
         if len(self) > 0:
-            args.append("items=%r" % list(self))
+            args.append(f"items={list(self)!r}")
         return f'Outline({", ".join(args)})'
 
 

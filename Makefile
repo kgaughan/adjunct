@@ -5,7 +5,7 @@ build:
 	find . -name \*.orig -delete
 	poetry build --format wheel
 
-tests: develop
+test: develop
 	poetry run pytest
 
 tidy: develop
@@ -19,4 +19,4 @@ lint: develop
 	poetry run flake8 --max-line-length=105 --ignore=E203 --per-file-ignores="adjunct/oembed.py:N802 adjunct/opml.py:N802" adjunct
 	poetry run pylint adjunct
 
-.PHONY: build develop tests tidy lint
+.PHONY: build develop test tidy lint

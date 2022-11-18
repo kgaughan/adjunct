@@ -11,7 +11,7 @@ authors = ["Keith Gaughan <keith@gaughan.ie>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7.2,<4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

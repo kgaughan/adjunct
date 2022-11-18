@@ -20,12 +20,12 @@ def mutex(filename):
             with mutex(__file__):
                 main()
     """
-    with open(filename, "r") as fh:
+    with open(filename, "rb") as fh:
         try:
             try:
                 fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
-                raise MutexException("Failed to lock {}".format(filename))
+                raise MutexException(f"Failed to lock {filename}")
             yield
         finally:
             fcntl.flock(fh, fcntl.LOCK_UN)

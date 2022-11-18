@@ -44,7 +44,7 @@ class Outline(list):
             args.append("attrs=%r" % self.attrs)
         if len(self) > 0:
             args.append("items=%r" % list(self))
-        return "Outline(%s)" % ", ".join(args)
+        return f'Outline({", ".join(args)})'
 
 
 class _Handler(xml.sax.handler.ContentHandler):
@@ -102,7 +102,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     def startElement(self, name, attrs):
         expected = self.nesting[self._get_parent_tag()]
         if name not in expected:
-            raise OpmlError("Got <%s>, expected <%s>" % (name, "|".join(expected)))
+            raise OpmlError(f'Got <{name}>, expected <{"|".join(expected)}>')
 
         self.tag_stack.append(name)
         if name == "outline":

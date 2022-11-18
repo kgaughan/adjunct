@@ -28,7 +28,4 @@ def make_gravatar(email, size=64, default="identicon", rating="pg"):
     }
 
     # Omit the protocol so it'll work cleanly over both HTTP and HTTPS.
-    return "//www.gravatar.com/avatar/%s?%s" % (
-        hashlib.md5(email.strip().lower()).hexdigest(),
-        parse.urlencode(params),
-    )
+    return f"//www.gravatar.com/avatar/{hashlib.md5(email.strip().lower()).hexdigest()}?{parse.urlencode(params)}"

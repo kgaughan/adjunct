@@ -50,6 +50,4 @@ def check(private_key, remote_ip, challenge, response):
     }
     with request.urlopen(VERIFY_URL, parse.urlencode(params)) as fh:
         response = fh.read().splitlines()
-        if response[0] == "false":
-            return (False, response[1])
-        return (True, "")
+        return (False, response[1]) if response[0] == "false" else (True, "")

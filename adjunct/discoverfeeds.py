@@ -3,6 +3,7 @@ Feed discovery.
 """
 
 
+
 from . import discovery
 
 __all__ = ["discover_feeds"]
@@ -12,7 +13,7 @@ __all__ = ["discover_feeds"]
 ACCEPTABLE = ["application/atom+xml", "application/rdf+xml", "application/rss+xml"]
 
 # Used when ordering feeds.
-ORDER = dict((mimetype, i_type) for i_type, mimetype in enumerate(ACCEPTABLE))
+ORDER = {mimetype: i_type for i_type, mimetype in enumerate(ACCEPTABLE)}
 
 GUESSES = {
     "application/rss+xml": (".rss", "rss.xml", "/rss", "/rss/", "/feed/"),
@@ -66,18 +67,26 @@ class FeedExtractor(discovery.Extractor):
         # Reasonable assumption: we're dealing with <a> elements, and by this
         # time, we should've encountered any <base> elements we care about.
         href = self.fix_href(href)
-        for mimetype, endings in GUESSES.items():
-            if href.lower().endswith(endings):
-                return mimetype
-        return None
+        return next(
+            (
+                mimetype
+                for mimetype, endings in GUESSES.items()
+                if href.lower().endswith(endings)
+            ),
+            None,
+        )
 
     def append(self, attrs):
-        if attrs["rel"] in ("alternate", "feed"):
-            if "type" in attrs and attrs["type"].lower() in ACCEPTABLE:
-                if "href" in attrs and attrs["href"] not in self.added:
-                    del attrs["rel"]
-                    super().append(attrs)
-                    self.added.add(attrs["href"])
+        if (
+            attrs["rel"] in ("alternate", "feed")
+            and "type" in attrs
+            and attrs["type"].lower() in ACCEPTABLE
+            and "href" in attrs
+            and attrs["href"] not in self.added
+        ):
+            del attrs["rel"]
+            super().append(attrs)
+            self.added.add(attrs["href"])
 
 
 def discover_feeds(url):

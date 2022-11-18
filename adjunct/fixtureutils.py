@@ -70,11 +70,11 @@ def extract_environment(environ):
         "QUERY_STRING",
         "REQUEST_METHOD",
     ]
-    return dict(
-        (key, value)
+    return {
+        key: value
         for key, value in environ.items()
         if key in non_http or key.startswith("HTTP_")
-    )
+    }
 
 
 def _al_contains(al, key):

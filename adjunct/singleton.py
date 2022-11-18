@@ -25,7 +25,7 @@ def mutex(filename):
             try:
                 fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
-                raise MutexException("Failed to lock {}".format(filename))
+                raise MutexException(f"Failed to lock {filename}")
             yield
         finally:
             fcntl.flock(fh, fcntl.LOCK_UN)

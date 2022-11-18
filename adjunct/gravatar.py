@@ -11,7 +11,7 @@ def make_gravatar_img(email, size=64, default="identicon", rating="pg"):
     Generate a Gravatar <img> tag for the given email address.
     """
     url = make_gravatar(email, size, default, rating)
-    return '<img src="%s" width="%d" height="%d" alt="">' % (url, size, size)
+    return f'<img src="{url}" width="{size}" height="{size}" alt="">'
 
 
 def make_gravatar(email, size=64, default="identicon", rating="pg"):
@@ -28,4 +28,5 @@ def make_gravatar(email, size=64, default="identicon", rating="pg"):
     }
 
     # Omit the protocol so it'll work cleanly over both HTTP and HTTPS.
-    return f"//www.gravatar.com/avatar/{hashlib.md5(email.strip().lower()).hexdigest()}?{parse.urlencode(params)}"
+    digest = hashlib.md5(email.strip().lower()).hexdigest()
+    return f"//www.gravatar.com/avatar/{digest}?{parse.urlencode(params)}"

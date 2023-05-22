@@ -5,15 +5,16 @@ Simple netstring_ reader implemented as a generator.
 """
 
 import io
+import typing as t
 
 
-class MalformedNetstring(Exception):
+class MalformedNetstringError(Exception):
     """
     Raised when the netstring reader hits a parser error in the stream.
     """
 
 
-def parse(ns):
+def parse(ns: bytes) -> t.Sequence[bytes]:
     """
     Parse a bytestring of netstrings.
     """
@@ -21,7 +22,7 @@ def parse(ns):
         return list(netstring_reader(fh))
 
 
-def netstring_reader(fd):
+def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:
     """
     Reads a sequence of netstrings from the given file object.
     """
@@ -36,24 +37,24 @@ def netstring_reader(fd):
                 break
             n += 1
             if n > 10:
-                raise MalformedNetstring("Length too long")
+                raise MalformedNetstringError("Length too long")
             if ch == b"0" and buffered == b"":
                 if fd.read(1) != b":":
-                    raise MalformedNetstring("Disallowed leading zero")
+                    raise MalformedNetstringError("Disallowed leading zero")
                 buffered = ch
                 break
             buffered += ch
         try:
             size = int(buffered.decode(), 10)
         except ValueError:
-            raise MalformedNetstring("Bad length")
+            raise MalformedNetstringError("Bad length")
         payload = b""
         while size > 0:
             buffered = fd.read(size)
             if buffered == b"":
-                raise MalformedNetstring("Connection closed too early")
+                raise MalformedNetstringError("Connection closed too early")
             payload += buffered
             size -= len(buffered)
         if fd.read(1) != b",":
-            raise MalformedNetstring("Missing trailing comma")
+            raise MalformedNetstringError("Missing trailing comma")
         yield payload

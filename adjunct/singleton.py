@@ -2,7 +2,7 @@ import contextlib
 import fcntl
 
 
-class MutexException(Exception):
+class MutexError(Exception):
     """
     Failed to lock a file.
     """
@@ -25,7 +25,7 @@ def mutex(filename):
             try:
                 fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
-                raise MutexException(f"Failed to lock {filename}")
+                raise MutexError(f"Failed to lock {filename}")
             yield
         finally:
             fcntl.flock(fh, fcntl.LOCK_UN)

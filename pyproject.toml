@@ -48,7 +48,7 @@ check = [
 	"black --check --diff .",
 	"isort --check-only --diff .",
 	"pylint adjunct",
-	# "mypy .",
+	"mypy .",
 ]
 fmt = [
 	"isort .",

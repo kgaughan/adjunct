@@ -1,28 +1,59 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[project]
 name = "adjunct"
-version = "0.1.1"
 description = "A collection of miscellaneous modules"
-repository = "https://github.com/kgaughan/adjunct"
-authors = ["Keith Gaughan <keith@gaughan.ie>"]
 license = "MIT"
+authors = [
+	{name = "Keith Gaughan", email = "keith@gaughan.ie"},
+]
+requires-python = ">=3.7"
+readme = "README.rst"
+dynamic = ["version"]
 
-[tool.poetry.dependencies]
-python = "^3.8"
+[project.urls]
+Source = "https://github.com/kgaughan/adjunct"
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-coverage = "^5.5"
-flake8 = "^3.9.2"
-flake8-bugbear = "^21.11.29"
-isort = "^5.10.1"
-pep8-naming = "^0.11.1"
-pylint = "^2.15.5"
-pytest = "^6.2.4"
-pytest-cov = "^2.12.1"
+[tool.hatch.version]
+path = "adjunct/__init__.py"
+
+[tool.hatch.envs.test]
+dependencies = [
+	"pytest>=6.2.4",
+	"pytest-cov>=2.12.1",
+]
+
+[tool.hatch.envs.test.scripts]
+unit = [
+	"python -m unittest discover -bf tests",
+]
+
+[tool.hatch.envs.style]
+dependencies = [
+	"black~=22.12.0",
+	"coverage~=5.5",
+	"flake8~=5.0.4",
+	"flake8-bugbear~=22.12.6",
+	"isort~=5.11.4",
+	"pep8-naming~=0.13.3",
+	"pylint~=2.15.9",
+	"mypy~=0.991",
+]
+
+[tool.hatch.envs.style.scripts]
+check = [
+	"flake8 --max-line-length=120 --ignore=E203,W503 --per-file-ignores='adjunct/oembed.py:N802 adjunct/opml.py:N802' .",
+	"black --check --diff .",
+	"isort --check-only --diff .",
+	"pylint adjunct",
+	"mypy .",
+]
+fmt = [
+	"isort .",
+	"black .",
+]
 
 [tool.isort]
 profile = "black"
@@ -33,7 +64,7 @@ order_by_type = false
 [tool.pylint.BASIC]
 # Good variable names which should always be accepted, separated by a comma
 good-names = "n,i,j,k,_,fh,fd,fn,ip,cb,ts,ch,dt,tz,db,md,al,ns,s"
-max-line-length = "105"
+max-line-length = "120"
 exclude-protected = "_flatten"
 # There something broken with the import checks with this module. I think it's
 # because it contains a wildcard imporot from a C module.
@@ -52,3 +83,6 @@ testpaths = [
 junit_suite_name = "adjunct"
 junit_logging = "out-err"
 junit_family = "xunit2"
+
+[tool.mypy]
+ignore_missing_imports = true

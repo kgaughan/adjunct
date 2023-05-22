@@ -6,6 +6,11 @@ from adjunct import discovery, ogp
 HERE = os.path.dirname(__file__)
 
 
+def load_fixture(name: str) -> str:
+    with open(os.path.join(HERE, name), "r") as fh:
+        return fh.read().strip()
+
+
 class TestOPG(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(HERE, "ogp.html"), "rb") as fh:
@@ -41,25 +46,8 @@ class TestOPG(unittest.TestCase):
 
     def test_meta(self):
         meta = str(self.root)
-        expected = """
-<meta property="og:title" content="Ocean Swell, by Minotaur Shock">
-<meta property="og:type" content="song">
-<meta property="og:site_name" content="Minotaur Shock">
-<meta property="og:description" content="from the album Orchard">
-<meta property="og:image" content="https://f4.bcbits.com/img/a3081644212_5.jpg">
-<meta property="og:url" content="https://minotaurshock.bandcamp.com/track/ocean-swell">
-<meta property="og:video" content="https://bandcamp.com/EmbeddedPlayer/v=2/track=1335882601/size=large/tracklist=false/artwork=small/">
-<meta property="og:video:secure_url" content="https://bandcamp.com/EmbeddedPlayer/v=2/track=1335882601/size=large/tracklist=false/artwork=small/">
-<meta property="og:video:type" content="text/html">
-<meta property="og:video:height" content="120">
-<meta property="og:video:width" content="400">
-<meta property="twitter:site" content="@bandcamp">
-<meta property="twitter:card" content="player">
-<meta property="twitter:player" content="https://bandcamp.com/EmbeddedPlayer/v=2/track=1335882601/size=large/linkcol=0084B4/notracklist=true/twittercard=true/">
-<meta property="twitter:player:height" content="467">
-<meta property="twitter:player:width" content="350">
-"""
-        self.assertEqual(meta.strip(), expected.strip())
+        expected = load_fixture("ogp-minotaur-shock.html")
+        self.assertEqual(meta.strip(), expected)
 
 
 class TestMultiValue(unittest.TestCase):
@@ -86,14 +74,5 @@ class TestMultiValue(unittest.TestCase):
 
     def test_flatten(self):
         meta = str(self.root)
-        expected = """
-<meta property="og:title" content="Testing">
-<meta property="og:title" content="Testing Again">
-<meta property="og:video" content="http://example.com/video1.mpg">
-<meta property="og:video:height" content="52">
-<meta property="og:video:width" content="25">
-<meta property="og:video" content="http://example.com/video2.mpg">
-<meta property="og:video:height" content="64">
-<meta property="og:video:width" content="46">
-        """
-        self.assertEqual(meta.strip(), expected.strip())
+        expected = load_fixture("ogp-flatten.html")
+        self.assertEqual(meta.strip(), expected)

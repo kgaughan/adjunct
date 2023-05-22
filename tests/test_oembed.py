@@ -1,10 +1,9 @@
-from http import client
 import io
 import json
 import unittest
 from unittest import mock
 
-from adjunct.fixtureutils import FakeSocket, make_fake_http_response
+from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
     fetch_oembed_document,

@@ -21,7 +21,7 @@ path = "adjunct/__init__.py"
 
 [tool.hatch.envs.test]
 dependencies = [
-	"pytest>=6.2.4",
+	"pytest>=7.2.0",
 	"pytest-cov>=2.12.1",
 ]
 

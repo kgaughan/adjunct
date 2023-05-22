@@ -27,7 +27,7 @@ dependencies = [
 
 [tool.hatch.envs.test.scripts]
 unit = [
-	"python -m unittest discover -bf tests",
+	"pytest",
 ]
 
 [tool.hatch.envs.style]

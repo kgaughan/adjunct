@@ -29,10 +29,10 @@ class Property:
         lines = [
             f'<meta property="og:{html.escape(self.type_)}" content="{html.escape(self.value)}">',
         ]
-        for key, value in self.metadata.items():
-            lines.append(
-                f'<meta property="og:{html.escape(self.type_)}:{html.escape(key)}" content="{html.escape(value)}">',
-            )
+        lines.extend(
+            f'<meta property="og:{html.escape(self.type_)}:{html.escape(key)}" content="{html.escape(value)}">'
+            for key, value in self.metadata.items()
+        )
         return "\n".join(lines)
 
 
@@ -44,7 +44,7 @@ def parse(properties: t.Sequence[t.Tuple[str, str]]) -> t.Sequence[Property]:
             result.append(Property(name_parts[1], value, {}))
         if len(name_parts) == 3:
             # Skip any bad metadata
-            if len(result) == 0 or result[-1].type_ != name_parts[1]:
+            if not result or result[-1].type_ != name_parts[1]:
                 continue
             result[-1].metadata[name_parts[2]] = value
     return result

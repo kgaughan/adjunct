@@ -9,7 +9,7 @@ license = "MIT"
 authors = [
 	{name = "Keith Gaughan", email = "keith@gaughan.ie"},
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 readme = "README.rst"
 dynamic = ["version"]
 

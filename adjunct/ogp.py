@@ -54,3 +54,13 @@ def to_meta(props: t.Union[Property, t.Sequence[Property]]) -> str:
     if isinstance(props, Property):
         return props.to_meta()
     return "\n".join(prop.to_meta() for prop in props)
+
+
+def find(
+    props: t.Sequence[Property],
+    type_: str,
+    value: t.Optional[str] = None,
+) -> t.Iterable[Property]:
+    for prop in props:
+        if prop.type_ == type_ and (value is None or prop.value == value):
+            yield prop

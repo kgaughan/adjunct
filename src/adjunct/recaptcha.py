@@ -4,6 +4,7 @@ A reCAPTCHA_ client library.
 .. _reCAPTCHA: http://www.google.com/recaptcha
 """
 
+import typing as t
 from urllib import parse, request
 
 __all__ = ["make_markup", "check"]
@@ -20,12 +21,10 @@ MARKUP = """
 <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
 <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
 </noscript>
-""".replace(
-    "\n", ""
-)
+""".replace("\n", "")
 
 
-def make_markup(public_key, error=None):
+def make_markup(public_key: str, error: t.Optional[str] = None) -> str:
     """
     Generate the HTML to display the CAPTCHA.
     """
@@ -35,7 +34,12 @@ def make_markup(public_key, error=None):
     return MARKUP % {"params": parse.urlencode(keys)}
 
 
-def check(private_key, remote_ip, challenge, response):
+def check(
+    private_key: str,
+    remote_ip: str,
+    challenge: str,
+    response: str,
+) -> t.Tuple[bool, str]:
     """
     Validate the CAPTCHA response.
     """
@@ -48,6 +52,6 @@ def check(private_key, remote_ip, challenge, response):
         "challenge": challenge,
         "response": response,
     }
-    with request.urlopen(VERIFY_URL, parse.urlencode(params)) as fh:
+    with request.urlopen(VERIFY_URL, parse.urlencode(params).encode("utf-8")) as fh:
         response = fh.read().splitlines()
         return (False, response[1]) if response[0] == "false" else (True, "")

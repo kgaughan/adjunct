@@ -6,7 +6,12 @@ import hashlib
 from urllib import parse
 
 
-def make_gravatar_img(email, size=64, default="identicon", rating="pg"):
+def make_gravatar_img(
+    email: str,
+    size: int = 64,
+    default: str = "identicon",
+    rating: str = "pg",
+) -> str:
     """
     Generate a Gravatar <img> tag for the given email address.
     """
@@ -14,7 +19,12 @@ def make_gravatar_img(email, size=64, default="identicon", rating="pg"):
     return f'<img src="{url}" width="{size}" height="{size}" alt="">'
 
 
-def make_gravatar(email, size=64, default="identicon", rating="pg"):
+def make_gravatar(
+    email: str,
+    size: int = 64,
+    default: str = "identicon",
+    rating: str = "pg",
+) -> str:
     """
     Generate a gravatar image URL.
 
@@ -28,5 +38,5 @@ def make_gravatar(email, size=64, default="identicon", rating="pg"):
     }
 
     # Omit the protocol so it'll work cleanly over both HTTP and HTTPS.
-    digest = hashlib.md5(email.strip().lower()).hexdigest()
+    digest = hashlib.md5(email.strip().lower().encode("utf-8")).hexdigest()
     return f"//www.gravatar.com/avatar/{digest}?{parse.urlencode(params)}"

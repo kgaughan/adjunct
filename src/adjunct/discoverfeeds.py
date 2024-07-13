@@ -2,6 +2,8 @@
 Feed discovery.
 """
 
+import typing as t
+
 from . import discovery
 
 __all__ = ["discover_feeds"]
@@ -26,10 +28,10 @@ class FeedExtractor(discovery.Extractor):
     feeds.
     """
 
-    def __init__(self, base):
+    def __init__(self, base: str):
         super().__init__(base)
         self.anchor = None
-        self.added = set()
+        self.added: t.Set[str] = set()
 
     def handle_starttag(self, tag, attrs):
         if tag.lower() == "a" and self.anchor is None:
@@ -58,7 +60,7 @@ class FeedExtractor(discovery.Extractor):
         else:
             super().handle_endtag(tag)
 
-    def guess_feed_type(self, href):
+    def guess_feed_type(self, href: str) -> t.Optional[str]:
         """
         Guess the MIME type of a link based off of its ending.
         """
@@ -74,7 +76,7 @@ class FeedExtractor(discovery.Extractor):
             None,
         )
 
-    def append(self, attrs):
+    def append(self, attrs: t.Dict[str, str]):
         if (
             attrs["rel"] in ("alternate", "feed")
             and "type" in attrs
@@ -87,7 +89,7 @@ class FeedExtractor(discovery.Extractor):
             self.added.add(attrs["href"])
 
 
-def discover_feeds(url):
+def discover_feeds(url: str) -> list:
     """
     Discover any feeds at the given URL.
     """

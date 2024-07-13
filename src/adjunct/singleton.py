@@ -9,7 +9,7 @@ class MutexError(Exception):
 
 
 @contextlib.contextmanager
-def mutex(filename):
+def mutex(filename: str):
     """
     Lock a mutex file.
 

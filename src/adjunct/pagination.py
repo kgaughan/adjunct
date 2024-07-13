@@ -2,8 +2,14 @@
 Pagination support code.
 """
 
+import typing as t
 
-def paginator(page_num, max_page, buffer_size=3):
+
+def paginator(
+    page_num: int,
+    max_page: int,
+    buffer_size: int = 3,
+) -> t.Iterator[t.Optional[int]]:
     """
     Pagination generator.
 

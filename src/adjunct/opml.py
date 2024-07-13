@@ -6,6 +6,7 @@ A simple, nay, simplistic! OPML_ parser.
 
 import datetime
 import email.utils
+import typing as t
 import xml.sax
 import xml.sax.handler
 
@@ -30,7 +31,12 @@ class Outline(list):
     the outlines nested within it as elements.
     """
 
-    def __init__(self, attrs=None, items=(), root=False):
+    def __init__(
+        self,
+        attrs: t.Optional[dict] = None,
+        items: t.Sequence = (),
+        root: bool = False,
+    ):
         super().__init__()
         self.attrs = {} if attrs is None else attrs
         self.root = root
@@ -125,16 +131,19 @@ class _Handler(xml.sax.handler.ContentHandler):
             self.root.attrs[parent] = content
 
 
-def parse_timestamp(ts):
+def parse_timestamp(ts: str) -> t.Optional[datetime.datetime]:
     """
     Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
+
+    Returns `None` if the timestamp could not be parsed.
     """
-    return datetime.datetime.utcfromtimestamp(
-        email.utils.mktime_tz(email.utils.parsedate_tz(ts))
-    )
+    tt = email.utils.parsedate_tz(ts)
+    if tt is None:
+        return None
+    return datetime.datetime.utcfromtimestamp(email.utils.mktime_tz(tt))
 
 
-def parse(fh):
+def parse(fh: t.IO[str]) -> t.Optional[Outline]:
     """
     Parses an OPML file from the given file object.
     """
@@ -143,7 +152,7 @@ def parse(fh):
     return handler.root
 
 
-def parse_string(s):
+def parse_string(s: str) -> t.Optional[Outline]:
     """
     Parses an OPML document from the given string.
     """

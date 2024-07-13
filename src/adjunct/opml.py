@@ -143,7 +143,7 @@ def parse_timestamp(ts: str) -> t.Optional[datetime.datetime]:
     return datetime.datetime.utcfromtimestamp(email.utils.mktime_tz(tt))
 
 
-def parse(fh) -> t.Optional[Outline]:
+def parse(fh: t.IO[str]) -> t.Optional[Outline]:
     """
     Parses an OPML file from the given file object.
     """

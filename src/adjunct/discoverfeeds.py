@@ -2,7 +2,6 @@
 Feed discovery.
 """
 
-
 from . import discovery
 
 __all__ = ["discover_feeds"]

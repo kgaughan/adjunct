@@ -28,7 +28,7 @@ class XMLBuilderTest(unittest.TestCase):
         self.assertIsNone(xml.buffer)
         with xml.within("root", xmlns="myns"):
             xml += "Body"
-        self.assertIsNone(xml.as_string())
+        self.assertEqual(xml.as_string(), "")
         self.assertEqual(
             buf.getvalue(),
             """<?xml version="1.0" encoding="utf-8"?>

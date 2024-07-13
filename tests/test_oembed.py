@@ -8,7 +8,7 @@ from adjunct.oembed import (
     _build_url,
     fetch_oembed_document,
     find_first_oembed_link,
-    parse_xml_oembed_response,
+    _parse_xml_oembed_response,
 )
 
 
@@ -83,7 +83,7 @@ class OEmbedXMLParserTest(unittest.TestCase):
 </oembed>
 """
         )
-        fields = parse_xml_oembed_response(fh)
+        fields = _parse_xml_oembed_response(fh)
         self.assertDictEqual(
             fields,
             {

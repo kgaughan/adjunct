@@ -35,6 +35,6 @@ class TestOPG(unittest.TestCase):
 
     def test_meta(self):
         meta = ogp.to_meta(self.properties)
-        with open(os.path.join(HERE, "ogp-minotaur-shock.html"), "r") as fh:
+        with open(os.path.join(HERE, "ogp-minotaur-shock.html")) as fh:
             expected = fh.read().strip()
         self.assertEqual(meta, expected)

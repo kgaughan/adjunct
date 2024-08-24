@@ -10,8 +10,7 @@ def date(
     fmt: str = "%Y-%m-%dT%H:%M:%S%z",
     tz: datetime.timezone = datetime.timezone.utc,
 ):
-    """
-    Formatting of SQLite timestamps.
+    """Formatting of SQLite timestamps.
 
     SQLite timestamps are taken to be in UTC. If you want them adjusted to
     another timezone, pass a `tzinfo` object representing that timezone in
@@ -28,12 +27,11 @@ def parse_dt(
     dt: str,
     tz: datetime.timezone = datetime.timezone.utc,
 ) -> datetime.datetime:
-    """
-    Parse an SQLite datetime, treating it as UTC.
+    """Parse an SQLite datetime, treating it as UTC.
 
     If you want it treated naively, pass `None` as the timezone.
     """
-    parsed = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    parsed = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")  # noqa: DTZ007
     return parsed if tz is None else parsed.replace(tzinfo=tz)
 
 

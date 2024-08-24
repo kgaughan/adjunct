@@ -21,7 +21,7 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
     Pulls the fields out of an XML oEmbed document.
     """
 
-    valid_fields = [
+    VALID_FIELDS = [  # noqa: RUF012
         "type",
         "version",
         "title",
@@ -45,14 +45,14 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
         self.depth = 0
         self.fields = {}
 
-    def startElement(self, name, attrs):
+    def startElement(self, name, attrs):  # noqa: ARG002, N802
         self.depth += 1
         if self.depth == 2:
             self.current_field = name
             self.current_value = []
 
-    def endElement(self, name):
-        if self.depth == 2 and self.current_field in self.valid_fields:
+    def endElement(self, name):  # noqa: ARG002, N802
+        if self.depth == 2 and self.current_field in self.VALID_FIELDS:
             self.fields[self.current_field] = "".join(self.current_value)
         self.depth -= 1
 
@@ -67,9 +67,7 @@ def _build_url(
     max_height: t.Optional[int],
 ) -> str:
     if additional := [
-        (key, value)
-        for key, value in (("maxwidth", max_width), ("maxheight", max_height))
-        if value is not None
+        (key, value) for key, value in (("maxwidth", max_width), ("maxheight", max_height)) if value is not None
     ]:
         url += f"&{parse.urlencode(additional)}"
     return url

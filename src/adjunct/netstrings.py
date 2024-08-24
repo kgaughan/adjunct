@@ -22,7 +22,7 @@ def parse(ns: bytes) -> t.Sequence[bytes]:
         return list(netstring_reader(fh))
 
 
-def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:
+def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:  # noqa: C901
     """
     Reads a sequence of netstrings from the given file object.
     """
@@ -47,7 +47,7 @@ def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:
         try:
             size = int(buffered.decode(), 10)
         except ValueError:
-            raise MalformedNetstringError("Bad length")
+            raise MalformedNetstringError("Bad length") from None
         payload = b""
         while size > 0:
             buffered = fd.read(size)

@@ -6,9 +6,9 @@ from unittest import mock
 from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
+    _parse_xml_oembed_response,
     fetch_oembed_document,
     find_first_oembed_link,
-    _parse_xml_oembed_response,
 )
 
 
@@ -22,19 +22,21 @@ class BuildUrlTest(unittest.TestCase):
         self.assertEqual(_build_url("foo", 5, 8), "foo&maxwidth=5&maxheight=8")
 
 
-class OEmbedFinderTest(unittest.TestCase):
-    links_without = [
-        {"href": "https://www.example.com/style.css", "rel": "stylesheet"},
-        {"href": "https://www.example.com/", "rel": "canonical"},
-        {"href": "https://m.example.com/", "media": "handheld", "rel": "alternate"},
-        {"href": "https://cdn.example.com/favicon.png", "rel": "icon"},
-    ]
+LINKS_WITHOUT = [
+    {"href": "https://www.example.com/style.css", "rel": "stylesheet"},
+    {"href": "https://www.example.com/", "rel": "canonical"},
+    {"href": "https://m.example.com/", "media": "handheld", "rel": "alternate"},
+    {"href": "https://cdn.example.com/favicon.png", "rel": "icon"},
+]
 
+
+class OEmbedFinderTest(unittest.TestCase):
     def test_none(self):
-        self.assertIsNone(find_first_oembed_link(self.links_without))
+        self.assertIsNone(find_first_oembed_link(LINKS_WITHOUT))
 
     def test_find(self):
-        links = self.links_without + [
+        links = [
+            *LINKS_WITHOUT,
             {
                 "href": "http://www.example.com/oembed?format=json",
                 "rel": "alternate",
@@ -52,7 +54,8 @@ class OEmbedFinderTest(unittest.TestCase):
         self.assertEqual(result, "http://www.example.com/oembed?format=json")
 
     def test_no_href(self):
-        links = self.links_without + [
+        links = [
+            *LINKS_WITHOUT,
             {
                 "rel": "alternate",
                 "title": "JSON Example",
@@ -98,7 +101,8 @@ class OEmbedXMLParserTest(unittest.TestCase):
 
 def make_response(dct, content_type="application/json+oembed; charset=UTF-8"):
     return make_fake_http_response(
-        body=json.dumps(dct), headers={"Content-Type": content_type}
+        body=json.dumps(dct),
+        headers={"Content-Type": content_type},
     )
 
 
@@ -119,7 +123,7 @@ class FetchTest(unittest.TestCase):
         fetched = fetch_oembed_document("https://example.com/oembed?type=json")
         mock_urlopen.assert_called_once()
         self.assertIsInstance(fetched, dict)
-        self.assertDictEqual(fetched, orig)
+        self.assertDictEqual(fetched, orig)  # type: ignore
 
     @mock.patch("urllib.request.urlopen")
     def test_fetch_bad(self, mock_urlopen):

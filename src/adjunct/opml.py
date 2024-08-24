@@ -35,6 +35,7 @@ class Outline(list):
         self,
         attrs: t.Optional[dict] = None,
         items: t.Sequence = (),
+        *,
         root: bool = False,
     ):
         super().__init__()
@@ -58,7 +59,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     Implements the mechanics of parsing an OPML document.
     """
 
-    head_tags = [
+    _HEAD_TAGS = [  # noqa: RUF012
         "title",
         "dateCreated",
         "dateModified",
@@ -76,10 +77,10 @@ class _Handler(xml.sax.handler.ContentHandler):
 
     # Some simplistic validation: ensure that the elements in the document
     # are nested as we'd expect.
-    nesting = {
+    _NESTING = {  # noqa: RUF012
         None: ["opml"],
         "opml": ["head", "body"],
-        "head": head_tags,
+        "head": _HEAD_TAGS,
         "body": ["outline"],
         "outline": ["outline"],
     }
@@ -97,16 +98,16 @@ class _Handler(xml.sax.handler.ContentHandler):
         """
         return None if len(self.tag_stack) == 0 else self.tag_stack[-1]
 
-    def startDocument(self):
+    def startDocument(self):  # noqa: N802
         self.root = Outline(root=True)
         self.outline_stack = [self.root]
         self.tag_stack = []
 
-    def endDocument(self):
+    def endDocument(self):  # noqa: N802
         self.current = None
 
-    def startElement(self, name, attrs):
-        expected = self.nesting[self._get_parent_tag()]
+    def startElement(self, name, attrs):  # noqa: N802
+        expected = self._NESTING[self._get_parent_tag()]
         if name not in expected:
             raise OpmlError(f'Got <{name}>, expected <{"|".join(expected)}>')
 
@@ -119,7 +120,7 @@ class _Handler(xml.sax.handler.ContentHandler):
             for attr in ("isComment", "isBreakpoint"):
                 outline.attrs.setdefault(attr, "false")
 
-    def endElement(self, name):
+    def endElement(self, name):  # noqa: N802
         self.tag_stack.pop()
         if name == "outline":
             self.outline_stack.pop()
@@ -127,7 +128,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     def characters(self, content):
         content = content.strip()
         parent = self._get_parent_tag()
-        if content != "" and parent in self.head_tags:
+        if content != "" and parent in self._HEAD_TAGS and self.root is not None:
             self.root.attrs[parent] = content
 
 
@@ -140,7 +141,7 @@ def parse_timestamp(ts: str) -> t.Optional[datetime.datetime]:
     tt = email.utils.parsedate_tz(ts)
     if tt is None:
         return None
-    return datetime.datetime.utcfromtimestamp(email.utils.mktime_tz(tt))
+    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(tt), tz=datetime.timezone.utc)
 
 
 def parse(fh: t.IO[str]) -> t.Optional[Outline]:

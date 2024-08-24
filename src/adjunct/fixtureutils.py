@@ -24,7 +24,7 @@ def start_server(app, queue, returns_app):
 
 
 @contextlib.contextmanager
-def fixture(app, returns_app=False):
+def fixture(app, *, returns_app=False):
     """
     Start the given application fixture in its own process, yielding a socket
     connected to it.
@@ -59,8 +59,9 @@ def read_body(environ):
 
 
 def read_json(environ):
-    assert environ["CONTENT_TYPE"] == "application/json"
-    return json.loads(read_body(environ))
+    if environ["CONTENT_TYPE"] == "application/json":
+        return json.loads(read_body(environ))
+    return None
 
 
 def extract_environment(environ):
@@ -71,11 +72,7 @@ def extract_environment(environ):
         "QUERY_STRING",
         "REQUEST_METHOD",
     ]
-    return {
-        key: value
-        for key, value in environ.items()
-        if key in non_http or key.startswith("HTTP_")
-    }
+    return {key: value for key, value in environ.items() if key in non_http or key.startswith("HTTP_")}
 
 
 def _al_contains(al, key):
@@ -113,7 +110,7 @@ class FakeSocket:
         super()
         self._body = io.BytesIO(body)
 
-    def makefile(self, mode, bufsize=None):  # pylint: disable=unused-argument
+    def makefile(self, mode, bufsize=None):  # noqa: ARG002
         if mode != "rb":
             raise client.UnimplementedFileMode()
         return self._body
@@ -146,6 +143,6 @@ def make_fake_http_response_msg(code=200, body="", headers=None):
 
 def make_fake_http_response(code=200, body="", headers=None):
     sock = FakeSocket(make_fake_http_response_msg(code, body, headers))
-    res = client.HTTPResponse(sock)
+    res = client.HTTPResponse(sock)  # type: ignore
     res.begin()
     return res

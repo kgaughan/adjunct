@@ -30,22 +30,17 @@ class OPMLTest(unittest.TestCase):
         self.assertEqual(len(cant_hack), 0)
         self.assertEqual(cant_hack.attrs["text"], "Can't Hack")
         self.assertEqual(cant_hack.attrs["type"], "rss")
-        self.assertEqual(
-            cant_hack.attrs["xmlUrl"], "https://i.canthack.it/feeds/all.xml"
-        )
+        self.assertEqual(cant_hack.attrs["xmlUrl"], "https://i.canthack.it/feeds/all.xml")
         self.assertEqual(cant_hack.attrs["isComment"], "false")
         self.assertEqual(cant_hack.attrs["isBreakpoint"], "false")
 
     def test_exception(self):
         with self.assertRaises(opml.OpmlError):
-            opml.parse_string(
-                '<?xml version="1.0" encoding="UTF-8"?>'
-                '<opml version="1.0"><outline/></opml>'
-            )
+            opml.parse_string('<?xml version="1.0" encoding="UTF-8"?><opml version="1.0"><outline/></opml>')
 
     def test_date_parse(self):
         # Note: the resulting date is in UTC.
         self.assertEqual(
             opml.parse_timestamp("Fri, 21 Nov 1997 09:55:06 -0600"),
-            datetime.datetime(1997, 11, 21, 15, 55, 6),
+            datetime.datetime(1997, 11, 21, 15, 55, 6, tzinfo=datetime.timezone.utc),
         )

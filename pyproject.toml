@@ -1,42 +1,125 @@
 #:schema https://json.schemastore.org/pyproject.json
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
 name = "adjunct"
+dynamic = ["version"]
 description = "A collection of miscellaneous modules"
-license = "MIT"
-authors = [
-	{name = "Keith Gaughan", email = "keith@gaughan.ie"},
-]
+license = { file = "LICENSE" }
+authors = [{ name = "Keith Gaughan", email = "keith@gaughan.ie" }]
 requires-python = ">=3.8"
 readme = "README.rst"
-dynamic = ["version"]
+keywords = []
 
 [project.urls]
+Documentation = "https://github.com/kgaughan/adjunct#readme"
+Issues = "https://github.com/kgaughan/adjunct/issues"
 Source = "https://github.com/kgaughan/adjunct"
 
 [tool.rye]
-dev-dependencies = [
-    "pytest>=8.2.2",
-    "pytest-cov>=2.12.1",
-    "mypy>=1.10.1",
-]
+dev-dependencies = ["mypy>=1.10.1", "pytest>=8.2.2", "pytest-cov>=2.12.1"]
+universal = true
+generate-hashes = true
+managed = true
+
+[tool.hatch.build.targets.sdist]
+include = ["/src/adjunct", "/requirements.lock"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adjunct"]
 
 [tool.hatch.version]
-path = "src/adjunct/__init__.py"
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/adjunct/_version.py"
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+src = ["src", "test"]
+
+[tool.ruff.lint]
+select = [
+  "A",
+  "ARG",
+  "B",
+  "C",
+  "DTZ",
+  "E",
+  "EM",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "ISC002",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
+]
+ignore = [
+  "PLR0913", # Too many arguments
+  "PLR2004", # Magic value used in comparison
+  "PLW2901", # Redefined loop variable
+  "S310",    # Audit URL open for permitted schemes
+  "S317",    # Using xml to parse untrusted data is known to be vulnerable to XML attacks; use defusedxml equivalents
+  "TID252",  # Prefer absolute imports over relative imports from parent modules
+  "UP006",   # Use {to} instead of {from} for type annotation
+  "UP035",   # Deprecated import
+  "EM101",   # Exceptions must not use strings
+  "EM102",   # Exception must not use f-string literal
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252", "E501"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q --cov=adjunct --junitxml=tests/results.xml --cov-report html"
-testpaths = [
-    "tests",
-]
-junit_suite_name = "adjunct"
 junit_logging = "out-err"
 junit_family = "xunit2"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = ["src/adjunct/_version.py"]
+
+[tool.coverage.report]
+ignore_errors = true
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+  "pass",
+]
 
 [tool.mypy]
 ignore_missing_imports = true

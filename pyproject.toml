@@ -19,10 +19,8 @@ Documentation = "https://github.com/kgaughan/adjunct#readme"
 Issues = "https://github.com/kgaughan/adjunct/issues"
 Source = "https://github.com/kgaughan/adjunct"
 
-[tool.rye]
+[tool.uv]
 dev-dependencies = ["mypy>=1.10.1", "pytest>=8.2.2", "pytest-cov>=2.12.1"]
-universal = true
-generate-hashes = true
 managed = true
 
 [tool.hatch.build.targets.sdist]

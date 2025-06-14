@@ -11,8 +11,8 @@ import xml.sax
 import xml.sax.handler
 
 __all__ = [
-    "Outline",
     "OpmlError",
+    "Outline",
     "parse",
     "parse_string",
     "parse_timestamp",

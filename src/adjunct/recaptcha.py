@@ -7,7 +7,7 @@ A reCAPTCHA_ client library.
 import typing as t
 from urllib import parse, request
 
-__all__ = ["make_markup", "check"]
+__all__ = ["check", "make_markup"]
 
 
 VERIFY_URL = "http://www.google.com/recaptcha/api/verify"

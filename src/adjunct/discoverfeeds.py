@@ -2,7 +2,6 @@
 Feed discovery.
 """
 
-import typing as t
 
 from . import discovery
 
@@ -31,27 +30,28 @@ class FeedExtractor(discovery.Extractor):
     def __init__(self, base: str):
         super().__init__(base)
         self.anchor = None
-        self.added: t.Set[str] = set()
+        self.added: set[str] = set()
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
         if tag.lower() == "a" and self.anchor is None:
-            attrs = discovery.fix_attributes(attrs)
-            if "href" in attrs:
-                attrs["@data"] = ""
-                attrs.setdefault("type", self.guess_feed_type(attrs["href"]))
-                if attrs["type"] in ACCEPTABLE:
-                    attrs.setdefault("rel", "feed")
-                    self.anchor = attrs
+            fixed_attrs = discovery.fix_attributes(attrs)
+            if "href" in fixed_attrs:
+                fixed_attrs["@data"] = ""
+                feed_type = self.guess_feed_type(fixed_attrs["href"])
+                if feed_type in ACCEPTABLE:
+                    fixed_attrs.setdefault("type", feed_type)
+                    fixed_attrs.setdefault("rel", "feed")
+                    self.anchor = fixed_attrs
         else:
             super().handle_starttag(tag, attrs)
 
-    def handle_data(self, data):
+    def handle_data(self, data: str):
         # We only use the interstitial text as the title if none was provided
         # on the anchor element itself.
         if self.anchor is not None and "title" not in self.anchor:
             self.anchor["@data"] += data
 
-    def handle_endtag(self, tag):
+    def handle_endtag(self, tag: str):
         if tag.lower() == "a" and self.anchor is not None:
             self.anchor.setdefault("title", self.anchor["@data"])
             del self.anchor["@data"]
@@ -68,15 +68,11 @@ class FeedExtractor(discovery.Extractor):
         # time, we should've encountered any <base> elements we care about.
         href = self.fix_href(href)
         return next(
-            (
-                mimetype
-                for mimetype, endings in GUESSES.items()
-                if href.lower().endswith(endings)
-            ),
+            (mimetype for mimetype, endings in GUESSES.items() if href.lower().endswith(endings)),
             None,
         )
 
-    def append(self, attrs: t.Dict[str, str]):
+    def append(self, attrs: dict[str, str]):
         if (
             attrs["rel"] in ("alternate", "feed")
             and "type" in attrs

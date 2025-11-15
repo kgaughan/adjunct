@@ -82,3 +82,10 @@ class TestElement(unittest.TestCase):
             "<a name>bar</a>",
             "<a name>bar</a>",
         )
+
+
+def test_make_html():
+    assert html.make("br", attrs={}) == "<br>"
+    assert html.make("a", attrs={"href": "foo"}) == '<a href="foo"></a>'
+    assert html.make("a", attrs={"href": "foo"}, close=False) == '<a href="foo">'
+    assert html.make("input", attrs={"type": "checkbox", "disabled": None}) == '<input type="checkbox" disabled>'

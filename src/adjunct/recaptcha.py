@@ -4,7 +4,6 @@ A reCAPTCHA_ client library.
 .. _reCAPTCHA: http://www.google.com/recaptcha
 """
 
-import typing as t
 from urllib import parse, request
 
 __all__ = ["check", "make_markup"]
@@ -39,7 +38,7 @@ def check(
     remote_ip: str,
     challenge: str,
     response: str,
-) -> t.Tuple[bool, str]:
+) -> tuple[bool, str]:
     """
     Validate the CAPTCHA response.
     """

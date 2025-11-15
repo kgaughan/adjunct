@@ -9,9 +9,9 @@ __pycache__/
 dist/
 
 # Unit test / coverage reports
-.coverage
+.coverage*
 htmlcov/
-tests/results.xml
+results.xml
 .*_cache/
 
 # General detritus

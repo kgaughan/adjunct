@@ -60,7 +60,7 @@ class FeedExtractor(discovery.Extractor):
         else:
             super().handle_endtag(tag)
 
-    def guess_feed_type(self, href: str) -> t.Optional[str]:
+    def guess_feed_type(self, href: str) -> str | None:
         """
         Guess the MIME type of a link based off of its ending.
         """

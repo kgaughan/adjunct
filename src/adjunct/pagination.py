@@ -9,7 +9,7 @@ def paginator(
     page_num: int,
     max_page: int,
     buffer_size: int = 3,
-) -> t.Iterator[t.Optional[int]]:
+) -> t.Iterator[int | None]:
     """
     Pagination generator.
 

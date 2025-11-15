@@ -42,5 +42,5 @@ class OPMLTest(unittest.TestCase):
         # Note: the resulting date is in UTC.
         self.assertEqual(
             opml.parse_timestamp("Fri, 21 Nov 1997 09:55:06 -0600"),
-            datetime.datetime(1997, 11, 21, 15, 55, 6, tzinfo=datetime.timezone.utc),
+            datetime.datetime(1997, 11, 21, 15, 55, 6, tzinfo=datetime.UTC),
         )

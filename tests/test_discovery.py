@@ -42,23 +42,24 @@ class ExtractorTest(unittest.TestCase):
         )
 
 
-def test_fetch_meta():
-    def meta_app(environ, start_response):  # noqa: ARG001
-        headers = [
-            ("Content-Type", "text/html; charset=utf-8"),
-            ("Link", '<http://example.com/>; rel="bar"'),
-        ]
-        start_response("200 OK", headers)
-        return [
-            b"""<!DOCTYPE html>
+def meta_app(environ, start_response):  # noqa: ARG001
+    headers = [
+        ("Content-Type", "text/html; charset=utf-8"),
+        ("Link", '<http://example.com/>; rel="bar"'),
+    ]
+    start_response("200 OK", headers)
+    return [
+        b"""<!DOCTYPE html>
 <html>
     <head>
         <link rel="foo" href="bar">
         <meta property="og:title" content="Example">
     </head>
 </html>"""
-        ]
+    ]
 
+
+def test_fetch_meta():
     with fixtureutils.fixture(meta_app) as addr:
         links, properties = discovery.fetch_meta(addr)
         assert links == [

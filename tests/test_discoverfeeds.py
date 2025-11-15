@@ -1,23 +1,24 @@
 from adjunct import discoverfeeds, fixtureutils
 
 
-def test_discover_feeds():
-    def app(environ, start_response):  # noqa: ARG001
-        headers = [
-            ("Content-Type", "text/html; charset=utf-8"),
-        ]
-        start_response("200 OK", headers)
-        return [
-            b"""<!DOCTYPE html>
+def app_discover_feeds(environ, start_response):  # noqa: ARG001
+    headers = [
+        ("Content-Type", "text/html; charset=utf-8"),
+    ]
+    start_response("200 OK", headers)
+    return [
+        b"""<!DOCTYPE html>
 <html>
     <head>
         <link rel="alternate" type="application/rss+xml" title="RSS" href="/feeds/rss">
         <link rel="alternate" type="application/atom+xml" title="Atom" href="/feeds/atom">
     </head>
 </html>"""
-        ]
+    ]
 
-    with fixtureutils.fixture(app) as addr:
+
+def test_discover_feeds():
+    with fixtureutils.fixture(app_discover_feeds) as addr:
         feeds = discoverfeeds.discover_feeds(addr)
         # Note: feeds are returned in priority order.
         assert feeds == [
@@ -26,14 +27,13 @@ def test_discover_feeds():
         ]
 
 
-def test_discover_feeds_anchors():
-    def app(environ, start_response):  # noqa: ARG001
-        headers = [
-            ("Content-Type", "text/html; charset=utf-8"),
-        ]
-        start_response("200 OK", headers)
-        return [
-            b"""<!DOCTYPE html>
+def app_discover_feeds_anchors(environ, start_response):  # noqa: ARG001
+    headers = [
+        ("Content-Type", "text/html; charset=utf-8"),
+    ]
+    start_response("200 OK", headers)
+    return [
+        b"""<!DOCTYPE html>
 <html>
     <head>
     </head>
@@ -45,9 +45,11 @@ def test_discover_feeds_anchors():
         <a href="/feed.xoxo">XOXO Feed</a>
         <a>Not a feed, not even a link</a>
 </html>"""
-        ]
+    ]
 
-    with fixtureutils.fixture(app) as addr:
+
+def test_discover_feeds_anchors():
+    with fixtureutils.fixture(app_discover_feeds_anchors) as addr:
         feeds = discoverfeeds.discover_feeds(addr)
         # Note: feeds are returned in priority order.
         assert feeds == [

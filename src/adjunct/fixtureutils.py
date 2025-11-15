@@ -32,7 +32,7 @@ def fixture(app, *, returns_app: bool = False, timeout: int = 5):
     Set `returns_app` if `app` is a callable that returns the actual app (such
     as a class).
     """
-    queue = multiprocessing.Queue()
+    queue: multiprocessing.Queue[tuple[str, int]] = multiprocessing.Queue()
 
     # Spin up a separate process for our fixture server.
     proc = multiprocessing.Process(target=start_server, args=(app, queue, returns_app))

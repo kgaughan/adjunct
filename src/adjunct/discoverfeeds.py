@@ -2,7 +2,6 @@
 Feed discovery.
 """
 
-
 from . import discovery
 
 __all__ = ["discover_feeds"]
@@ -29,7 +28,7 @@ class FeedExtractor(discovery.Extractor):
 
     def __init__(self, base: str):
         super().__init__(base)
-        self.anchor = None
+        self.anchor: dict[str, str] | None = None
         self.added: set[str] = set()
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):

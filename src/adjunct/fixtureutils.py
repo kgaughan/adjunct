@@ -112,7 +112,7 @@ class FakeSocket:
 
     def makefile(self, mode, bufsize=None):  # noqa: ARG002
         if mode != "rb":
-            raise client.UnimplementedFileMode
+            raise client.UnimplementedFileMode()
         return self._body
 
 

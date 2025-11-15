@@ -24,7 +24,7 @@ MARKUP = """
 """.replace("\n", "")
 
 
-def make_markup(public_key: str, error: t.Optional[str] = None) -> str:
+def make_markup(public_key: str, error: str | None = None) -> str:
     """
     Generate the HTML to display the CAPTCHA.
     """

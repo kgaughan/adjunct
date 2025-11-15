@@ -8,7 +8,7 @@ import datetime
 def date(
     dt: str,
     fmt: str = "%Y-%m-%dT%H:%M:%S%z",
-    tz: datetime.timezone = datetime.timezone.utc,
+    tz: datetime.timezone = datetime.UTC,
 ):
     """Formatting of SQLite timestamps.
 
@@ -25,7 +25,7 @@ def date(
 
 def parse_dt(
     dt: str,
-    tz: datetime.timezone = datetime.timezone.utc,
+    tz: datetime.timezone = datetime.UTC,
 ) -> datetime.datetime:
     """Parse an SQLite datetime, treating it as UTC.
 

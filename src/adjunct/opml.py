@@ -33,7 +33,7 @@ class Outline(list):
 
     def __init__(
         self,
-        attrs: t.Optional[dict] = None,
+        attrs: dict | None = None,
         items: t.Sequence = (),
         *,
         root: bool = False,
@@ -132,7 +132,7 @@ class _Handler(xml.sax.handler.ContentHandler):
             self.root.attrs[parent] = content
 
 
-def parse_timestamp(ts: str) -> t.Optional[datetime.datetime]:
+def parse_timestamp(ts: str) -> datetime.datetime | None:
     """
     Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
 
@@ -141,10 +141,10 @@ def parse_timestamp(ts: str) -> t.Optional[datetime.datetime]:
     tt = email.utils.parsedate_tz(ts)
     if tt is None:
         return None
-    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(tt), tz=datetime.timezone.utc)
+    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(tt), tz=datetime.UTC)
 
 
-def parse(fh: t.IO[str]) -> t.Optional[Outline]:
+def parse(fh: t.IO[str]) -> Outline | None:
     """
     Parses an OPML file from the given file object.
     """
@@ -153,7 +153,7 @@ def parse(fh: t.IO[str]) -> t.Optional[Outline]:
     return handler.root
 
 
-def parse_string(s: str) -> t.Optional[Outline]:
+def parse_string(s: str) -> Outline | None:
     """
     Parses an OPML document from the given string.
     """

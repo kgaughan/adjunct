@@ -1,0 +1,19 @@
+[private]
+default:
+	@just --list
+
+# setup virtual environment
+devel:
+	@uv sync --frozen
+
+# tidy everything with ruff
+tidy:
+	@uv run --frozen ruff check --fix
+
+# run the test suite
+tests:
+	@uv run --frozen pytest
+
+# clean up any caches or temporary files and directories
+clean:
+	@rm -rf .mypy_cache .pytest_cache .ruff_cache .venv dist htmlcov .coverage

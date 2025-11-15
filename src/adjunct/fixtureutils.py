@@ -24,7 +24,7 @@ def start_server(app, queue, returns_app):
 
 
 @contextlib.contextmanager
-def fixture(app, *, returns_app=False):
+def fixture(app, *, returns_app: bool = False, timeout: int = 5):
     """
     Start the given application fixture in its own process, yielding a socket
     connected to it.
@@ -32,7 +32,7 @@ def fixture(app, *, returns_app=False):
     Set `returns_app` if `app` is a callable that returns the actual app (such
     as a class).
     """
-    queue = multiprocessing.Queue()
+    queue: multiprocessing.Queue[tuple[str, int]] = multiprocessing.Queue()
 
     # Spin up a separate process for our fixture server.
     proc = multiprocessing.Process(target=start_server, args=(app, queue, returns_app))
@@ -41,7 +41,7 @@ def fixture(app, *, returns_app=False):
         raise RuntimeError(f"{app} didn't start")
 
     try:
-        hostname, port = queue.get(timeout=5)
+        hostname, port = queue.get(timeout=timeout)
         yield f"http://{hostname}:{port}/"
     finally:
         if proc.exitcode is None:
@@ -73,14 +73,6 @@ def extract_environment(environ):
         "REQUEST_METHOD",
     ]
     return {key: value for key, value in environ.items() if key in non_http or key.startswith("HTTP_")}
-
-
-def _al_contains(al, key):
-    """
-    Treating `al` as an association list (a list of two-tuples), return `True`
-    if `key` is a key value.
-    """
-    return any(k == key for k, _ in al)
 
 
 def response(start_response, code, body="", headers=None):
@@ -134,7 +126,7 @@ def make_fake_http_response_msg(code=200, body="", headers=None):
             value, params = value
             msg.add_header(key, value, **params)
         else:
-            msg.add_header(key, value)
+            msg.add_header(key, value)  # type: ignore
     if not has_content_type:
         msg.add_header("Content-Type", "application/octet-stream")
     status = f"HTTP/1.0 {code} {client.responses[code]}\r\n"

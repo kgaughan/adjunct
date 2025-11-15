@@ -14,5 +14,6 @@ tidy:
 tests:
 	@uv run --frozen pytest
 
+# clean up any caches or temporary files and directories
 clean:
-	@rm -rf .venv .pytest_cache htmlcov dist .coverage
+	@rm -rf .mypy_cache .pytest_cache .ruff_cache .venv dist htmlcov .coverage

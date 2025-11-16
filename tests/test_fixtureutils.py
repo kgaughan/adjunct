@@ -1,4 +1,8 @@
+import io
+import json
 import urllib.request
+
+import pytest
 
 from adjunct import fixtureutils
 
@@ -77,3 +81,58 @@ def test_fixture():
         assert resp.status == 200
         assert resp.getheader("Content-Type") == "text/plain; charset=UTF-8"
         assert body == b"Fixture App Response"
+
+
+def test_extract_environment():
+    env = {
+        "CONTENT_LENGTH": 50,
+        "CONTENT_TYPE": "text/plain",
+        "PATH_INFO": "/foo/bar",
+        "QUERY_STRING": "?foo=bar",
+        "REQUEST_METHOD": "GET",
+        "PATH": "/bin:/usr/bin",
+        "LETS_NOT_LEAK_THIS": "SEKRIT",
+        "HTTP_ACCEPT": "text/html",
+    }
+    extracted = fixtureutils.extract_environment(env)
+    assert set(extracted.keys()) == {
+        "CONTENT_TYPE",
+        "CONTENT_LENGTH",
+        "PATH_INFO",
+        "QUERY_STRING",
+        "REQUEST_METHOD",
+        "HTTP_ACCEPT",
+    }
+
+
+def test_read_json_bad_content_type():
+    env = {"CONTENT_TYPE": "text/plain"}
+    assert fixtureutils.read_json(env) is None
+
+
+def test_read_json():
+    payload = b'{"foo": "bar"}'
+    env = {
+        "CONTENT_TYPE": "application/json",
+        "CONTENT_LENGTH": len(payload),
+        "wsgi.input": io.BytesIO(payload),
+    }
+    assert fixtureutils.read_json(env) == {"foo": "bar"}
+
+
+def test_read_json_no_length():
+    payload = b'{"foo": "bar"}'
+    env = {
+        "CONTENT_TYPE": "application/json",
+        "wsgi.input": io.BytesIO(payload),
+    }
+    assert fixtureutils.read_json(env) == {"foo": "bar"}
+
+
+def test_read_json_malformed_json():
+    env = {
+        "CONTENT_TYPE": "application/json",
+        "wsgi.input": io.BytesIO(b'{"key": "value",}'),  # Malformed JSON (trailing comma)
+    }
+    with pytest.raises(json.JSONDecodeError):
+        fixtureutils.read_json(env)

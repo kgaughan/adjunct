@@ -45,6 +45,7 @@ class ExtractorTest(unittest.TestCase):
 def meta_app(environ, start_response):  # noqa: ARG001
     headers = [
         ("Content-Type", "text/html; charset=utf-8"),
+        ("Link", "http://malformed.example.com/"),
         ("Link", '<http://example.com/>; rel="bar"'),
     ]
     start_response("200 OK", headers)

@@ -13,6 +13,7 @@ from adjunct.oembed import (
     _parse_xml_oembed_response,
     fetch_oembed_document,
     find_first_oembed_link,
+    get_oembed,
 )
 
 
@@ -31,6 +32,22 @@ LINKS_WITHOUT = [
     {"href": "https://www.example.com/", "rel": "canonical"},
     {"href": "https://m.example.com/", "media": "handheld", "rel": "alternate"},
     {"href": "https://cdn.example.com/favicon.png", "rel": "icon"},
+    {"rel": "wibble"},
+]
+
+LINKS_WITH = [
+    {
+        "href": "http://www.example.com/oembed?format=xml",
+        "rel": "alternate",
+        "title": "XML Example",
+        "type": "text/xml+oembed",
+    },
+    {
+        "href": "http://www.example.com/oembed?format=json",
+        "rel": "alternate",
+        "title": "JSON Example",
+        "type": "application/json+oembed",
+    },
 ]
 
 
@@ -58,22 +75,29 @@ class OEmbedFinderTest(unittest.TestCase):
         self.assertEqual(result, "http://www.example.com/oembed?format=json")
 
     def test_no_href(self):
-        links = [
-            *LINKS_WITHOUT,
-            {
-                "rel": "alternate",
-                "title": "JSON Example",
-                "type": "application/json+oembed",
-            },
-            {
-                "href": "http://www.example.com/oembed?format=xml",
-                "rel": "alternate",
-                "title": "XML Example",
-                "type": "text/xml+oembed",
-            },
-        ]
+        links = [*LINKS_WITHOUT, *LINKS_WITH]
         result = find_first_oembed_link(links)
         self.assertEqual(result, "http://www.example.com/oembed?format=xml")
+
+    def test_get_oembed_none(self):
+        result = get_oembed(LINKS_WITHOUT)
+        self.assertIsNone(result)
+
+    @mock.patch("urllib.request.urlopen")
+    def test_get_oembed(self, mock_urlopen):
+        doc = {
+            "version": "1.0",
+            "type": "video",
+            "html": "<video/>",
+            "width": 480,
+            "height": 270,
+            "author_name": "John Doe",
+            "title": "A video",
+        }
+        mock_urlopen.return_value = make_response(doc)
+        result = get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
+        assert result is not None
+        self.assertDictEqual(result, doc)
 
 
 class OEmbedXMLParserTest(unittest.TestCase):

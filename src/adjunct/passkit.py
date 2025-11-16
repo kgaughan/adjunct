@@ -11,8 +11,11 @@ import getpass
 import hashlib
 import json
 import secrets
-import sys
 import typing as t
+
+
+class UnknownAlgorithmError(Exception):
+    """Raised when an entry has either an unknown algorithm or none."""
 
 
 class ScryptParams(t.TypedDict):
@@ -144,12 +147,20 @@ class JSONPasswdFile:
         entry = self.users.get(username)
         if entry is None:
             return False
-        return self._implementations[entry["alg"]]["check"](password.encode("utf-8"), entry)
+        if entry.get("alg") is None:
+            raise UnknownAlgorithmError(f"No algorithm specified for {username}")
+        impl = self._implementations.get(entry.get("alg"))
+        if impl is None:
+            raise UnknownAlgorithmError(f"Unknown algorithm '{entry['alg']}' specified for {username}")
 
-    def delete(self, username):
+        return impl["check"](password.encode("utf-8"), entry)
+
+    def delete(self, username) -> bool:
         if username in self.users:
             del self.users[username]
             self._save()
+            return True
+        return False
 
 
 def make_parser() -> argparse.ArgumentParser:  # pragma; no cover
@@ -162,7 +173,7 @@ def make_parser() -> argparse.ArgumentParser:  # pragma; no cover
     parser.add_argument("--user", help="Username", default=getpass.getuser())
     parser.add_argument("--gen", action="store_true", help="Generate a password")
     parser.add_argument("--length", type=int, help="Length of password to generate", default=16)
-    parser.add_argument("--path", required=True, help="Path of htaccess file")
+    parser.add_argument("--path", required=True, help="Path of passwd.json file")
     return parser
 
 

@@ -1,5 +1,6 @@
 import contextlib
 import fcntl
+import time
 
 
 class MutexError(Exception):
@@ -31,9 +32,7 @@ def mutex(filename: str):
             fcntl.flock(fh, fcntl.LOCK_UN)
 
 
-def main():
-    import time  # noqa: PLC0415
-
+def main():  # pragma: no cover
     while True:
         print("Sleeping for a few seconds...")  # noqa: T201
         time.sleep(5)

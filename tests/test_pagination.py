@@ -1,3 +1,5 @@
+import pytest
+
 from adjunct import pagination
 
 
@@ -17,3 +19,18 @@ def test_paginator():
     assert list(pagination.paginator(1, 3)) == [1, 2, 3]
     assert list(pagination.paginator(2, 3)) == [1, 2, 3]
     assert list(pagination.paginator(3, 3)) == [1, 2, 3]
+
+
+def test_paginator_bounds():
+    with pytest.raises(pagination.InvalidPageError):
+        list(pagination.paginator(0, 10))
+    with pytest.raises(pagination.InvalidPageError):
+        list(pagination.paginator(-1, 10))
+    with pytest.raises(pagination.InvalidPageError):
+        list(pagination.paginator(11, 10))
+    with pytest.raises(pagination.InvalidPageError):
+        list(pagination.paginator(100, 10))
+    with pytest.raises(pagination.InvalidPageError):
+        list(pagination.paginator(1, 0))
+    with pytest.raises(pagination.InvalidPageError):
+        list(pagination.paginator(1, -5))

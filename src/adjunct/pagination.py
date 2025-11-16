@@ -5,6 +5,10 @@ Pagination support code.
 import typing as t
 
 
+class InvalidPageError(Exception):
+    """Raised when an invalid page is requested."""
+
+
 def paginator(
     page_num: int,
     max_page: int,
@@ -17,6 +21,8 @@ def paginator(
     and end, and around the current page, with a number of buffer pages on
     each side of both. Omitted pages in the sequence are elided into a `None`.
     """
+    if page_num < 1 or page_num > max_page or max_page < 1:
+        raise InvalidPageError("Requested page is out of bounds")
     if page_num - buffer_size > 1:
         yield 1
     if page_num - buffer_size > 2:

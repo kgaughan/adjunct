@@ -1,0 +1,5 @@
+---
+ignore:
+  - tests/*.json
+  - tests/*.xml
+  - tests/*.html

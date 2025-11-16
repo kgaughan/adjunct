@@ -29,3 +29,19 @@ def mutex(filename: str):
             yield
         finally:
             fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+def main():
+    import time
+
+    while True:
+        print("Sleeping for a few seconds...")
+        time.sleep(5)
+
+
+if __name__ == "__main__":
+    try:
+        with mutex(__file__):
+            main()
+    except MutexError:
+        print("You can only run one copy of this script at once.")

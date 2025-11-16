@@ -21,3 +21,4 @@ typecheck:
 # clean up any caches or temporary files and directories
 clean:
 	@rm -rf .mypy_cache .pytest_cache .ruff_cache .venv dist htmlcov .coverage
+	@find . -name \*.orig -delete

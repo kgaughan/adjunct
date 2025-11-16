@@ -74,3 +74,19 @@ def test_safe_slurp():
     fh = io.BytesIO(data)
     result = "".join(discovery.safe_slurp(fh, chunk_size=4, encoding="utf-8"))
     assert result == data.decode("utf-8")
+
+
+def test_fix_attributes():
+    assert discovery.fix_attributes(
+        [
+            ("REL", " Foo "),
+            ("data-value", None),
+            ("Type", "TEXT/HTML"),
+            ("TITLE", "Preserve Case"),
+        ]
+    ) == {
+        "rel": "foo",
+        "data-value": "",
+        "type": "text/html",
+        "title": "Preserve Case",
+    }

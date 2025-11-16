@@ -1,5 +1,8 @@
 import io
+import json
 import urllib.request
+
+import pytest
 
 from adjunct import fixtureutils
 
@@ -124,3 +127,12 @@ def test_read_json_no_length():
         "wsgi.input": io.BytesIO(payload),
     }
     assert fixtureutils.read_json(env) == {"foo": "bar"}
+
+
+def test_read_json_malformed_json():
+    env = {
+        "CONTENT_TYPE": "application/json",
+        "wsgi.input": io.BytesIO(b'{"key": "value",}'),  # Malformed JSON (trailing comma)
+    }
+    with pytest.raises(json.JSONDecodeError):
+        fixtureutils.read_json(env)

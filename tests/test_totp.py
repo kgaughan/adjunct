@@ -17,6 +17,40 @@ def test_otp_key_url():
         "period": ["30"],
     }
 
+    # Account name with spaces
+    parts = t.to_url("foo bar@example.com").split("?", 1)
+    assert parts[0] == "otpauth://totp/foo%20bar%40example.com"
+    qs = parse.parse_qs(parts[1])
+    assert qs == {
+        "secret": ["AAAAAAAAAAAAAAAA"],
+        "algorithm": ["SHA1"],
+        "digits": ["6"],
+        "period": ["30"],
+    }
+
+    # Account name with special characters
+    parts = t.to_url("foo+bar@example.com").split("?", 1)
+    assert parts[0] == "otpauth://totp/foo%2Bbar%40example.com"
+    qs = parse.parse_qs(parts[1])
+    assert qs == {
+        "secret": ["AAAAAAAAAAAAAAAA"],
+        "algorithm": ["SHA1"],
+        "digits": ["6"],
+        "period": ["30"],
+    }
+
+    # Account name with unicode characters
+    parts = t.to_url("föö@example.com").split("?", 1)
+    # The unicode character ö should be percent-encoded
+    assert parts[0] == "otpauth://totp/f%C3%B6%C3%B6%40example.com"
+    qs = parse.parse_qs(parts[1])
+    assert qs == {
+        "secret": ["AAAAAAAAAAAAAAAA"],
+        "algorithm": ["SHA1"],
+        "digits": ["6"],
+        "period": ["30"],
+    }
+
 
 def test_otp_key_url_with_issuer():
     t = totp.TOTP(key=bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
@@ -33,7 +67,7 @@ def test_otp_key_url_with_issuer():
 
 
 def test_serialisation():
-    t1 = totp.TOTP(key=bytes(range(0, 10)), alg="sha256", digits=10, period=60)
+    t1 = totp.TOTP(key=bytes(range(10)), alg="sha256", digits=10, period=60)
     d = t1.to_dict()
     assert d == {
         "alg": "sha256",

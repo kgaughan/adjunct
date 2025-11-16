@@ -7,8 +7,8 @@ from http import client
 import io
 import json
 import multiprocessing
-from wsgiref.simple_server import make_server
 import typing as t
+from wsgiref.simple_server import make_server
 
 
 def start_server(app, queue, returns_app):  # pragma: no cover

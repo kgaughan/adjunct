@@ -58,7 +58,7 @@ def test_json_response():
     assert response_status.startswith("200")
     headers_dict = dict(response_headers)
     assert headers_dict["Content-Type"] == "application/json; charset=UTF-8"
-    assert "".join(result) == '{"key": "value"}'
+    assert b"".join(result) == b'{"key": "value"}'
 
 
 def fixture_app(environ, start_response):  # noqa: ARG001

@@ -8,6 +8,7 @@ import io
 import json
 import multiprocessing
 from wsgiref.simple_server import make_server
+import typing as t
 
 
 def start_server(app, queue, returns_app):  # pragma: no cover
@@ -77,7 +78,12 @@ def extract_environment(environ: dict) -> dict:
     return {key: value for key, value in environ.items() if key in non_http or key.startswith("HTTP_")}
 
 
-def response(start_response, code: int, body: str = "", headers=None) -> list[bytes | str]:
+def response(
+    start_response,
+    code: int,
+    body: bytes = b"",
+    headers: list[tuple[str, str]] | None = None,
+) -> t.Iterable[bytes]:
     if headers is None:
         headers = []
     headers.append(("Content-Length", str(len(body))))
@@ -85,14 +91,14 @@ def response(start_response, code: int, body: str = "", headers=None) -> list[by
     return [body]
 
 
-def json_response(start_response, body, headers=None) -> list[bytes | str]:
+def json_response(start_response, body) -> t.Iterable[bytes]:
     headers = [("Content-Type", "application/json; charset=UTF-8")]
-    return response(start_response, 200, body=json.dumps(body), headers=headers)
+    return response(start_response, 200, body=json.dumps(body).encode("utf-8"), headers=headers)
 
 
-def basic_response(start_response, code: int, body: str = "") -> list[bytes | str]:
+def basic_response(start_response, code: int, body: str = "") -> t.Iterable[bytes]:
     headers = [("Content-Type", "text/plain; charset=UTF-8")]
-    return response(start_response, code, body, headers=headers)
+    return response(start_response, code, body.encode("utf-8"), headers=headers)
 
 
 class FakeSocket:

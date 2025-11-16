@@ -32,10 +32,10 @@ def mutex(filename: str):
 
 
 def main():
-    import time
+    import time  # noqa: PLC0415
 
     while True:
-        print("Sleeping for a few seconds...")
+        print("Sleeping for a few seconds...")  # noqa: T201
         time.sleep(5)
 
 
@@ -44,4 +44,4 @@ if __name__ == "__main__":
         with mutex(__file__):
             main()
     except MutexError:
-        print("You can only run one copy of this script at once.")
+        print("You can only run one copy of this script at once.")  # noqa: T201

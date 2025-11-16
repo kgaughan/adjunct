@@ -2,7 +2,11 @@ import io
 import json
 import unittest
 from unittest import mock
+from urllib import error
 
+import pytest
+
+from adjunct import fixtureutils
 from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
@@ -132,3 +136,24 @@ class FetchTest(unittest.TestCase):
         fetched = fetch_oembed_document("https://example.com/oembed?type=json")
         mock_urlopen.assert_called_once()
         self.assertIsNone(fetched)
+
+
+def app_400(environ, start_response):  # noqa: ARG001
+    headers = [("Content-Type", "text/plain; charset=utf-8")]
+    start_response("400 Bad Request", headers)
+    return [b"Bad request"]
+
+
+def app_500(environ, start_response):  # noqa: ARG001
+    headers = [("Content-Type", "text/plain; charset=utf-8")]
+    start_response("500 Internal Server Error", headers)
+    return [b"Internal server error"]
+
+
+def test_fetch_oembed_with_error():
+    with fixtureutils.fixture(app_400) as addr:
+        fetched = fetch_oembed_document(f"{addr}/oembed")
+        assert fetched is None
+
+    with fixtureutils.fixture(app_500) as addr, pytest.raises(error.HTTPError):
+        fetch_oembed_document(f"{addr}/oembed")

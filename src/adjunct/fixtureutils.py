@@ -7,16 +7,19 @@ from http import client
 import io
 import json
 import multiprocessing
+import typing as t
 from wsgiref.simple_server import make_server
 
 
-def start_server(app, queue, returns_app):
+def start_server(app, queue, returns_app):  # pragma: no cover
     """
     Run a fixture application.
     """
-    # 'app' is actually a callable that returns an app. Useful when dealing
-    # with a app implemented as a class.
+    # This is excluded from coverage as it's only run in a separate process.
+    # If there were an issue, the tests using fixtures would fail.
     if returns_app:
+        # 'app' is actually a callable that returns an app. Useful when dealing
+        # with a app implemented as a class.
         app = app()
     svr = make_server("localhost", 0, app)
     queue.put(("localhost", svr.server_port))
@@ -49,22 +52,22 @@ def fixture(app, *, returns_app: bool = False, timeout: int = 5):
         queue.close()
 
 
-def get_content_length(environ):
-    content_length = environ.get("CONTENT_LENGTH", None)
+def get_content_length(environ: dict) -> int | None:
+    content_length = environ.get("CONTENT_LENGTH")
     return None if content_length is None else int(content_length)
 
 
-def read_body(environ):
+def read_body(environ: dict) -> bytes:
     return environ["wsgi.input"].read(get_content_length(environ))
 
 
-def read_json(environ):
+def read_json(environ: dict):
     if environ["CONTENT_TYPE"] == "application/json":
         return json.loads(read_body(environ))
     return None
 
 
-def extract_environment(environ):
+def extract_environment(environ: dict) -> dict:
     non_http = [
         "CONTENT_LENGTH",
         "CONTENT_TYPE",
@@ -75,7 +78,12 @@ def extract_environment(environ):
     return {key: value for key, value in environ.items() if key in non_http or key.startswith("HTTP_")}
 
 
-def response(start_response, code, body="", headers=None):
+def response(
+    start_response,
+    code: int,
+    body: bytes = b"",
+    headers: list[tuple[str, str]] | None = None,
+) -> t.Iterable[bytes]:
     if headers is None:
         headers = []
     headers.append(("Content-Length", str(len(body))))
@@ -83,14 +91,14 @@ def response(start_response, code, body="", headers=None):
     return [body]
 
 
-def json_response(start_response, body, headers=None):
+def json_response(start_response, body) -> t.Iterable[bytes]:
     headers = [("Content-Type", "application/json; charset=UTF-8")]
-    return response(start_response, 200, body=json.dumps(body), headers=headers)
+    return response(start_response, 200, body=json.dumps(body).encode("utf-8"), headers=headers)
 
 
-def basic_response(start_response, code, body=""):
+def basic_response(start_response, code: int, body: str = "") -> t.Iterable[bytes]:
     headers = [("Content-Type", "text/plain; charset=UTF-8")]
-    return response(start_response, code, body, headers=headers)
+    return response(start_response, code, body.encode("utf-8"), headers=headers)
 
 
 class FakeSocket:

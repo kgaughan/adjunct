@@ -20,5 +20,10 @@ typecheck:
 
 # clean up any caches or temporary files and directories
 clean:
-	@rm -rf .mypy_cache .pytest_cache .ruff_cache .venv dist htmlcov .coverage
+	@rm -rf .mypy_cache .pytest_cache .ruff_cache .venv dist htmlcov .coverage tests/results.xml .coverage.*
 	@find . -name \*.orig -delete
+
+# install tools (you'll have to ensure you have uv already installed)
+tools:
+	@uv tool install ruff
+	@uv tool install tox --with tox-uv

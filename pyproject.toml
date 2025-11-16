@@ -139,3 +139,12 @@ exclude_lines = [
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.tox]
+requires = ["tox>=4", "tox-uv>=1"]
+env_list = ["py311", "py312", "py313", "py314"]
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+description = "Run test under {base_python}"
+commands = [["pytest", "--basetemp={envtmpdir}"]]

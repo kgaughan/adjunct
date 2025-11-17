@@ -15,11 +15,13 @@ def mutex(filename: str):
     Lock a mutex file.
 
     This can be used to prevent scripts from having more than one instance of
-    themselves running at the same time as follows::
+    themselves running at the same time as follows:
 
-        if __name__ == "__main__":
-            with mutex(__file__):
-                main()
+    ```py
+    if __name__ == "__main__":
+        with mutex(__file__):
+            main()
+    ```
     """
     with open(filename, "rb") as fh:
         try:

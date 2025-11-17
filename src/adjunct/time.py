@@ -15,10 +15,10 @@ def date(
     SQLite timestamps are taken to be in UTC. If you want them adjusted to
     another timezone, pass a `tzinfo` object representing that timezone in
     the `tz` parameter. The `fmt` parameter specifies a `strftime` date format
-    string; it defaults to the `ISO 8601`_/`RFC 3339`_ date format.
+    string; it defaults to the [ISO 8601]/[RFC 3339] date format.
 
-    .. _ISO 8601: http://en.wikipedia.org/wiki/ISO_8601
-    .. _RFC 3339: http://tools.ietf.org/html/rfc3339
+    [ISO 8601]: http://en.wikipedia.org/wiki/ISO_8601
+    [RFC 3339]: http://tools.ietf.org/html/rfc3339
     """
     return parse_dt(dt, tz).strftime(fmt)
 

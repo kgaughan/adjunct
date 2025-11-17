@@ -1,7 +1,7 @@
 """
-Simple netstring_ reader implemented as a generator.
+Simple [netstring] reader implemented as a generator.
 
-.. _netstring: http://cr.yp.to/proto/netstrings.txt
+[netstring]: http://cr.yp.to/proto/netstrings.txt
 """
 
 import io

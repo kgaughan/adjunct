@@ -1,7 +1,7 @@
 """
-An oEmbed_ client library.
+An [oEmbed] client library.
 
-.. _oEmbed: http://oembed.com/
+[oEmbed]: http://oembed.com/
 """
 
 import json

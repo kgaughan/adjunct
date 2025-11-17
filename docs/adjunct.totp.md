@@ -14,7 +14,7 @@ print(t.generate())
 ```
 
 To allow the object to be stored in a user's profile, you can use the `to_dict`
-method to you can serialise it as JSON or another format, and subsequently
+method so you can serialise it as JSON or another format, and subsequently
 recreate the object using the `from_dict` class method.
 
 ```py
@@ -37,7 +37,8 @@ user so they can add it to their OTP generator.
 print(t1.to_url("jane.doe@example.com", issuer="Yoyodyne"))
 ```
 
-Finally, to check a code, pass it to `generate` method to check a code provided by the user.
+Finally, to check a code, pass it to `check` method to validate a code provided
+by the user.
 
 ```py
 while True:

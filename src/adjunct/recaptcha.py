@@ -1,7 +1,7 @@
 """
-A reCAPTCHA_ client library.
+A [reCAPTCHA] client library.
 
-.. _reCAPTCHA: http://www.google.com/recaptcha
+[reCAPTCHA]: http://www.google.com/recaptcha
 """
 
 from urllib import parse, request

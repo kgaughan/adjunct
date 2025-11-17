@@ -1,7 +1,7 @@
 """
-A simple, nay, simplistic! OPML_ parser.
+A simple, nay, simplistic! [OPML] parser.
 
-.. _OPML: http://dev.opml.org/spec2.html
+[OPML]: http://dev.opml.org/spec2.html
 """
 
 import datetime
@@ -51,7 +51,7 @@ class Outline(list):
             args.append(f"attrs={self.attrs!r}")
         if len(self) > 0:
             args.append(f"items={list(self)!r}")
-        return f'Outline({", ".join(args)})'
+        return f"Outline({', '.join(args)})"
 
 
 class _Handler(xml.sax.handler.ContentHandler):
@@ -109,7 +109,7 @@ class _Handler(xml.sax.handler.ContentHandler):
     def startElement(self, name, attrs):  # noqa: N802
         expected = self._NESTING[self._get_parent_tag()]
         if name not in expected:
-            raise OpmlError(f'Got <{name}>, expected <{"|".join(expected)}>')
+            raise OpmlError(f"Got <{name}>, expected <{'|'.join(expected)}>")
 
         self.tag_stack.append(name)
         if name == "outline":

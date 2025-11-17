@@ -12,16 +12,17 @@ class XMLBuilder:
     XML document builder. The code is purposely namespace ignorant: it's up to
     user to supply appropriate `xmlns` attributes as needed.
 
-    >>> xml = XMLBuilder()
-    >>> with xml.within('root', xmlns='tag:talideon.com,2013:test'):
-    ...     xml += 'Before'
-    ...     with xml.within('leaf'):
-    ...         xml += 'Within'
-    ...     xml += 'After'
-    ...     xml.tag('leaf', 'Another')
-    >>> print xml.as_string()
-    <?xml version="1.0" encoding="utf-8"?>
-    <root xmlns="tag:talideon.com,2013:test">Before<leaf>Within</leaf>After<leaf>Another</leaf></root>
+    Examples:
+        >>> xml = XMLBuilder()
+        >>> with xml.within('root', xmlns='tag:talideon.com,2013:test'):
+        ...     xml += 'Before'
+        ...     with xml.within('leaf'):
+        ...         xml += 'Within'
+        ...     xml += 'After'
+        ...     xml.tag('leaf', 'Another')
+        >>> print xml.as_string()
+        <?xml version="1.0" encoding="utf-8"?>
+        <root xmlns="tag:talideon.com,2013:test">Before<leaf>Within</leaf>After<leaf>Another</leaf></root>
     """
 
     def __init__(self, out=None, encoding: str = "utf-8") -> None:

@@ -1,0 +1,55 @@
+---
+site_name: Adjunct
+repo_url: https://github.com/kgaughan/adjunct/
+
+theme:
+  name: material
+  icon:
+    logo: octicons/key-16
+  features:
+    - content.code.copy
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - attr_list
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          inventories:
+            - https://docs.python.org/3.11/objects.inv
+          options:
+            docstring_style: google
+
+nav:
+  - index.md
+  - Reference:
+      - adjunct.compat.md
+      - adjunct.discoverfeeds.md
+      - adjunct.discovery.md
+      - adjunct.fixtureutils.md
+      - adjunct.gravatar.md
+      - adjunct.html.md
+      - adjunct.netstrings.md
+      - adjunct.oembed.md
+      - adjunct.ogp.md
+      - adjunct.opml.md
+      - adjunct.pagination.md
+      - adjunct.passkit.md
+      - adjunct.recaptcha.md
+      - adjunct.singleton.md
+      - adjunct.time.md
+      - adjunct.totp.md
+      - adjunct.xmlutils.md

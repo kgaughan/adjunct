@@ -29,7 +29,7 @@ def make_gravatar(
     Generate a gravatar image URL.
 
     For information on the parameters, see:
-    https://en.gravatar.com/site/implement/images/
+    <https://en.gravatar.com/site/implement/images/>
     """
     params = {
         "s": str(size),

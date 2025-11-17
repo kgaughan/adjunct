@@ -76,6 +76,7 @@ class JSONPasswdFile:
         "<username2>": { ... }
       }
     }
+    ```
 
     For the benefit of tools like file(1), the file should start with the
     metadata entry.

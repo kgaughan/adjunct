@@ -33,6 +33,10 @@ plugins:
           options:
             docstring_style: google
 
+watch:
+  - docs
+  - src/adjunct
+
 nav:
   - index.md
   - Reference:

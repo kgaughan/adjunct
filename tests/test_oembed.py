@@ -130,7 +130,7 @@ class OEmbedXMLParserTest(unittest.TestCase):
 def make_response(dct, content_type="application/json+oembed; charset=UTF-8"):
     return make_fake_http_response(
         body=json.dumps(dct),
-        headers={"Content-Type": content_type},
+        headers=[("Content-Type", content_type)],
     )
 
 
@@ -165,13 +165,13 @@ class FetchTest(unittest.TestCase):
 def app_400(environ, start_response):  # noqa: ARG001
     headers = [("Content-Type", "text/plain; charset=utf-8")]
     start_response("400 Bad Request", headers)
-    return [b"Bad request"]
+    yield b"Bad request"
 
 
 def app_500(environ, start_response):  # noqa: ARG001
     headers = [("Content-Type", "text/plain; charset=utf-8")]
     start_response("500 Internal Server Error", headers)
-    return [b"Internal server error"]
+    yield b"Internal server error"
 
 
 def test_fetch_oembed_with_error():

@@ -15,13 +15,12 @@ from .compat import parse_header
 __all__ = ["get_oembed"]
 
 
-# pylint: disable-msg=C0103
-class OEmbedContentHandler(xml.sax.handler.ContentHandler):
+class _OEmbedContentHandler(xml.sax.handler.ContentHandler):
     """
     Pulls the fields out of an XML oEmbed document.
     """
 
-    valid_fields: t.ClassVar[list[str]] = [
+    _valid_fields: t.ClassVar[list[str]] = [
         "type",
         "version",
         "title",
@@ -52,7 +51,7 @@ class OEmbedContentHandler(xml.sax.handler.ContentHandler):
             self.current_value = []
 
     def endElement(self, name) -> None:  # noqa: N802, ARG002
-        if self.depth == 2 and self.current_field in self.valid_fields:
+        if self.depth == 2 and self.current_field in self._valid_fields:
             self.fields[self.current_field] = "".join(self.current_value)
         self.depth -= 1
 
@@ -84,7 +83,7 @@ def fetch_oembed_document(
     width in `max_width` and the maximum height in `max_height`.
     """
     headers = {
-        "Accept": ", ".join(ACCEPTABLE_TYPES.keys()),
+        "Accept": ", ".join(_ACCEPTABLE_TYPES.keys()),
         "User-Agent": "adjunct-oembed/1.0",
     }
     try:
@@ -93,8 +92,8 @@ def fetch_oembed_document(
             content_type, _ = parse_header(
                 fh.headers.get("content-type", "application/octet-stream"),
             )
-            if content_type in ACCEPTABLE_TYPES:
-                parser = ACCEPTABLE_TYPES[content_type]
+            if content_type in _ACCEPTABLE_TYPES:
+                parser = _ACCEPTABLE_TYPES[content_type]
                 return parser(fh)  # type: ignore
     except error.HTTPError as exc:
         if 400 <= exc.code < 500:
@@ -107,7 +106,7 @@ def _parse_xml_oembed_response(fh: t.TextIO) -> dict[str, str | int]:
     """
     Parse the fields from an XML OEmbed document.
     """
-    handler = OEmbedContentHandler()
+    handler = _OEmbedContentHandler()
     xml.sax.parse(fh, handler)
     return handler.fields
 
@@ -116,7 +115,7 @@ def _parse_xml_oembed_response(fh: t.TextIO) -> dict[str, str | int]:
 # that (a) these content types aren't the same as the link types and (b) that
 # text/xml (which is deprecated, IIRC) is being used rather than
 # application/xml. Just to be perverse, let's support all of that.
-ACCEPTABLE_TYPES = {
+_ACCEPTABLE_TYPES = {
     "application/json": json.load,
     "application/json+oembed": json.load,
     "application/xml": _parse_xml_oembed_response,
@@ -125,7 +124,7 @@ ACCEPTABLE_TYPES = {
     "text/xml+oembed": _parse_xml_oembed_response,
 }
 
-LINK_TYPES = [key for key in ACCEPTABLE_TYPES if key.endswith("+oembed")]
+_LINK_TYPES = [key for key in _ACCEPTABLE_TYPES if key.endswith("+oembed")]
 
 
 def find_first_oembed_link(links: t.Collection[dict]) -> str | None:
@@ -133,7 +132,7 @@ def find_first_oembed_link(links: t.Collection[dict]) -> str | None:
     Search for the first valid oEmbed link.
     """
     for link in links:
-        if link.get("rel") == "alternate" and link.get("type") in LINK_TYPES:
+        if link.get("rel") == "alternate" and link.get("type") in _LINK_TYPES:
             url = link.get("href")
             if url is not None:
                 return url

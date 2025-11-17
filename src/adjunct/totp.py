@@ -7,13 +7,13 @@ import urllib.parse as _parse
 
 
 class UnknownHashAlgorithmError(Exception):
-    """Raised if the named hash algorithm was not recognised."""
+    """Raised if the named hash algorithm was not recognised.
+
+    Args:
+        alg: Hash algorithm name given
+    """
 
     def __init__(self, alg: str):
-        """
-        Args:
-            alg: Hash algorithm name given
-        """
         self.alg = alg
         message = f"'{alg}' is not a supported TOTP hash algorithm"
         super().__init__(message)
@@ -26,7 +26,20 @@ _unpack_uint32 = struct.Struct(">I").unpack
 
 
 class TOTP:
-    """An implementation of TOTP (RFC 6238)."""
+    """An implementation of TOTP (RFC 6238).
+
+    Args:
+        key: A buffer of random bytes acting as a key. Will be generated if None.
+        alg: Hash algorithm to use for the OTP. Defaults to "sha1", but supports sha256 and sha512.
+        digits: Length of the OTP. Defaults to 6 digits.
+        period: Validity period in seconds of the OTP. Defaults to 30.
+        key_size: If no key is given, the length in bytes of the key go generate. Default to 16.
+
+    Raises:
+        UnknownHashAlgorithmError: If the hash algorithm given is not recognised.
+    """
+
+    __slots__ = ["alg", "digits", "key", "period"]
 
     def __init__(
         self,
@@ -37,17 +50,6 @@ class TOTP:
         period: int = 30,
         key_size: int = 16,
     ) -> None:
-        """
-        Args:
-            key: A buffer of random bytes acting as a key. Will be generated if None.
-            alg: Hash algorithm to use for the OTP. Defaults to "sha1", but supports sha256 and sha512.
-            digits: Length of the OTP. Defaults to 6 digits.
-            period: Validity period in seconds of the OTP. Defaults to 30.
-            key_size: If no key is given, the length in bytes of the key go generate. Default to 16.
-
-        Raises:
-            UnknownHashAlgorithmError: If the hash algorithm given is not recognised.
-        """
         if alg not in _allowed_hashes:
             raise UnknownHashAlgorithmError(alg)
         if key is None:

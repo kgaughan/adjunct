@@ -73,12 +73,12 @@ def test_fetch_meta():
 def test_safe_slurp():
     data = b"Hello, world!\nThis is a test.\n"
     fh = io.BytesIO(data)
-    result = "".join(discovery.safe_slurp(fh, chunk_size=4, encoding="utf-8"))
+    result = "".join(discovery._safe_slurp(fh, chunk_size=4, encoding="utf-8"))
     assert result == data.decode("utf-8")
 
 
 def test_fix_attributes():
-    assert discovery.fix_attributes(
+    assert discovery._fix_attributes(
         [
             ("REL", " Foo "),
             ("data-value", None),

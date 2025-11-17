@@ -11,7 +11,7 @@ def test_make_fake_http_response_msg():
     msg = fixtureutils.make_fake_http_response_msg(
         code=404,
         body="Not Found",
-        headers={"Content-Type": "text/plain"},
+        headers=[("Content-Type", "text/plain")],
     )
     assert msg == b"HTTP/1.0 404 Not Found\r\nContent-Length: 9\nContent-Type: text/plain\n\nNot Found"
 
@@ -20,7 +20,7 @@ def test_make_fake_http_response_msg_complex_header():
     msg = fixtureutils.make_fake_http_response_msg(
         code=404,
         body="Not Found",
-        headers={"Content-Type": ("text/plain", {"charset": "UTF-8"})},
+        headers=[("Content-Type", ("text/plain", {"charset": "UTF-8"}))],
     )
     assert msg == b'HTTP/1.0 404 Not Found\r\nContent-Length: 9\nContent-Type: text/plain; charset="UTF-8"\n\nNot Found'
 
@@ -37,10 +37,10 @@ def test_make_fake_http_response():
     response = fixtureutils.make_fake_http_response(
         body="Hello, World!",
         code=200,
-        headers={
-            "Content-Type": "text/plain",
-            "X-Custom-Header": "CustomValue",
-        },
+        headers=[
+            ("Content-Type", "text/plain"),
+            ("X-Custom-Header", "CustomValue"),
+        ],
     )
     assert response.status == 200
     assert response.getheader("Content-Type") == "text/plain"
@@ -59,20 +59,17 @@ def test_json_response():
 
     result = fixtureutils.json_response(start_response, {"key": "value"})
 
+    assert b"".join(result) == b'{"key": "value"}'
     assert response_status.startswith("200")
     headers_dict = dict(response_headers)
     assert headers_dict["Content-Type"] == "application/json; charset=UTF-8"
-    assert b"".join(result) == b'{"key": "value"}'
 
 
 def fixture_app(environ, start_response):  # noqa: ARG001
     """
     A simple WSGI application for testing purposes.
     """
-    status = "200 OK"
-    headers = [("Content-Type", "text/plain; charset=UTF-8")]
-    start_response(status, headers)
-    return [b"Fixture App Response"]
+    return fixtureutils.basic_response(start_response, 200, "Fixture App Response")
 
 
 def test_fixture():

@@ -33,7 +33,7 @@ def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:  # noqa: C901
     Reads a sequence of netstrings from the given file object.
 
     Args:
-        fd: a file-lke object to read from
+        fd: a file-like object to read from
 
     Yields:
         netstrings

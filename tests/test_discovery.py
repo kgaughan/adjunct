@@ -77,6 +77,17 @@ def test_safe_slurp():
     assert result == data.decode("utf-8")
 
 
+def test_safe_slurp_multibyte_utf8_across_chunks():
+    # Use multi-byte UTF-8 characters (emoji and accented characters)
+    text = "Hello \N{EARTH GLOBE EUROPE-AFRICA} \N{EN DASH} café \N{SMILING FACE WITH SMILING EYES}"
+    data = text.encode("utf-8")
+
+    # Use a chunk size smaller than some characters' byte length to force splits
+    fh = io.BytesIO(data)
+    result = "".join(discovery._safe_slurp(fh, chunk_size=2, encoding="utf-8"))
+    assert result == text
+
+
 def test_fix_attributes():
     assert discovery.fix_attributes(
         [

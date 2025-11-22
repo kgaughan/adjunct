@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "Element",
-    "parse",
     "make",
+    "parse",
 ]
 
 # See: https://html.spec.whatwg.org/multipage/syntax.html#void-elements

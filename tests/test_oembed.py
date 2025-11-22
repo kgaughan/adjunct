@@ -10,10 +10,10 @@ from adjunct import fixtureutils
 from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
-    _parse_xml_oembed_response,
-    fetch,
     _find_first_oembed_link,
     _get_oembed,
+    _parse_xml_oembed_response,
+    fetch,
 )
 
 

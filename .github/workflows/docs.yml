@@ -1,0 +1,28 @@
+---
+name: Publish documentation
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - "v*"
+    paths:
+      - mkdocs.yml
+      - "docs/**"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.5"
+          python-version: "3.11"
+      - name: Deploy site
+        run: uv run mkdocs gh-deploy --force

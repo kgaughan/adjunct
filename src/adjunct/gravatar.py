@@ -52,5 +52,5 @@ def make_gravatar(
     }
 
     # Omit the protocol so it'll work cleanly over both HTTP and HTTPS.
-    digest = hashlib.md5(email.strip().lower().encode("utf-8")).hexdigest()  # noqa: S324
+    digest = hashlib.sha256(email.strip().lower().encode("utf-8")).hexdigest()
     return f"//www.gravatar.com/avatar/{digest}?{parse.urlencode(params)}"

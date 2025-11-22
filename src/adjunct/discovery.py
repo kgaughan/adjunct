@@ -11,7 +11,7 @@ from urllib import parse, request
 
 from .compat import parse_header
 
-__all__ = ["Extractor", "fix_attributes", "fetch_meta"]
+__all__ = ["Extractor", "fetch_meta", "fix_attributes"]
 
 logger = logging.getLogger(__name__)
 

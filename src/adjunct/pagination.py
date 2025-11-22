@@ -1,6 +1,4 @@
-"""
-Pagination support code.
-"""
+"""Pagination support."""
 
 import typing as t
 

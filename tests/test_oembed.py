@@ -11,9 +11,9 @@ from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
     _find_first_oembed_link,
-    _get_oembed,
     _parse_xml_oembed_response,
     fetch,
+    get_oembed,
 )
 
 
@@ -80,7 +80,7 @@ class OEmbedFinderTest(unittest.TestCase):
         self.assertEqual(result, "http://www.example.com/oembed?format=xml")
 
     def test_get_oembed_none(self):
-        result = _get_oembed(LINKS_WITHOUT)
+        result = get_oembed(LINKS_WITHOUT)
         self.assertIsNone(result)
 
     @mock.patch("urllib.request.urlopen")
@@ -95,7 +95,7 @@ class OEmbedFinderTest(unittest.TestCase):
             "title": "A video",
         }
         mock_urlopen.return_value = make_response(doc)
-        result = _get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
+        result = get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
         assert result is not None
         self.assertDictEqual(result, doc)
 

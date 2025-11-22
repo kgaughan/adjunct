@@ -84,6 +84,13 @@ class TestElement(unittest.TestCase):
         )
 
 
+def test_no_file_object_serialiser():
+    expected = "<br>"
+    fo = html.parse(expected).serialize()
+    assert isinstance(fo, io.StringIO)
+    assert fo.getvalue() == expected
+
+
 def test_make_html():
     assert html.make("br", attrs={}) == "<br>"
     assert html.make("a", attrs={"href": "foo"}) == '<a href="foo"></a>'

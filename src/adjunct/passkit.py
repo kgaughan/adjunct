@@ -1,6 +1,5 @@
 """A partial replacement for [passlib].
 
-
 Iimplementing an equivalent of its HtpasswdFile class and supporting
 functionality.
 

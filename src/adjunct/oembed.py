@@ -83,8 +83,8 @@ def fetch(
 
     Returns:
         An oEmbed document as a dictionary; `None` if the document could not
-        be fetched or the content type of the response was not valid for an
-        oEmbed document.
+            be fetched or the content type of the response was not valid for an
+            oEmbed document.
     """
     headers = {
         "Accept": ", ".join(_ACCEPTABLE_TYPES.keys()),
@@ -137,7 +137,7 @@ def _find_first_oembed_link(links: t.Collection[dict[str, str]]) -> str | None:
 
     Returns:
         The value of the `href` attribute of the first one with a valid oEmbed
-        MIME type specified in its `type` attribute.
+            MIME type specified in its `type` attribute.
     """
     for link in links:
         if link.get("rel") == "alternate" and link.get("type") in _LINK_TYPES:
@@ -161,8 +161,8 @@ def get_oembed(
 
     Returns:
         An oEmbed document as a dictionary; `None` if the document could not
-        be fetched or the content type of the response was not valid for an
-        oEmbed document.
+            be fetched or the content type of the response was not valid for an
+            oEmbed document.
     """
     if oembed_url := _find_first_oembed_link(links):
         return fetch(oembed_url, max_width, max_height)

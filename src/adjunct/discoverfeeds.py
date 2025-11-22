@@ -88,7 +88,8 @@ def discover_feeds(url: str) -> t.Collection[dict[str, str]]:
         url: URL of page to extract feeds from.
 
     Returns:
-        The feeds in order of priority. Atom feeds are prioritised first, followed by RDF, and then finally RSS feeds.
+        The feeds in order of priority. Atom feeds are prioritised first,
+            followed by RDF, and then finally RSS feeds.
     """
     links, _ = discovery.fetch_meta(url, _FeedExtractor)
     return sorted(links, key=(lambda feed: _ORDER[feed["type"]]))

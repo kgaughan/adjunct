@@ -28,8 +28,8 @@ class XMLBuilder:
             a buffer is created.
 
     Note:
-        If you provide your own, the `as_string()` method will return `None`
-        as no other sensible value can be returned.
+        If you provide your own, the `as_string()` method will return an empty
+        string as no other sensible value can be returned.
     """
 
     def __init__(self, out: io.IOBase | None = None, encoding: str = "utf-8") -> None:

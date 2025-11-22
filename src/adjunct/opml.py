@@ -144,7 +144,7 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
         ts: an RFC 2822 timestamp
 
     Returns:
-        The parsed datetime, or `None `None` if the timestamp could not be parsed.
+        A timezone-aware datetime, or `None` if the timestamp could not be parsed.
     """
     tt = email.utils.parsedate_tz(ts)
     if tt is None:

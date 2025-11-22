@@ -174,12 +174,16 @@ class JSONPasswdFile:
     def check_password(self, username: str, password: str) -> bool:
         """Check is a user's password is valid.
 
+        This verifies the provided password against the stored credentials for
+        the given user.
+
         Args:
-            username: the username of the user to check
-            password: the password to check against the one recorded
+            username: the username whose password must be validated
+            password: the plaintext password to validate
 
         Returns:
-            `True` if the password is correct.
+            `True` if the password is correct; `False` if the user doesn't
+                exist or the password is invalid.
 
         Raises:
             UnknownAlgorithmError: the password does not use a known algorithm

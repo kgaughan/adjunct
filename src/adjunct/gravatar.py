@@ -1,5 +1,4 @@
-"""
-Gravatar support.
+"""Gravatar support.
 
 For information on the parameters, see [the SDK](https://docs.gravatar.com/sdk/images/).
 """

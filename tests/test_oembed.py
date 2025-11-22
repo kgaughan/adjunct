@@ -11,9 +11,9 @@ from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
     _parse_xml_oembed_response,
-    fetch_oembed_document,
-    find_first_oembed_link,
-    get_oembed,
+    fetch,
+    _find_first_oembed_link,
+    _get_oembed,
 )
 
 
@@ -53,7 +53,7 @@ LINKS_WITH = [
 
 class OEmbedFinderTest(unittest.TestCase):
     def test_none(self):
-        self.assertIsNone(find_first_oembed_link(LINKS_WITHOUT))
+        self.assertIsNone(_find_first_oembed_link(LINKS_WITHOUT))
 
     def test_find(self):
         links = [
@@ -71,16 +71,16 @@ class OEmbedFinderTest(unittest.TestCase):
                 "type": "text/xml+oembed",
             },
         ]
-        result = find_first_oembed_link(links)
+        result = _find_first_oembed_link(links)
         self.assertEqual(result, "http://www.example.com/oembed?format=json")
 
     def test_no_href(self):
         links = [*LINKS_WITHOUT, *LINKS_WITH]
-        result = find_first_oembed_link(links)
+        result = _find_first_oembed_link(links)
         self.assertEqual(result, "http://www.example.com/oembed?format=xml")
 
     def test_get_oembed_none(self):
-        result = get_oembed(LINKS_WITHOUT)
+        result = _get_oembed(LINKS_WITHOUT)
         self.assertIsNone(result)
 
     @mock.patch("urllib.request.urlopen")
@@ -95,7 +95,7 @@ class OEmbedFinderTest(unittest.TestCase):
             "title": "A video",
         }
         mock_urlopen.return_value = make_response(doc)
-        result = get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
+        result = _get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
         assert result is not None
         self.assertDictEqual(result, doc)
 
@@ -148,7 +148,7 @@ class FetchTest(unittest.TestCase):
         }
         mock_urlopen.return_value = make_response(orig)
 
-        fetched = fetch_oembed_document("https://example.com/oembed?type=json")
+        fetched = fetch("https://example.com/oembed?type=json")
         mock_urlopen.assert_called_once()
         self.assertIsInstance(fetched, dict)
         self.assertDictEqual(fetched, orig)  # type: ignore
@@ -157,7 +157,7 @@ class FetchTest(unittest.TestCase):
     def test_fetch_bad(self, mock_urlopen):
         mock_urlopen.return_value = make_response({}, content_type="text/plain")
 
-        fetched = fetch_oembed_document("https://example.com/oembed?type=json")
+        fetched = fetch("https://example.com/oembed?type=json")
         mock_urlopen.assert_called_once()
         self.assertIsNone(fetched)
 
@@ -176,8 +176,8 @@ def app_500(environ, start_response):  # noqa: ARG001
 
 def test_fetch_oembed_with_error():
     with fixtureutils.fixture(app_400) as addr:
-        fetched = fetch_oembed_document(f"{addr}/oembed")
+        fetched = fetch(f"{addr}/oembed")
         assert fetched is None
 
     with fixtureutils.fixture(app_500) as addr, pytest.raises(error.HTTPError):
-        fetch_oembed_document(f"{addr}/oembed")
+        fetch(f"{addr}/oembed")

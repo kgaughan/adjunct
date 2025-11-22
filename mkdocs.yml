@@ -52,7 +52,6 @@ nav:
       - adjunct.opml.md
       - adjunct.pagination.md
       - adjunct.passkit.md
-      - adjunct.recaptcha.md
       - adjunct.singleton.md
       - adjunct.time.md
       - adjunct.totp.md

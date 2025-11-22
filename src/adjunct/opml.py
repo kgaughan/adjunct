@@ -5,6 +5,7 @@
 
 import datetime
 import email.utils
+import io
 import typing as t
 import xml.sax
 import xml.sax.handler
@@ -152,7 +153,7 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
     return datetime.datetime.fromtimestamp(email.utils.mktime_tz(tt), tz=datetime.UTC)
 
 
-def parse(fh: t.IO[str]) -> Outline | None:
+def parse(fh: io.TextIOBase) -> Outline | None:
     """Parses an OPML file from the given file object.
 
     Args:

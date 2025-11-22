@@ -32,7 +32,7 @@ class XMLBuilder:
         string as no other sensible value can be returned.
     """
 
-    def __init__(self, out: io.IOBase | None = None, encoding: str = "utf-8") -> None:
+    def __init__(self, out: io.TextIOBase | None = None, encoding: str = "utf-8") -> None:
         self.buffer = None
         if out is None:
             self.buffer = io.StringIO()

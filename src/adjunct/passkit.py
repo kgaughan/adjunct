@@ -1,6 +1,6 @@
 """A partial replacement for [passlib].
 
-Iimplementing an equivalent of its HtpasswdFile class and supporting
+Implementing an equivalent of its HtpasswdFile class and supporting
 functionality.
 
 It comes with a simple tool for manipulating JSONPasswd files.

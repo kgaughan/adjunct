@@ -11,7 +11,7 @@ import xml.sax.handler
 
 from .compat import parse_header
 
-__all__ = ["fetch"]
+__all__ = ["fetch", "get_oembed"]
 
 
 class _OEmbedContentHandler(xml.sax.handler.ContentHandler):
@@ -36,10 +36,10 @@ class _OEmbedContentHandler(xml.sax.handler.ContentHandler):
 
     def __init__(self) -> None:
         super().__init__()
-        self.current_field = None
-        self.current_value = []
+        self.current_field: str | None = None
+        self.current_value: list[str] = []
         self.depth = 0
-        self.fields = {}
+        self.fields: dict[str, str | int] = {}
 
     def startElement(self, name, attrs) -> None:  # noqa: N802, ARG002
         self.depth += 1
@@ -147,7 +147,7 @@ def _find_first_oembed_link(links: t.Collection[dict[str, str]]) -> str | None:
     return None
 
 
-def _get_oembed(
+def get_oembed(
     links: t.Collection[dict[str, str]],
     max_width: int | None = None,
     max_height: int | None = None,

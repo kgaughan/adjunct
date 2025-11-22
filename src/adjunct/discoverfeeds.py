@@ -35,7 +35,7 @@ class _FeedExtractor(discovery.Extractor):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
         if tag.lower() == "a" and self.anchor is None:
-            fixed_attrs = discovery._fix_attributes(attrs)
+            fixed_attrs = discovery.fix_attributes(attrs)
             if "href" in fixed_attrs:
                 fixed_attrs["@data"] = ""
                 feed_type = self.guess_feed_type(fixed_attrs["href"])

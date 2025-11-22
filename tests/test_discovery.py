@@ -78,7 +78,7 @@ def test_safe_slurp():
 
 
 def test_fix_attributes():
-    assert discovery._fix_attributes(
+    assert discovery.fix_attributes(
         [
             ("REL", " Foo "),
             ("data-value", None),

@@ -11,7 +11,7 @@ from urllib import parse, request
 
 from .compat import parse_header
 
-__all__ = ["Extractor", "_fix_attributes", "fetch_meta"]
+__all__ = ["Extractor", "fix_attributes", "fetch_meta"]
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class Extractor(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
-        fixed_attrs = _fix_attributes(attrs)
+        fixed_attrs = fix_attributes(attrs)
         if tag == "link":
             self._append(fixed_attrs)
         elif tag == "base" and "href" in fixed_attrs:
@@ -129,9 +129,19 @@ def _safe_slurp(fh: io.IOBase, chunk_size: int = 65536, encoding: str = "UTF-8")
         yield decoded
 
 
-def _fix_attributes(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
-    """
-    Normalise and clean up the attributes, and put them in a dict.
+def fix_attributes(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
+    """Normalise and clean up the attributes, and put them in a dict.
+
+    Attribute names are normalised to lowercase; whitespace within values is
+    trimmed; if the value of an attribute is `None`, it's replaced with an
+    empty string; and the values of the `rel` and `type` attributes are
+    converted to lowercase.
+
+    Args:
+        attrs: raw attributes
+
+    Returns:
+        cleaned-up attributes
     """
     result = {}
     for attr, value in attrs:

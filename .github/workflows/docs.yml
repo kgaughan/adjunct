@@ -9,6 +9,7 @@ on:
     paths:
       - mkdocs.yml
       - "docs/**"
+      - "src/adjunct/**"
 
 permissions:
   contents: write
@@ -19,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          persist-credentials: false
+          persist-credentials: true
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.5"

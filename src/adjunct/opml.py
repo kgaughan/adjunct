@@ -1,5 +1,4 @@
-"""
-A simple, nay, simplistic! [OPML] parser.
+"""A simple, nay, simplistic! [OPML] parser.
 
 [OPML]: http://dev.opml.org/spec2.html
 """
@@ -20,27 +19,35 @@ __all__ = [
 
 
 class OpmlError(Exception):
-    """
-    Raised when there's a problem parsing an OPML document.
-    """
+    """Raised when there's a problem parsing an OPML document."""
 
 
 class Outline(list):
-    """
-    An outline. Contains the element's attributes in the `attrs` member and
-    the outlines nested within it as elements.
+    """An outline.
+
+    Contains the element's attributes in the `attrs` member and the outlines
+    nested within it as elements.
+
+    Args:
+        attrs: any attributes on the element
+        items: any child outlines nested within this outline
+        root: is this outline the root outline?
+
+    Attributes:
+        attrs: any attributes on the element
+        root: is this outline the root outline?
     """
 
     def __init__(
         self,
-        attrs: dict | None = None,
-        items: t.Sequence = (),
+        attrs: dict[str, str] | None = None,
+        items: t.Sequence["Outline"] = (),
         *,
         root: bool = False,
     ):
         super().__init__()
-        self.attrs = {} if attrs is None else attrs
-        self.root = root
+        self.attrs: dict[str, str] = {} if attrs is None else attrs
+        self.root: bool = root
         self.extend(items)
 
     def __repr__(self):
@@ -55,9 +62,7 @@ class Outline(list):
 
 
 class _Handler(xml.sax.handler.ContentHandler):
-    """
-    Implements the mechanics of parsing an OPML document.
-    """
+    """Implements the mechanics of parsing an OPML document."""
 
     _HEAD_TAGS = [  # noqa: RUF012
         "title",
@@ -133,10 +138,13 @@ class _Handler(xml.sax.handler.ContentHandler):
 
 
 def parse_timestamp(ts: str) -> datetime.datetime | None:
-    """
-    Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
+    """Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
 
-    Returns `None` if the timestamp could not be parsed.
+    Args:
+        ts: an RFC 2822 timestamp
+
+    Returns:
+        A timezone-aware datetime, or `None` if the timestamp could not be parsed.
     """
     tt = email.utils.parsedate_tz(ts)
     if tt is None:
@@ -145,8 +153,13 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
 
 
 def parse(fh: t.IO[str]) -> Outline | None:
-    """
-    Parses an OPML file from the given file object.
+    """Parses an OPML file from the given file object.
+
+    Args:
+        fh: a file-like object containing an OPML document
+
+    Returns:
+        An outline if the document could be parsed, otherwise `None`.
     """
     handler = _Handler()
     xml.sax.parse(fh, handler)
@@ -154,8 +167,13 @@ def parse(fh: t.IO[str]) -> Outline | None:
 
 
 def parse_string(s: str) -> Outline | None:
-    """
-    Parses an OPML document from the given string.
+    """Parses an OPML document from the given string.
+
+    Args:
+        s: an OPML document.
+
+    Returns:
+        An outline if the document could be parsed, otherwise `None`.
     """
     handler = _Handler()
     xml.sax.parseString(s, handler)

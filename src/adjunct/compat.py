@@ -2,8 +2,7 @@ import typing as t
 
 
 def parse_header(line: str) -> tuple[str, dict[str, str]]:
-    """
-    Parse a `Content-Type`-like header.
+    """Parse HTTP headers with the same format as `Content-Type`.
 
     Args:
         line: a HTTP header line

@@ -8,7 +8,7 @@ from adjunct import fixtureutils
 
 
 def test_make_fake_http_response_msg():
-    msg = fixtureutils.make_fake_http_response_msg(
+    msg = fixtureutils._make_fake_http_response_msg(
         code=404,
         body="Not Found",
         headers=[("Content-Type", "text/plain")],
@@ -17,7 +17,7 @@ def test_make_fake_http_response_msg():
 
 
 def test_make_fake_http_response_msg_complex_header():
-    msg = fixtureutils.make_fake_http_response_msg(
+    msg = fixtureutils._make_fake_http_response_msg(
         code=404,
         body="Not Found",
         headers=[("Content-Type", ("text/plain", {"charset": "UTF-8"}))],
@@ -26,7 +26,7 @@ def test_make_fake_http_response_msg_complex_header():
 
 
 def test_make_fake_http_response_msg_no_content_type():
-    msg = fixtureutils.make_fake_http_response_msg(
+    msg = fixtureutils._make_fake_http_response_msg(
         code=404,
         body="Not Found",
     )

@@ -1,5 +1,6 @@
-"""
-Test utilities for creating WSGI fixtures for testing HTTP clients.
+"""Test utilities for creating [WSGI][] fixtures for testing HTTP clients.
+
+[WSGI]: https://wsgi.readthedocs.io/
 """
 
 from collections import abc
@@ -17,9 +18,7 @@ _app = abc.Callable[[dict[str, t.Any], _start_response], t.Iterable[bytes]]
 
 
 def _start_server(app, queue, returns_app):  # pragma: no cover
-    """
-    Run a fixture application.
-    """
+    """Run a fixture application."""
     # This is excluded from coverage as it's only run in a separate process.
     # If there were an issue, the tests using fixtures would fail.
     if returns_app:
@@ -33,9 +32,7 @@ def _start_server(app, queue, returns_app):  # pragma: no cover
 
 @contextlib.contextmanager
 def fixture(app: _app, *, returns_app: bool = False, timeout: int = 5) -> abc.Generator[str, None, None]:
-    """
-    Start the given application fixture in its own process, yielding a socket
-    connected to it.
+    """Spin up a fixture application up in its own process.
 
     Set `returns_app` if `app` is a callable that returns the actual app (such
     as a class).
@@ -65,7 +62,7 @@ def fixture(app: _app, *, returns_app: bool = False, timeout: int = 5) -> abc.Ge
         queue.close()
 
 
-def get_content_length(environ: dict) -> int | None:
+def _get_content_length(environ: dict) -> int | None:
     """Get `CONTENT_LENGTH` from the WSGI environment safely."""
     content_length = environ.get("CONTENT_LENGTH")
     return None if content_length is None else int(content_length)
@@ -73,7 +70,7 @@ def get_content_length(environ: dict) -> int | None:
 
 def read_body(environ: dict) -> bytes:
     """Read any input from the WSGI environment."""
-    return environ["wsgi.input"].read(get_content_length(environ))
+    return environ["wsgi.input"].read(_get_content_length(environ))
 
 
 def read_json(environ: dict):
@@ -137,9 +134,8 @@ def basic_response(start_response: _start_response, code: int, body: str = "") -
     return response(start_response, code, body.encode("utf-8"), headers=headers)
 
 
-class FakeSocket:
-    """
-    Just enough of the socket interface implemented to do for testing.
+class _FakeSocket:
+    """Just enough of the socket interface implemented to do for testing.
 
     Args:
         body: a buffer containing the full response message
@@ -155,13 +151,12 @@ class FakeSocket:
         return self._body
 
 
-def make_fake_http_response_msg(
+def _make_fake_http_response_msg(
     code: int = 200,
     body: str = "",
     headers: list[tuple[str, t.Any]] | None = None,
 ) -> bytes:
-    """
-    Creates a HTTP message and serialises it as bytes.
+    """Creates a HTTP message and serialises it as bytes.
 
     Args:
         code: a HTTP status code
@@ -193,9 +188,22 @@ def make_fake_http_response_msg(
     return status.encode("UTF-8") + msg.as_bytes()
 
 
-def make_fake_http_response(code=200, body="", headers=None):
-    """"""
-    sock = FakeSocket(make_fake_http_response_msg(code, body, headers))
+def make_fake_http_response(
+    code: int = 200,
+    body: str = "",
+    headers: list[tuple[str, str]] | None = None,
+) -> client.HTTPResponse:
+    """Make a fake [http.client.HTTPResponse][] object.
+
+    Args:
+        code: HTTP status code
+        body: response body
+        headers: any headers to include, if any
+
+    Returns:
+        A fake response object.
+    """
+    sock = _FakeSocket(_make_fake_http_response_msg(code, body, headers))
     res = client.HTTPResponse(sock)  # type: ignore
     res.begin()
     return res

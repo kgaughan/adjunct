@@ -1,6 +1,4 @@
-"""
-Feed discovery.
-"""
+"""Feed discovery."""
 
 import typing as t
 
@@ -23,10 +21,7 @@ _GUESSES = {
 
 
 class _FeedExtractor(discovery.Extractor):
-    """
-    Extract any link or anchor elements that look like they might refer to
-    feeds.
-    """
+    """Extract any links or anchors that look like they might refer to feeds."""
 
     def __init__(self, base: str):
         super().__init__(base)
@@ -87,8 +82,7 @@ class _FeedExtractor(discovery.Extractor):
 
 
 def discover_feeds(url: str) -> t.Collection[dict[str, str]]:
-    """
-    Discover any feeds at the given URL.
+    """Discover any feeds at the given URL.
 
     Args:
         url: URL of page to extract feeds from.

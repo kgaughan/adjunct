@@ -4,15 +4,12 @@ import time
 
 
 class MutexError(Exception):
-    """
-    Failed to lock a file.
-    """
+    """Failed to lock a file."""
 
 
 @contextlib.contextmanager
 def mutex(filename: str):
-    """
-    Lock a mutex file.
+    """Lock a mutex file.
 
     This can be used to prevent scripts from having more than one instance of
     themselves running at the same time as follows:
@@ -22,6 +19,9 @@ def mutex(filename: str):
         with mutex(__file__):
             main()
     ```
+
+    Args:
+        filename: path of the file to lock
     """
     with open(filename, "rb") as fh:
         try:

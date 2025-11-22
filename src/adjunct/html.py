@@ -1,6 +1,4 @@
-"""
-HTML parsing and serialisation support.
-"""
+"""HTML parsing and serialisation support."""
 
 import dataclasses
 from html import escape
@@ -13,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "Element",
-    "_Parser",
-    "escape",
+    "make",
+    "parse",
 ]
 
 # See: https://html.spec.whatwg.org/multipage/syntax.html#void-elements
@@ -44,8 +42,7 @@ def make(
     *,
     close: bool | None = None,
 ) -> str:
-    """
-    Helper for quickly constructing a HTML tag.
+    """Helper for quickly constructing a HTML tag.
 
     Args:
         tag: tag name
@@ -72,8 +69,7 @@ def make(
 
 @dataclasses.dataclass
 class Element:
-    """
-    A HTML element.
+    """A HTML element.
 
     Attributes:
         tag: the tag name
@@ -125,9 +121,7 @@ class Element:
 
 
 class _Parser(HTMLParser):
-    """
-    Parses a HTML document into an [Element][].
-    """
+    """Parses a HTML document into an [Element][]."""
 
     def __init__(self) -> None:
         super().__init__()

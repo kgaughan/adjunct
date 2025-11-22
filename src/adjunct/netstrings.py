@@ -1,5 +1,4 @@
-"""
-Simple [netstring] reader implemented as a generator.
+"""Simple [netstring] reader implemented as a generator.
 
 [netstring]: http://cr.yp.to/proto/netstrings.txt
 """
@@ -9,14 +8,11 @@ import typing as t
 
 
 class MalformedNetstringError(Exception):
-    """
-    Raised when the netstring reader hits a parser error in the stream.
-    """
+    """Raised when the netstring reader hits a parser error in the stream."""
 
 
 def parse(ns: bytes) -> t.Sequence[bytes]:
-    """
-    Parse a bytestring of netstrings.
+    """Parse a bytestring of netstrings.
 
     Args:
         ns: the netstrings to parse; there may be multiple in the input buffer
@@ -29,8 +25,7 @@ def parse(ns: bytes) -> t.Sequence[bytes]:
 
 
 def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:  # noqa: C901
-    """
-    Reads a sequence of netstrings from the given file object.
+    """Reads a sequence of netstrings from the given file object.
 
     Args:
         fd: a file-like object to read from

@@ -1,5 +1,7 @@
-"""
-Discovery via HTML <link> elements.
+"""Discovery via HTML <link> elements.
+
+For most purposes, [adjunct.discovery.fetch_meta][] should do anything you
+need.
 """
 
 import contextlib
@@ -19,10 +21,11 @@ logger = logging.getLogger(__name__)
 # pylint: disable-msg=R0904
 class Extractor(HTMLParser):
     """
-    A simple subclass of `HTMLParser` for extracting metadata like from `<meta>`
-    and `<link>` tags from the header of a HTML document.
+    A simple subclass of [html.parser.HTMLParser][] for extracting metadata
+    like from `<meta>` and `<link>` tags from the header of a HTML document.
 
-    It's recommended you use the `extract` class method.
+    It's recommended you use the [adjunct.discovery.Extractor.extract][] class
+    method rather than instantiating this class directly.
 
     Args:
         base: the base URL for the document
@@ -50,30 +53,27 @@ class Extractor(HTMLParser):
             self.properties.append((fixed_attrs["property"], fixed_attrs["content"]))
 
     def _append(self, attrs: dict[str, str]) -> None:
-        """
-        Append the given set of attributes onto our list.
+        """Append the given set of attributes onto our list.
 
         By separating this out, we can modify the behaviour in subclasses.
         """
         self.collected.append(attrs)
 
     def _fix_href(self, href: str) -> str:
-        """
-        Make the given href absolute to any previously discovered <base> tag.
-        """
+        """Make the given href absolute to any previously discovered <base> tag."""
         return parse.urljoin(self.base, href)
 
     @classmethod
     def extract(cls, fh: io.IOBase, base: str = ".", encoding: str = "UTF-8") -> "Extractor":
-        """
-        Extract the link tags from header of a HTML document to be read from
-        the file object, `fh`. The return value is a list of dicts where the
-        values of each are the attributes of the link elements encountered.
+        """Extract the link tags from header of a HTML document to be read.
 
         Args:
             fh: a file-like object to read the HTML document from.
             base: A base path/URL to use of URLs in the document. Note that the `<base>` tag will take priority.
             encoding: default text encoding to assume for the document.
+
+        Returns:
+            The parser with all links extracted and canonicalised.
         """
         parser = cls(base)
         with contextlib.closing(parser):
@@ -94,8 +94,7 @@ class Extractor(HTMLParser):
 
 
 def _safe_slurp(fh: io.IOBase, chunk_size: int = 65536, encoding: str = "UTF-8") -> t.Iterator[str]:
-    """
-    Safely convert file object, converting it to the given file encoding.
+    """Safely convert file object, converting it to the given file encoding.
 
     This handles situations such as UTF-8 characters on chunk boundaries
     gracefully.
@@ -104,6 +103,9 @@ def _safe_slurp(fh: io.IOBase, chunk_size: int = 65536, encoding: str = "UTF-8")
         fh: a file-like object to read the data from.
         chunk_size: what should the approximate maximum size of each chunk be
         encoding: text encoding to assume for the input data.
+
+    Yields:
+        Chunks of string data read from the file-like object.
     """
     # Enforce a lower end: 6 will give us 31 bits of codepoint space coverage,
     # though RFC3629 mandates a max of 4 for compatibility with UTF-16. The
@@ -159,8 +161,7 @@ def fetch_meta(
     url: str,
     extractor: type[Extractor] = Extractor,
 ) -> tuple[t.Collection[dict[str, str]], t.Collection[tuple[str, str]]]:
-    """
-    Extract the <link> tags from the HTML document at the given URL.
+    """Extract the <link> tags from the HTML document at the given URL.
 
     As this is fetching the document over HTTP, it can also support the
     [Link header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Link).
@@ -168,6 +169,9 @@ def fetch_meta(
     Args:
         url: URL of the document to extract the link tags from.
         extractor: an Extractor subclass
+
+    Returns:
+        The link tag data and any properties discovered in meta tags.
     """
     links = []
     properties = []

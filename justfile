@@ -11,7 +11,7 @@ tidy:
 	@uv run --frozen ruff check --fix
 
 # run the test suite
-tests:
+test:
 	@uv run --frozen pytest
 
 # run the typechecker

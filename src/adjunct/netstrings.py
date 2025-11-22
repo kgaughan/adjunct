@@ -17,6 +17,12 @@ class MalformedNetstringError(Exception):
 def parse(ns: bytes) -> t.Sequence[bytes]:
     """
     Parse a bytestring of netstrings.
+
+    Args:
+        ns: the netstrings to parse; there may be multiple in the input buffer
+
+    Returns:
+        All the netstrings found in the input buffer
     """
     with io.BytesIO(ns) as fh:
         return list(netstring_reader(fh))
@@ -25,6 +31,12 @@ def parse(ns: bytes) -> t.Sequence[bytes]:
 def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:  # noqa: C901
     """
     Reads a sequence of netstrings from the given file object.
+
+    Args:
+        fd: a file-like object to read from
+
+    Yields:
+        netstrings
     """
     while True:
         buffered = b""

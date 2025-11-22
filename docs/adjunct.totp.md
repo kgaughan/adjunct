@@ -37,8 +37,7 @@ user so they can add it to their OTP generator.
 print(t1.to_url("jane.doe@example.com", issuer="Yoyodyne"))
 ```
 
-Finally, to check a code, pass it to `check` method to validate a code provided
-by the user.
+Finally, to check a code, pass it to `check` method to validate a code provided by the user.
 
 ```py
 while True:

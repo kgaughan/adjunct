@@ -27,3 +27,8 @@ clean:
 tools:
 	@uv tool install ruff
 	@uv tool install tox --with tox-uv
+
+# run the mkdocs server
+serve-docs:
+	# --livereload is needed because of https://github.com/squidfunk/mkdocs-material/issues/8478
+	@uv run mkdocs serve --livereload

@@ -3,12 +3,15 @@ import typing as t
 
 def parse_header(line: str) -> tuple[str, dict[str, str]]:
     """
-    Parse a Content-type like header.
+    Parse a `Content-Type`-like header.
 
-    Return the main content-type and a dictionary of options.
+    Args:
+        line: a HTTP header line
 
-    Copied, with _parseparam, from Python's cgi module until I can find a
-    better alternative.
+    Returns:
+        The main value and a dictionary of options.
+
+    (Copied from Python's `cgi` module until I can find a better alternative.)
     """
     parts = _parseparam(f";{line}")
     key = parts.__next__()

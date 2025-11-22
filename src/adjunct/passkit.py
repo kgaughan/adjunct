@@ -18,32 +18,32 @@ class UnknownAlgorithmError(Exception):
     """Raised when an entry has either an unknown algorithm or none."""
 
 
-class ScryptParams(t.TypedDict):
+class _ScryptParams(t.TypedDict):
     n: int
     r: int
     p: int
 
 
-class ScryptEntry(t.TypedDict):
+class _ScryptEntry(t.TypedDict):
     alg: t.Literal["scrypt"]
     key: str
     salt: str
-    params: ScryptParams
+    params: _ScryptParams
 
 
-def scrypt_construct(passwd: bytes, *, salt_len: int = 32, n: int = 1 << 14, r: int = 8, p: int = 1) -> ScryptEntry:
+def _scrypt_construct(passwd: bytes, *, salt_len: int = 32, n: int = 1 << 14, r: int = 8, p: int = 1) -> _ScryptEntry:
     """Construct an entry from a password using scrypt."""
     salt = secrets.token_bytes(salt_len)
     key = hashlib.scrypt(passwd, salt=salt, n=n, r=r, p=p)
-    return ScryptEntry(
+    return _ScryptEntry(
         alg="scrypt",
         key=base64.b64encode(key).decode("ascii"),
         salt=base64.b64encode(salt).decode("ascii"),
-        params=ScryptParams(n=n, r=r, p=p),
+        params=_ScryptParams(n=n, r=r, p=p),
     )
 
 
-def scrypt_check(passwd: bytes, entry: ScryptEntry) -> bool:
+def _scrypt_check(passwd: bytes, entry: _ScryptEntry) -> bool:
     """Check if a password matches the given entry using scrypt."""
     key = hashlib.scrypt(
         passwd,
@@ -105,9 +105,9 @@ class JSONPasswdFile:
     # product.
     _implementations: t.ClassVar = {
         "scrypt": {
-            "entry": ScryptEntry,
-            "construct": scrypt_construct,
-            "check": scrypt_check,
+            "entry": _ScryptEntry,
+            "construct": _scrypt_construct,
+            "check": _scrypt_check,
         }
     }
 
@@ -141,10 +141,12 @@ class JSONPasswdFile:
             json.dump(payload, fh)
 
     def set_password(self, username: str, password: str):
+        """"""
         self.users[username] = self._implementations[self.implementation]["construct"](password.encode("utf-8"))
         self._save()
 
     def check_password(self, username: str, password: str) -> bool:
+        """"""
         entry = self.users.get(username)
         if entry is None:
             return False
@@ -157,6 +159,7 @@ class JSONPasswdFile:
         return impl["check"](password.encode("utf-8"), entry)
 
     def delete(self, username) -> bool:
+        """"""
         if username in self.users:
             del self.users[username]
             self._save()

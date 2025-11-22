@@ -2,25 +2,27 @@
 Feed discovery.
 """
 
+import typing as t
+
 from . import discovery
 
 __all__ = ["discover_feeds"]
 
 
 # Acceptable feed  types, sorted by priority.
-ACCEPTABLE = ["application/atom+xml", "application/rdf+xml", "application/rss+xml"]
+_ACCEPTABLE = ["application/atom+xml", "application/rdf+xml", "application/rss+xml"]
 
 # Used when ordering feeds.
-ORDER = {mimetype: i_type for i_type, mimetype in enumerate(ACCEPTABLE)}
+_ORDER = {mimetype: i_type for i_type, mimetype in enumerate(_ACCEPTABLE)}
 
-GUESSES = {
+_GUESSES = {
     "application/rss+xml": (".rss", "rss.xml", "/rss", "/rss/", "/feed/"),
     "application/rdf+xml": (".rdf", "rdf.xml", "/rdf", "/rdf/"),
     "application/atom+xml": (".atom", "atom.xml", "/atom", "/atom/"),
 }
 
 
-class FeedExtractor(discovery.Extractor):
+class _FeedExtractor(discovery.Extractor):
     """
     Extract any link or anchor elements that look like they might refer to
     feeds.
@@ -37,7 +39,7 @@ class FeedExtractor(discovery.Extractor):
             if "href" in fixed_attrs:
                 fixed_attrs["@data"] = ""
                 feed_type = self.guess_feed_type(fixed_attrs["href"])
-                if feed_type in ACCEPTABLE:
+                if feed_type in _ACCEPTABLE:
                     fixed_attrs.setdefault("type", feed_type)
                     fixed_attrs.setdefault("rel", "feed")
                     self.anchor = fixed_attrs
@@ -54,7 +56,7 @@ class FeedExtractor(discovery.Extractor):
         if tag.lower() == "a" and self.anchor is not None:
             self.anchor.setdefault("title", self.anchor["@data"])
             del self.anchor["@data"]
-            self.append(self.anchor)
+            self._append(self.anchor)
             self.anchor = None
         else:
             super().handle_endtag(tag)
@@ -65,28 +67,34 @@ class FeedExtractor(discovery.Extractor):
         """
         # Reasonable assumption: we're dealing with <a> elements, and by this
         # time, we should've encountered any <base> elements we care about.
-        href = self.fix_href(href)
+        href = self._fix_href(href)
         return next(
-            (mimetype for mimetype, endings in GUESSES.items() if href.lower().endswith(endings)),
+            (mimetype for mimetype, endings in _GUESSES.items() if href.lower().endswith(endings)),
             None,
         )
 
-    def append(self, attrs: dict[str, str]):
+    def _append(self, attrs: dict[str, str]):
         if (
             attrs["rel"] in ("alternate", "feed")
             and "type" in attrs
-            and attrs["type"].lower() in ACCEPTABLE
+            and attrs["type"].lower() in _ACCEPTABLE
             and "href" in attrs
             and attrs["href"] not in self.added
         ):
             del attrs["rel"]
-            super().append(attrs)
+            super()._append(attrs)
             self.added.add(attrs["href"])
 
 
-def discover_feeds(url: str) -> list:
+def discover_feeds(url: str) -> t.Collection[dict[str, str]]:
     """
     Discover any feeds at the given URL.
+
+    Args:
+        url: URL of page to extract feeds from.
+
+    Returns:
+        The feeds in order of priority. Atom feeds are prioritised first, followed by RDF, and then finally RSS feeds.
     """
-    links, _ = discovery.fetch_meta(url, FeedExtractor)
-    return sorted(links, key=(lambda feed: ORDER[feed["type"]]))
+    links, _ = discovery.fetch_meta(url, _FeedExtractor)
+    return sorted(links, key=(lambda feed: _ORDER[feed["type"]]))

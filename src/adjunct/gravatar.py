@@ -1,5 +1,7 @@
 """
 Gravatar support.
+
+For information on the parameters, see [the SDK](https://docs.gravatar.com/sdk/images/).
 """
 
 import hashlib
@@ -12,8 +14,16 @@ def make_gravatar_img(
     default: str = "identicon",
     rating: str = "pg",
 ) -> str:
-    """
-    Generate a Gravatar <img> tag for the given email address.
+    """Generate a Gravatar `<img>` tag for the given email address.
+
+    Args:
+        email: an email address
+        size: the size of the gravatar to generate
+        default: default image to generate
+        rating: the rating associated with the image
+
+    Returns:
+        An `<img>` tag with suitable attributes.
     """
     url = make_gravatar(email, size, default, rating)
     return f'<img src="{url}" width="{size}" height="{size}" alt="">'
@@ -25,11 +35,16 @@ def make_gravatar(
     default: str = "identicon",
     rating: str = "pg",
 ) -> str:
-    """
-    Generate a gravatar image URL.
+    """Generate a gravatar image URL.
 
-    For information on the parameters, see:
-    <https://en.gravatar.com/site/implement/images/>
+    Args:
+        email: an email address
+        size: the size of the gravatar to generate
+        default: default image to generate
+        rating: the rating associated with the image
+
+    Returns:
+        A Gravatar URL.
     """
     params = {
         "s": str(size),

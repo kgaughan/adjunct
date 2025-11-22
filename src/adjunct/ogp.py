@@ -46,6 +46,7 @@ class Property:
 
 
 def parse(properties: t.Collection[tuple[str, str]]) -> t.Sequence[Property]:
+    """"""
     result = []
     for name, value in properties:
         name_parts = name.split(":", 2)
@@ -60,6 +61,7 @@ def parse(properties: t.Collection[tuple[str, str]]) -> t.Sequence[Property]:
 
 
 def to_meta(props: Property | t.Sequence[Property]) -> str:
+    """"""
     if isinstance(props, Property):
         return props.to_meta()
     return "\n".join(prop.to_meta() for prop in props)
@@ -70,6 +72,7 @@ def find(
     type_: str,
     value: str | None = None,
 ) -> t.Iterable[Property]:
+    """"""
     for prop in props:
         if prop.type_ == type_ and (value is None or prop.value == value):
             yield prop

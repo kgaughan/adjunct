@@ -126,7 +126,7 @@ class Element:
 
 class _Parser(HTMLParser):
     """
-    Parses a HTML document into an [_Element][].
+    Parses a HTML document into an [Element][].
     """
 
     def __init__(self) -> None:

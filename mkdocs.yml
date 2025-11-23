@@ -61,6 +61,7 @@ nav:
   - index.md
   - Reference:
       - adjunct.compat.md
+      - adjunct.dbhelpers.md
       - adjunct.discoverfeeds.md
       - adjunct.discovery.md
       - adjunct.fixtureutils.md

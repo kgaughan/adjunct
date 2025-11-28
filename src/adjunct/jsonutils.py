@@ -30,11 +30,10 @@ def load_json_documents(payloads: str) -> t.Iterator[dict | list]:
     """
 
     decoder = json.JSONDecoder()
-    idx = 0
     while True:
-        if idx >= len(payloads):
-            break
         payloads = payloads.lstrip()
+        if not payloads:
+            break
         obj, idx = decoder.raw_decode(payloads)
         yield obj
         payloads = payloads[idx:]

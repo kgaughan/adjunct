@@ -4,6 +4,41 @@ This module provides utilities for structured logging in JSON format, including
 the ability to create logging spans that carry contextual metadata.
 
 It builds on Python's built-in [logging][] module.
+
+To configure logging to use structured logging, set up a logger with
+`JSONFormatter`:
+
+```python
+import logging
+
+from adjunct import slog
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+JSONFormatter.configure_handler(handler)
+logger.addHandler(handler)
+```
+
+Both `slog.M` and `slog.span` can then be used to add structured metadata to
+log records:
+
+```python
+logger.info(slog.M("User logged in", user="alice"))  # Log with metadata
+with slog.span(request_id="12345", user_id="alice"):  # Log within a span
+    logger.info(slog.M("User action", action="update_profile"))
+```
+
+`slog.M` and `slog.JSONFormatter` work together to produce JSON log records
+that include the specified metadata and span context, but can both be used
+independently if desired. Using `slog.M` will produce a stringified message
+that includes the metadata in JSON, even without `slog.JSONFormatter`.
+
+Note:
+    The keys `spanId` and `parentSpanId` are reserved for span tracking and
+    should not be used in metadata passed to `slog.M` or `slog.span`. They
+    are named to match OpenTelemetry conventions.
 """
 
 import base64
@@ -20,7 +55,7 @@ def _generate_span_id():
 class _SpanStack(threading.local):
     """A thread-local stack of logging spans."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._stack: list[dict[str, str]] = [{"spanId": _generate_span_id()}]
 
@@ -79,18 +114,34 @@ class M:
         return f"{self.message} | {json.dumps(combined)}"
 
 
+class _SpanContextFilter(logging.Filter):
+    """Populate log records with the active span context at emit time."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Capture the span context when the record is emitted, so async/queued
+        # handlers will keep the original span data.
+        record._adjunct_slog_ctx = span.top()
+        return True
+
+
+_span_context_filter = _SpanContextFilter()
+
+
 class JSONFormatter(logging.Formatter):
     """A logging formatter that outputs JSON log records."""
 
     def format(self, record: logging.LogRecord) -> str:
+        # Prefer span context captured at emit time (from SpanContextFilter),
+        # with a fallback to the current span if SpanContextFilter is not used.
+        ctx = getattr(record, "_adjunct_slog_ctx", span.top())
         record_dict: dict[str, str | dict[str, str]] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "logger": record.name,
-            **span.top(),
+            **ctx,
         }
         if isinstance(record.msg, M):
-            record_dict.update(record.msg.metadata)
+            record_dict |= record.msg.metadata
             record_dict["message"] = record.msg.message
         else:
             record_dict["message"] = record.getMessage()
@@ -98,27 +149,12 @@ class JSONFormatter(logging.Formatter):
             record_dict["exception"] = self.formatException(record.exc_info)
         return json.dumps(record_dict)
 
+    @classmethod
+    def configure_handler(cls, handler: logging.Handler) -> None:
+        """Configure a logging handler to use JSONFormatter and SpanContextFilter.
 
-def get_logger(
-    name: str,
-    level: int = logging.INFO,
-    handler: logging.Handler | None = None,
-) -> logging.Logger:
-    """Get a structured logger with JSON formatting.
-
-    Args:
-        name: The name of the logger.
-        level: The logging level.
-        handler: An optional logging handler. If not provided, a StreamHandler is used.
-
-    Returns:
-        A configured logging.Logger instance.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    if handler is None:  # pragma: no cover
-        handler = logging.StreamHandler()
-    handler.setFormatter(JSONFormatter())
-    logger.addHandler(handler)
-    logger.propagate = False
-    return logger
+        Args:
+            handler: The logging handler to configure.
+        """
+        handler.setFormatter(cls())
+        handler.addFilter(_span_context_filter)

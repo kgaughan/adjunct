@@ -46,6 +46,7 @@ nav:
       - adjunct.fixtureutils.md
       - adjunct.gravatar.md
       - adjunct.html.md
+      - adjunct.jsonutils.md
       - adjunct.netstrings.md
       - adjunct.oembed.md
       - adjunct.ogp.md

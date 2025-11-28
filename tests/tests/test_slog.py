@@ -55,6 +55,7 @@ def test_nested_spans_logging():
 
     log_output = stream.getvalue().strip()
     log_lines = log_output.splitlines()
+    assert len(log_lines) == 3
     outer_log_record = json.loads(log_lines[0])
     nested_log_record = json.loads(log_lines[1])
     after_nested_log_record = json.loads(log_lines[2])
@@ -144,7 +145,6 @@ def test_m_with_metadata():
     assert len(m1_data) == 3
     assert m1_data["user"] == "bob"
     assert m1_data["action"] == "view"
-    print(m1_data)
     assert "spanId" in m1_data
     assert "parentSpanId" not in m1_data
 

@@ -53,6 +53,7 @@ nav:
       - adjunct.pagination.md
       - adjunct.passkit.md
       - adjunct.singleton.md
+      - adjunct.slog.md
       - adjunct.time.md
       - adjunct.totp.md
       - adjunct.xmlutils.md

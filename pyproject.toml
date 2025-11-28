@@ -116,7 +116,7 @@ ban-relative-imports = "all"
 
 [tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
-"tests/**/*" = ["ANN", "PLR2004", "S101", "TID252", "E501"]
+"tests/**/*" = ["ANN", "PLR2004", "S101", "TID252", "E501", "T201", "E722"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

@@ -1,4 +1,6 @@
-"""Simple structured logging with spans.
+"""Simple structured logging with [spans].
+
+[spans]: https://opentelemetry.io/docs/concepts/signals/traces/#spans
 
 This module provides utilities for structured logging in JSON and Logfmt
 format, including the ability to create logging spans that carry contextual
@@ -18,7 +20,7 @@ from adjunct import slog
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
-JSONFormatter.configure_handler(handler)
+slog.JSONFormatter.configure_handler(handler)
 logger.addHandler(handler)
 ```
 
@@ -45,7 +47,16 @@ log records in logfmt instead of JSON.
 Note:
     The keys `spanId` and `parentSpanId` are reserved for span tracking and
     should not be used in metadata passed to `slog.M` or `slog.span`. They
-    are named to match OpenTelemetry conventions.
+    are named to match OpenTelemetry conventions, though this module does not
+    implement OpenTelemetry itself nor aims to be compatible with it.
+
+Warning:
+    This module is not designed to work in async contexts, so you may observe
+    some odd behaviour depending on how you hand off between coroutines. If
+    you need structured logging in an async application, consider using an
+    async-aware logging library. It should work fine in multi-threaded
+    applications, however, as it uses thread-local storage for the span
+    context.
 """
 
 import base64

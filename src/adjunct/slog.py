@@ -149,11 +149,11 @@ class JSONFormatter(logging.Formatter):
             "level": record.levelname,
             "logger": record.name,
         }
-        chained = collections.ChainMap(record_dict, ctx)
         if isinstance(record.msg, M):
-            record_dict |= record.msg.metadata
+            chained = collections.ChainMap(record_dict, record.msg.metadata, ctx)
             record_dict["message"] = record.msg.message
         else:
+            chained = collections.ChainMap(record_dict, ctx)
             record_dict["message"] = record.getMessage()
         if record.exc_info:
             record_dict["exception"] = self.formatException(record.exc_info)

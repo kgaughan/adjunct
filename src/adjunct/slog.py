@@ -69,6 +69,7 @@ import typing as t
 
 __all__ = ["JSONFormatter", "LogfmtFormatter", "M", "span"]
 
+# The JSON-serialisable scalar types
 Scalar = str | int | float | bool | None
 
 
@@ -239,10 +240,10 @@ class LogfmtFormatter(_BaseFormatter):
         Returns:
             A logfmt-formatted string representing the log record.
         """
-        return " ".join(self._escape(record_dict.items()))
+        return " ".join(self._format_pairs(record_dict.items()))
 
-    def _escape(self, pairs: t.Iterable[tuple[str, Scalar]]) -> t.Iterator[str]:
-        """Escape key/value pairs for logfmt output.
+    def _format_pairs(self, pairs: t.Iterable[tuple[str, Scalar]]) -> t.Iterator[str]:
+        """Format key/value pairs for logfmt output.
 
         Args:
             pairs: The key/value pairs to escape.
@@ -257,5 +258,5 @@ class LogfmtFormatter(_BaseFormatter):
                 yield key
             elif isinstance(value, (int, float)):
                 yield f"{key}={value}"
-            elif isinstance(value, str):
-                yield f'{key}="{value.translate(self._escape_table)}"'
+            else:
+                yield f'{key}="{str(value).translate(self._escape_table)}"'

@@ -1,7 +1,8 @@
 """Simple structured logging with spans.
 
-This module provides utilities for structured logging in JSON format, including
-the ability to create logging spans that carry contextual metadata.
+This module provides utilities for structured logging in JSON and Logfmt
+format, including the ability to create logging spans that carry contextual
+metadata.
 
 It builds on Python's built-in [logging][] module.
 
@@ -30,10 +31,16 @@ with slog.span(request_id="12345", user_id="alice"):  # Log within a span
     logger.info(slog.M("User action", action="update_profile"))
 ```
 
-`slog.M` and `slog.JSONFormatter` work together to produce JSON log records
+`slog.M` and `slog.JSONFormatter` work together to produce log records
 that include the specified metadata and span context, but can both be used
 independently if desired. Using `slog.M` will produce a stringified message
 that includes the metadata in JSON, even without `slog.JSONFormatter`.
+
+An alternative is `slog.LogfmtFormatter`, which formats log records in
+[logfmt][] format. It works just like `slog.JSONFormatter`, but produces
+log records in logfmt instead of JSON.
+
+[logfmt]: https://brandur.org/logfmt
 
 Note:
     The keys `spanId` and `parentSpanId` are reserved for span tracking and
@@ -48,6 +55,8 @@ import logging
 import os
 import threading
 import typing as t
+
+__all__ = ["JSONFormatter", "LogfmtFormatter", "M", "span"]
 
 Scalar = str | int | float | bool | None
 
@@ -91,6 +100,12 @@ class _SpanStack(threading.local):
 
 span = _SpanStack()
 """A context manager for logging spans.
+
+Methods:
+    extend(**kwargs): Add additional context to the current span. As this
+        modifies the current span, using it within a span may lead to confusing
+        logs; it is generally not recommended. It accepts the same key-value
+        pairs as the context manager.
 
 Examples:
     >>> with slog.span(request_id="12345", user_id="alice"):
@@ -137,8 +152,8 @@ class _SpanContextFilter(logging.Filter):
 _span_context_filter = _SpanContextFilter()
 
 
-class JSONFormatter(logging.Formatter):
-    """A logging formatter that outputs JSON log records."""
+class _BaseFormatter(logging.Formatter):
+    """Common logic for formatters."""
 
     def format(self, record: logging.LogRecord) -> str:
         # Prefer span context captured at emit time (from SpanContextFilter),
@@ -157,7 +172,10 @@ class JSONFormatter(logging.Formatter):
             record_dict["message"] = record.getMessage()
         if record.exc_info:
             record_dict["exception"] = self.formatException(record.exc_info)
-        return json.dumps(dict(chained))
+        return self._serialise(dict(chained))
+
+    def _serialise(self, record_dict: dict[str, Scalar]) -> str:
+        raise NotImplementedError
 
     @classmethod
     def configure_handler(cls, handler: logging.Handler) -> None:
@@ -168,3 +186,66 @@ class JSONFormatter(logging.Formatter):
         """
         handler.setFormatter(cls())
         handler.addFilter(_span_context_filter)
+
+
+class JSONFormatter(_BaseFormatter):
+    """A logging formatter that outputs JSON log records."""
+
+    def _serialise(self, record_dict: dict[str, Scalar]) -> str:
+        """Serialise a log record dictionary to a JSON string.
+
+        Args:
+            record_dict: The log record dictionary to serialise.
+
+        Returns:
+            A JSON-formatted string representing the log record.
+        """
+        return json.dumps(record_dict)
+
+
+class LogfmtFormatter(_BaseFormatter):
+    """A logging formatter that outputs log records in [logfmt] format.
+
+    [logfmt]: https://brandur.org/logfmt
+    """
+
+    _escape_table = str.maketrans(
+        {
+            "\\": "\\\\",
+            "\n": "\\n",
+            "\r": "\\r",
+            "\t": "\\t",
+            '"': '\\"',
+        }
+    )
+
+    def _serialise(self, record_dict: dict[str, Scalar]) -> str:
+        """Serialise a log record dictionary to a logfmt string.
+
+        Args:
+            record_dict: The log record dictionary to serialise.
+
+        Returns:
+            A logfmt-formatted string representing the log record.
+        """
+        return " ".join(f"{key}={self._escape(value)}" for key, value in record_dict.items())
+
+    def _escape(self, value: Scalar) -> str:
+        """Escape a value for logfmt output.
+
+        Args:
+            value: The value to escape.
+
+        Returns:
+            The escaped value.
+        """
+
+        if value is True:
+            return "true"
+        if value is False:
+            return "false"
+        if value is None:
+            return "null"
+        if isinstance(value, (int, float)):
+            return str(value)
+        return f'"{value.translate(self._escape_table)}"'

@@ -16,8 +16,12 @@ class FakeHandler(logging.Handler):
         assert self.formatter is not None
         return json.loads(self.formatter.format(self.records[idx]))
 
+    def get_logfmt_record(self, idx: int) -> str:
+        assert self.formatter is not None
+        return self.formatter.format(self.records[idx])
 
-def get_logger(name: str) -> tuple[FakeHandler, logging.Logger]:
+
+def get_json_logger(name: str) -> tuple[FakeHandler, logging.Logger]:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     handler = FakeHandler()
@@ -26,8 +30,17 @@ def get_logger(name: str) -> tuple[FakeHandler, logging.Logger]:
     return handler, logger
 
 
+def get_logfmt_logger(name: str) -> tuple[FakeHandler, logging.Logger]:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    handler = FakeHandler()
+    slog.LogfmtFormatter.configure_handler(handler)
+    logger.addHandler(handler)
+    return handler, logger
+
+
 def test_structured_message_logging():
-    handler, logger = get_logger("structured_message_logger")
+    handler, logger = get_json_logger("structured_message_logger")
 
     logger.info(slog.M("Test message", user="alice", action="login"))
 
@@ -40,7 +53,7 @@ def test_structured_message_logging():
 
 
 def test_span_metadata_in_logging():
-    handler, logger = get_logger("span_metadata_logger")
+    handler, logger = get_json_logger("span_metadata_logger")
 
     with slog.span(request_id="12345", user_id="alice"):
         logger.info(slog.M("User action", action="update_profile"))
@@ -54,7 +67,7 @@ def test_span_metadata_in_logging():
 
 
 def test_nested_spans_logging():
-    handler, logger = get_logger("nested_spans_logger")
+    handler, logger = get_json_logger("nested_spans_logger")
 
     with slog.span(request_id="12345"):
         logger.info(slog.M("Outer span message"))
@@ -86,7 +99,7 @@ def test_nested_spans_logging():
 
 
 def test_exception_logging():
-    handler, logger = get_logger("exception_logger")
+    handler, logger = get_json_logger("exception_logger")
 
     try:
         raise KeyError("Test exception")  # noqa: TRY301
@@ -101,7 +114,7 @@ def test_exception_logging():
 
 
 def test_plain_message_logging():
-    handler, logger = get_logger("plain_message_logger")
+    handler, logger = get_json_logger("plain_message_logger")
 
     logger.info("A plain log message")
 
@@ -111,7 +124,7 @@ def test_plain_message_logging():
 
 
 def test_plain_message_with_span():
-    handler, logger = get_logger("plain_message_with_span_logger")
+    handler, logger = get_json_logger("plain_message_with_span_logger")
 
     with slog.span(session_id="sess-001"):
         logger.info("A plain log message within a span")
@@ -133,6 +146,34 @@ def test_structured_message_without_jsonformatter():
 
     assert "Test message without JSONFormatter" in log_output
     assert '"key": "value"' in log_output
+
+
+def test_logfmt_formatter():
+    handler, logger = get_logfmt_logger("logfmt_logger")
+
+    logger.info(slog.M("Logfmt message", user="charlie", action="signup"))
+
+    log_record = handler.get_logfmt_record(0)
+
+    assert 'message="Logfmt message"' in log_record
+    assert 'user="charlie"' in log_record
+    assert 'action="signup"' in log_record
+    assert 'spanId="' in log_record
+
+
+def test_logfmt_with_scalars():
+    handler, logger = get_logfmt_logger("logfmt_scalars_logger")
+
+    logger.info(slog.M("Logfmt scalars", count=42, success=True, ratio=0.75, existence=None, lies=False))
+
+    log_record = handler.get_logfmt_record(0)
+
+    assert 'message="Logfmt scalars"' in log_record
+    assert "count=42" in log_record
+    assert "success=true" in log_record
+    assert "lies=false" in log_record
+    assert "ratio=0.75" in log_record
+    assert "existence=null" in log_record
 
 
 def test_m_without_metadata():

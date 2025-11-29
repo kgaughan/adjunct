@@ -49,43 +49,47 @@ Note:
     should not be used in metadata passed to `slog.M` or `slog.span`. They
     are named to match OpenTelemetry conventions, though this module does not
     implement OpenTelemetry itself nor aims to be compatible with it.
-
-Warning:
-    This module is not designed to work in async contexts, so you may observe
-    some odd behaviour depending on how you hand off between coroutines. If
-    you need structured logging in an async application, consider using an
-    async-aware logging library. It should work fine in multi-threaded
-    applications, however, as it uses thread-local storage for the span
-    context.
 """
 
 import base64
 import collections
+import contextvars
 import json
 import logging
 import os
-import threading
 import typing as t
 
 __all__ = ["JSONFormatter", "LogfmtFormatter", "M", "span"]
 
 # The JSON-serialisable scalar types
 Scalar = str | int | float | bool | None
+# The internal structure of a span stack.
+Stack = list[t.MutableMapping[str, Scalar]]
 
 
 def _generate_span_id():
     return base64.b16encode(os.urandom(8)).decode("utf-8")
 
 
-class _SpanStack(threading.local):
-    """A thread-local stack of logging spans."""
+# The local stack for the current thread or async coroutine.
+_stack: contextvars.ContextVar[Stack] = contextvars.ContextVar("_stack")
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._stack: list[t.MutableMapping[str, Scalar]] = [
-            collections.ChainMap({"spanId": _generate_span_id()}),
-        ]
 
+class _SpanStack:
+    """A stack of logging spans."""
+
+    @property
+    def _stack(self) -> Stack:
+        try:
+            return _stack.get()
+        except LookupError:
+            stack: Stack = [
+                collections.ChainMap({"spanId": _generate_span_id()}),
+            ]
+            _stack.set(stack)
+            return stack
+
+    @property
     def top(self) -> t.MutableMapping[str, Scalar]:
         return self._stack[-1]
 
@@ -100,13 +104,14 @@ class _SpanStack(threading.local):
         self._stack.pop()
 
     def __call__(self, /, **kwargs: Scalar) -> "_SpanStack":
-        top = self._stack[-1]
+        stack = self._stack
+        top = stack[-1]
         ctx = collections.ChainMap(
             {"spanId": _generate_span_id(), "parentSpanId": top["spanId"]},
             kwargs,
             top,
         )
-        self._stack.append(ctx)
+        stack.append(ctx)
         return self
 
 
@@ -146,7 +151,7 @@ class M:
     def __str__(self) -> str:
         if not self.metadata:
             return self.message
-        ctx = span.top()
+        ctx = span.top
         combined = {**ctx, **self.metadata}
         return f"{self.message} | {json.dumps(combined)}"
 
@@ -157,7 +162,7 @@ class _SpanContextFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         # Capture the span context when the record is emitted, so async/queued
         # handlers will keep the original span data.
-        record._adjunct_slog_ctx = span.top()
+        record._adjunct_slog_ctx = span.top
         return True
 
 
@@ -170,7 +175,7 @@ class _BaseFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         # Prefer span context captured at emit time (from SpanContextFilter),
         # with a fallback to the current span if SpanContextFilter is not used.
-        ctx = getattr(record, "_adjunct_slog_ctx", span.top())
+        ctx = getattr(record, "_adjunct_slog_ctx", span.top)
         record_dict: dict[str, Scalar] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,

@@ -1,27 +1,37 @@
-import io
 import json
 import logging
 
 from adjunct import slog
 
 
-def get_logger(name: str) -> tuple[io.StringIO, logging.Logger]:
-    stream = io.StringIO()
+class FakeHandler(logging.Handler):
+    def __init__(self) -> None:
+        super().__init__()
+        self.records: list[logging.LogRecord] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.records.append(record)
+
+    def get_json_record(self, idx: int) -> dict:
+        assert self.formatter is not None
+        return json.loads(self.formatter.format(self.records[idx]))
+
+
+def get_logger(name: str) -> tuple[FakeHandler, logging.Logger]:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(stream)
+    handler = FakeHandler()
     slog.JSONFormatter.configure_handler(handler)
     logger.addHandler(handler)
-    return stream, logger
+    return handler, logger
 
 
 def test_structured_message_logging():
-    stream, logger = get_logger("structured_message_logger")
+    handler, logger = get_logger("structured_message_logger")
 
     logger.info(slog.M("Test message", user="alice", action="login"))
 
-    log_output = stream.getvalue().strip()
-    log_record = json.loads(log_output)
+    log_record = handler.get_json_record(0)
 
     assert log_record["message"] == "Test message"
     assert log_record["user"] == "alice"
@@ -30,13 +40,12 @@ def test_structured_message_logging():
 
 
 def test_span_metadata_in_logging():
-    stream, logger = get_logger("span_metadata_logger")
+    handler, logger = get_logger("span_metadata_logger")
 
     with slog.span(request_id="12345", user_id="alice"):
         logger.info(slog.M("User action", action="update_profile"))
 
-    log_output = stream.getvalue().strip()
-    log_record = json.loads(log_output)
+    log_record = handler.get_json_record(0)
 
     assert log_record["message"] == "User action"
     assert log_record["action"] == "update_profile"
@@ -45,7 +54,7 @@ def test_span_metadata_in_logging():
 
 
 def test_nested_spans_logging():
-    stream, logger = get_logger("nested_spans_logger")
+    handler, logger = get_logger("nested_spans_logger")
 
     with slog.span(request_id="12345"):
         logger.info(slog.M("Outer span message"))
@@ -53,12 +62,10 @@ def test_nested_spans_logging():
             logger.info(slog.M("Nested span message", action="delete_account"))
         logger.info(slog.M("Outer span message after nested"))
 
-    log_output = stream.getvalue().strip()
-    log_lines = log_output.splitlines()
-    assert len(log_lines) == 3
-    outer_log_record = json.loads(log_lines[0])
-    nested_log_record = json.loads(log_lines[1])
-    after_nested_log_record = json.loads(log_lines[2])
+    assert len(handler.records) == 3
+    outer_log_record = handler.get_json_record(0)
+    nested_log_record = handler.get_json_record(1)
+    after_nested_log_record = handler.get_json_record(2)
 
     assert outer_log_record["message"] == "Outer span message"
     assert outer_log_record["request_id"] == "12345"
@@ -79,15 +86,14 @@ def test_nested_spans_logging():
 
 
 def test_exception_logging():
-    stream, logger = get_logger("exception_logger")
+    handler, logger = get_logger("exception_logger")
 
     try:
         raise KeyError("Test exception")  # noqa: TRY301
     except KeyError:
         logger.exception("Something went wrong")
 
-    log_output = stream.getvalue().strip()
-    log_record = json.loads(log_output)
+    log_record = handler.get_json_record(0)
 
     assert log_record["message"] == "Something went wrong"
     assert "exception" in log_record
@@ -95,24 +101,22 @@ def test_exception_logging():
 
 
 def test_plain_message_logging():
-    stream, logger = get_logger("plain_message_logger")
+    handler, logger = get_logger("plain_message_logger")
 
     logger.info("A plain log message")
 
-    log_output = stream.getvalue().strip()
-    log_record = json.loads(log_output)
+    log_record = handler.get_json_record(0)
 
     assert log_record["message"] == "A plain log message"
 
 
 def test_plain_message_with_span():
-    stream, logger = get_logger("plain_message_with_span_logger")
+    handler, logger = get_logger("plain_message_with_span_logger")
 
     with slog.span(session_id="sess-001"):
         logger.info("A plain log message within a span")
 
-    log_output = stream.getvalue().strip()
-    log_record = json.loads(log_output)
+    log_record = handler.get_json_record(0)
 
     assert log_record["message"] == "A plain log message within a span"
     assert log_record["session_id"] == "sess-001"
@@ -121,11 +125,11 @@ def test_plain_message_with_span():
 def test_structured_message_without_jsonformatter():
     logger = logging.getLogger("plain_logger")
     logger.setLevel(logging.DEBUG)
-    stream = io.StringIO()
-    logger.addHandler(logging.StreamHandler(stream))
+    handler = FakeHandler()
+    logger.addHandler(handler)
 
     logger.info(slog.M("Test message without JSONFormatter", key="value"))
-    log_output = stream.getvalue().strip()
+    log_output = handler.records[0].getMessage()
 
     assert "Test message without JSONFormatter" in log_output
     assert '"key": "value"' in log_output

@@ -72,7 +72,7 @@ class _SpanStack(threading.local):
     def __exit__(self, *_) -> None:
         self._stack.pop()
 
-    def __call__(self, /, **kwargs) -> "_SpanStack":
+    def __call__(self, /, **kwargs: str) -> "_SpanStack":
         top = self._stack[-1]
         ctx = {**top, **kwargs, "spanId": _generate_span_id(), "parentSpanId": top["spanId"]}
         self._stack.append(ctx)

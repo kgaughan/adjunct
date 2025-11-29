@@ -1,6 +1,7 @@
 ---
 site_name: Adjunct
 repo_url: https://github.com/kgaughan/adjunct/
+copyright: Copyright © Keith Gaughan, 2014-2025
 
 theme:
   name: material

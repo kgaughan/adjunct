@@ -1,12 +1,13 @@
 """Helpers for interacting with databases."""
 
+from collections import abc
 import typing as t
 
 __all__ = ["execute", "query", "query_row", "query_value"]
 
 
 Scalar = str | int | float | None
-Row = t.Sequence[Scalar] | dict[str, Scalar]
+Row = abc.Sequence[Scalar] | dict[str, Scalar]
 
 
 class _Cursor(t.Protocol):
@@ -16,7 +17,7 @@ class _Cursor(t.Protocol):
 
     arraysize: int
 
-    def callproc(self, procname: str, args: t.Sequence[Scalar]):
+    def callproc(self, procname: str, args: abc.Sequence[Scalar]):
         """Call a stored procedure with the given name."""
         ...
 
@@ -24,7 +25,7 @@ class _Cursor(t.Protocol):
         """Close the cursor immediately."""
         ...
 
-    def execute(self, operation: str, args: t.Sequence[Scalar]):
+    def execute(self, operation: str, args: abc.Sequence[Scalar]):
         """Prepare and execute a database operation/query."""
         ...
 
@@ -32,7 +33,7 @@ class _Cursor(t.Protocol):
         """Prepare an operation and execute it against all the parameter sequences."""
         ...
 
-    def fetchone(self) -> Row:
+    def fetchone(self) -> Row | None:
         """Fetch the next row in the result set."""
         ...
 
@@ -68,7 +69,7 @@ class _Connection(t.Protocol):
 def execute(
     con: _Connection,
     sql: str,
-    args: t.Sequence[Scalar] = (),
+    args: abc.Sequence[Scalar] = (),
 ) -> int | None:
     """Execute an SQL statement.
 
@@ -94,7 +95,7 @@ def execute(
 def query(
     con: _Connection,
     sql: str,
-    args: t.Sequence[Scalar] = (),
+    args: abc.Sequence[Scalar] = (),
 ) -> t.Iterator[Row]:
     """Run an SQL query.
 
@@ -117,7 +118,7 @@ def query(
 def query_row(
     con: _Connection,
     sql: str,
-    args: t.Sequence[Scalar] = (),
+    args: abc.Sequence[Scalar] = (),
     *,
     default: Row | None = None,
 ) -> Row | None:
@@ -146,7 +147,7 @@ def query_row(
 def query_value(
     con: _Connection,
     sql: str,
-    args: t.Sequence[Scalar] = (),
+    args: abc.Sequence[Scalar] = (),
     *,
     default: Scalar = None,
 ) -> Scalar:
@@ -165,9 +166,7 @@ def query_value(
     try:
         cur.execute(sql, args)
         for row in iter(cur.fetchone, None):
-            if isinstance(row, t.Sequence):
-                return row[0]
-            return row[next(iter(row.keys()))]
+            return row[0] if isinstance(row, abc.Sequence) else row[next(iter(row.keys()))]
     finally:
         cur.close()
     return default

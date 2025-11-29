@@ -144,7 +144,7 @@ class JSONFormatter(logging.Formatter):
         # Prefer span context captured at emit time (from SpanContextFilter),
         # with a fallback to the current span if SpanContextFilter is not used.
         ctx = getattr(record, "_adjunct_slog_ctx", span.top())
-        record_dict: t.MutableMapping[str, Scalar] = {
+        record_dict: dict[str, Scalar] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "logger": record.name,

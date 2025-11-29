@@ -42,10 +42,12 @@ Note:
 """
 
 import base64
+import collections
 import json
 import logging
 import os
 import threading
+import typing as t
 
 Scalar = str | int | float | bool | None
 
@@ -59,9 +61,11 @@ class _SpanStack(threading.local):
 
     def __init__(self) -> None:
         super().__init__()
-        self._stack: list[dict[str, Scalar]] = [{"spanId": _generate_span_id()}]
+        self._stack: list[t.MutableMapping[str, Scalar]] = [
+            collections.ChainMap({"spanId": _generate_span_id()}),
+        ]
 
-    def top(self) -> dict[str, Scalar]:
+    def top(self) -> t.MutableMapping[str, Scalar]:
         return self._stack[-1]
 
     def extend(self, **kwargs: Scalar) -> None:
@@ -76,7 +80,11 @@ class _SpanStack(threading.local):
 
     def __call__(self, /, **kwargs: Scalar) -> "_SpanStack":
         top = self._stack[-1]
-        ctx = {**top, **kwargs, "spanId": _generate_span_id(), "parentSpanId": top["spanId"]}
+        ctx = collections.ChainMap(
+            {"spanId": _generate_span_id(), "parentSpanId": top["spanId"]},
+            kwargs,
+            top,
+        )
         self._stack.append(ctx)
         return self
 
@@ -140,8 +148,8 @@ class JSONFormatter(logging.Formatter):
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "logger": record.name,
-            **ctx,
         }
+        chained = collections.ChainMap(record_dict, ctx)
         if isinstance(record.msg, M):
             record_dict |= record.msg.metadata
             record_dict["message"] = record.msg.message
@@ -149,7 +157,7 @@ class JSONFormatter(logging.Formatter):
             record_dict["message"] = record.getMessage()
         if record.exc_info:
             record_dict["exception"] = self.formatException(record.exc_info)
-        return json.dumps(record_dict)
+        return json.dumps(dict(chained))
 
     @classmethod
     def configure_handler(cls, handler: logging.Handler) -> None:

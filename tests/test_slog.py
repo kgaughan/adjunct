@@ -164,16 +164,18 @@ def test_logfmt_formatter():
 def test_logfmt_with_scalars():
     handler, logger = get_logfmt_logger("logfmt_scalars_logger")
 
-    logger.info(slog.M("Logfmt scalars", count=42, success=True, ratio=0.75, existence=None, lies=False))
+    logger.info(slog.M("Logfmt scalars", count=42, success=True, zero=0, one=1, ratio=0.75, existence=None, lies=False))
 
     log_record = handler.get_logfmt_record(0)
 
     assert 'message="Logfmt scalars"' in log_record
     assert "count=42" in log_record
-    assert "success=true" in log_record
-    assert "lies=false" in log_record
+    assert "success" in log_record
+    assert "lies" not in log_record
     assert "ratio=0.75" in log_record
-    assert "existence=null" in log_record
+    assert "zero=0" in log_record
+    assert "one=1" in log_record
+    assert "existence" not in log_record
 
 
 def test_m_without_metadata():

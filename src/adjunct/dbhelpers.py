@@ -6,7 +6,7 @@ import typing as t
 __all__ = ["execute", "query", "query_row", "query_value"]
 
 
-Scalar = str | int | float | None
+Scalar = str | int | float | bytes | None
 Row = abc.Sequence[Scalar] | dict[str, Scalar]
 
 
@@ -27,7 +27,7 @@ class _Cursor(t.Protocol):
         """Prepare and execute a database operation/query."""
         ...
 
-    def executemany(self, operation: str, seq_of_parameters: t.Iterable[t.Iterable[Scalar]]):
+    def executemany(self, operation: str, seq_of_parameters: abc.Iterable[abc.Sequence[Scalar]]):
         """Prepare an operation and execute it against all the parameter sequences."""
         ...
 
@@ -35,7 +35,7 @@ class _Cursor(t.Protocol):
         """Fetch the next row in the result set."""
         ...
 
-    def fetchall(self) -> t.Iterable[Row]:
+    def fetchall(self) -> abc.Sequence[Row]:
         """Fetch all remaining rows in the query result."""
         ...
 
@@ -89,7 +89,7 @@ def query(
     con: _Connection,
     sql: str,
     args: abc.Sequence[Scalar] = (),
-) -> t.Iterator[Row]:
+) -> abc.Iterator[Row]:
     """Run an SQL query.
 
     Args:

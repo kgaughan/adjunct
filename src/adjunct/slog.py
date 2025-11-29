@@ -47,7 +47,7 @@ import logging
 import os
 import threading
 
-Scalar = str | float | bool
+Scalar = str | int | float | bool | None
 
 
 def _generate_span_id():

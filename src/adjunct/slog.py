@@ -258,5 +258,5 @@ class LogfmtFormatter(_BaseFormatter):
                 yield key
             elif isinstance(value, (int, float)):
                 yield f"{key}={value}"
-            else:
-                yield f'{key}="{str(value).translate(self._escape_table)}"'
+            elif isinstance(value, str):
+                yield f'{key}="{value.translate(self._escape_table)}"'

@@ -2,8 +2,74 @@
 
 import typing as t
 
+__all__ = ["execute", "query", "query_row", "query_value"]
 
-def execute(con, sql: str, args: tuple = ()) -> int | None:
+
+Scalar = str | int | float | None
+Row = t.Sequence[Scalar] | dict[str, Scalar]
+
+
+class _Cursor(t.Protocol):
+    """A DBAPI cursor (subset)."""
+
+    lastrowid: int
+
+    arraysize: int
+
+    def callproc(self, procname: str, args: t.Sequence[Scalar]):
+        """Call a stored procedure with the given name."""
+        ...
+
+    def close(self) -> None:
+        """Close the cursor immediately."""
+        ...
+
+    def execute(self, operation: str, args: t.Sequence[Scalar]):
+        """Prepare and execute a database operation/query."""
+        ...
+
+    def executemany(self, operation: str, seq_of_parameters: t.Iterable[t.Iterable[Scalar]]):
+        """Prepare an operation and execute it against all the parameter sequences."""
+        ...
+
+    def fetchone(self) -> Row:
+        """Fetch the next row in the result set."""
+        ...
+
+    def fetchall(self) -> t.Iterable[Row]:
+        """Fetch all remaining rows in the query result."""
+        ...
+
+    def nextset(self) -> None:
+        """Skip to the next available result set."""
+        ...
+
+
+class _Connection(t.Protocol):
+    """PEP 249: Database API Connection"""
+
+    def close(self) -> None:
+        """Close the connection."""
+        ...
+
+    def commit(self) -> None:
+        """Commit the pending transaction to the database."""
+        ...
+
+    def rollback(self) -> None:
+        """Rollback the pending transaction."""
+        ...
+
+    def cursor(self) -> _Cursor:
+        """Return a cursor using the connection."""
+        ...
+
+
+def execute(
+    con: _Connection,
+    sql: str,
+    args: t.Sequence[Scalar] = (),
+) -> int | None:
     """Execute an SQL statement.
 
     Args:
@@ -25,7 +91,11 @@ def execute(con, sql: str, args: tuple = ()) -> int | None:
         cur.close()
 
 
-def query(con, sql: str, args: tuple = ()) -> t.Iterator[dict]:
+def query(
+    con: _Connection,
+    sql: str,
+    args: t.Sequence[Scalar] = (),
+) -> t.Iterator[Row]:
     """Run an SQL query.
 
     Args:
@@ -44,7 +114,13 @@ def query(con, sql: str, args: tuple = ()) -> t.Iterator[dict]:
         cur.close()
 
 
-def query_row(con, sql: str, args: tuple = (), *, default=None) -> dict | None:
+def query_row(
+    con: _Connection,
+    sql: str,
+    args: t.Sequence[Scalar] = (),
+    *,
+    default: Row | None = None,
+) -> Row | None:
     """Run an SQL query expected to return a single row.
 
     Args:
@@ -68,12 +144,12 @@ def query_row(con, sql: str, args: tuple = (), *, default=None) -> dict | None:
 
 
 def query_value(
-    con,
+    con: _Connection,
     sql: str,
-    args: tuple = (),
+    args: t.Sequence[Scalar] = (),
     *,
-    default: int | str | None = None,
-) -> int | str | None:
+    default: Scalar = None,
+) -> Scalar:
     """Run an SQL query expected to return a single value.
 
     Args:
@@ -89,7 +165,9 @@ def query_value(
     try:
         cur.execute(sql, args)
         for row in iter(cur.fetchone, None):
-            return row[0]
+            if isinstance(row, t.Sequence):
+                return row[0]
+            return row[next(iter(row.keys()))]
     finally:
         cur.close()
     return default

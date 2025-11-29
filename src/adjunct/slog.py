@@ -239,24 +239,23 @@ class LogfmtFormatter(_BaseFormatter):
         Returns:
             A logfmt-formatted string representing the log record.
         """
-        return " ".join(f"{key}={self._escape(value)}" for key, value in record_dict.items())
+        return " ".join(self._escape(record_dict.items()))
 
-    def _escape(self, value: Scalar) -> str:
-        """Escape a value for logfmt output.
+    def _escape(self, pairs: t.Iterable[tuple[str, Scalar]]) -> t.Iterator[str]:
+        """Escape key/value pairs for logfmt output.
 
         Args:
-            value: The value to escape.
+            pairs: The key/value pairs to escape.
 
-        Returns:
-            The escaped value.
+        Yields:
+            The escaped key/value.
         """
-
-        if value is True:
-            return "true"
-        if value is False:
-            return "false"
-        if value is None:
-            return "null"
-        if isinstance(value, (int, float)):
-            return str(value)
-        return f'"{value.translate(self._escape_table)}"'
+        for key, value in pairs:
+            if value is None or value is False:
+                continue
+            if value is True:
+                yield key
+            elif isinstance(value, (int, float)):
+                yield f"{key}={value}"
+            elif isinstance(value, str):
+                yield f'{key}="{value.translate(self._escape_table)}"'

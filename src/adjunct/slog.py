@@ -47,6 +47,8 @@ import logging
 import os
 import threading
 
+Scalar = str | int | float | bool | None
+
 
 def _generate_span_id():
     return base64.b16encode(os.urandom(8)).decode("utf-8")
@@ -57,12 +59,12 @@ class _SpanStack(threading.local):
 
     def __init__(self) -> None:
         super().__init__()
-        self._stack: list[dict[str, str]] = [{"spanId": _generate_span_id()}]
+        self._stack: list[dict[str, Scalar]] = [{"spanId": _generate_span_id()}]
 
-    def top(self) -> dict[str, str]:
+    def top(self) -> dict[str, Scalar]:
         return self._stack[-1]
 
-    def extend(self, **kwargs: str) -> None:
+    def extend(self, **kwargs: Scalar) -> None:
         """Add additional context to the current span."""
         self._stack[-1].update(kwargs)
 
@@ -72,7 +74,7 @@ class _SpanStack(threading.local):
     def __exit__(self, *_) -> None:
         self._stack.pop()
 
-    def __call__(self, /, **kwargs) -> "_SpanStack":
+    def __call__(self, /, **kwargs: Scalar) -> "_SpanStack":
         top = self._stack[-1]
         ctx = {**top, **kwargs, "spanId": _generate_span_id(), "parentSpanId": top["spanId"]}
         self._stack.append(ctx)
@@ -102,7 +104,7 @@ class M:
 
     __slots__ = ("message", "metadata")
 
-    def __init__(self, message: str, **metadata: str) -> None:
+    def __init__(self, message: str, **metadata: Scalar) -> None:
         self.message = message
         self.metadata = metadata
 
@@ -134,7 +136,7 @@ class JSONFormatter(logging.Formatter):
         # Prefer span context captured at emit time (from SpanContextFilter),
         # with a fallback to the current span if SpanContextFilter is not used.
         ctx = getattr(record, "_adjunct_slog_ctx", span.top())
-        record_dict: dict[str, str | dict[str, str]] = {
+        record_dict: dict[str, Scalar] = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "logger": record.name,

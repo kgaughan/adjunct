@@ -1,6 +1,6 @@
-# adjunct
+# Adjunct
 
-_adjunct_ is a collection of miscellaneous modules.
+_Adjunct_ is a collection of miscellaneous modules.
 
 It's intended that this will eventually end up as a namespace package.
 

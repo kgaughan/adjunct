@@ -26,30 +26,31 @@ DISCOVER_FEEDS_ANCHORS = b"""<!DOCTYPE html>
 """
 
 
+def app(environ, start_response):
+    headers = [("Content-Type", "text/plain; charset=UTF-8")]
+    match environ["PATH_INFO"]:
+        case "/400":
+            status = "400 Bad Request"
+            body = [b"Bad Request"]
+        case "/500":
+            status = "500 Internal Server Error"
+            body = [b"Internal Server Error"]
+        case "/discoverfeeds":
+            status = "200 OK"
+            headers = [("Content-Type", "text/html; charset=UTF-8")]
+            body = [DISCOVER_FEEDS]
+        case "/discoveranchorfeeds":
+            status = "200 OK"
+            headers = [("Content-Type", "text/html; charset=UTF-8")]
+            body = [DISCOVER_FEEDS_ANCHORS]
+        case _:
+            status = "200 OK"
+            body = [b"Fixture App Response"]
+    start_response(status, headers)
+    return body
+
+
 @pytest.fixture(scope="package")
 def fixture_app():
-    def app(environ, start_response):
-        headers = [("Content-Type", "text/plain; charset=UTF-8")]
-        match environ["PATH_INFO"]:
-            case "/400":
-                status = "400 Bad Request"
-                body = [b"Bad Request"]
-            case "/500":
-                status = "500 Internal Server Error"
-                body = [b"Internal Server Error"]
-            case "/discoverfeeds":
-                status = "200 OK"
-                headers = [("Content-Type", "text/html; charset=UTF-8")]
-                body = [DISCOVER_FEEDS]
-            case "/discoveranchorfeeds":
-                status = "200 OK"
-                headers = [("Content-Type", "text/html; charset=UTF-8")]
-                body = [DISCOVER_FEEDS_ANCHORS]
-            case _:
-                status = "200 OK"
-                body = [b"Fixture App Response"]
-        start_response(status, headers)
-        return body
-
     with fixtureutils.fixture(app) as addr:
         yield addr

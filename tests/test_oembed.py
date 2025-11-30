@@ -167,5 +167,6 @@ def test_fetch_oembed_with_bad_request(fixture_app):
 
 
 def test_fetch_oembed_with_server_error(fixture_app):
-    with pytest.raises(error.HTTPError, match="Internal Server Error"):
+    with pytest.raises(error.HTTPError) as excinfo:
         fetch(f"{fixture_app}500")
+    assert excinfo.value.code == 500

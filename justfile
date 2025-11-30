@@ -14,6 +14,10 @@ tidy:
 test:
 	@uv run --frozen pytest
 
+# run the tests with coverage
+coverage:
+	@uv run --frozen pytest --cov=src --cov-report=term-missing
+
 # run the typechecker
 typecheck:
 	@uv run --frozen mypy src

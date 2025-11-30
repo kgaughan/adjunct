@@ -65,15 +65,8 @@ def test_json_response():
     assert headers_dict["Content-Type"] == "application/json; charset=UTF-8"
 
 
-def fixture_app(environ, start_response):  # noqa: ARG001
-    """
-    A simple WSGI application for testing purposes.
-    """
-    return fixtureutils.basic_response(start_response, 200, "Fixture App Response")
-
-
-def test_fixture():
-    with fixtureutils.fixture(fixture_app) as addr, urllib.request.urlopen(addr) as resp:
+def test_fixture(fixture_app):
+    with urllib.request.urlopen(fixture_app) as resp:
         body = resp.read()
         assert resp.status == 200
         assert resp.getheader("Content-Type") == "text/plain; charset=UTF-8"

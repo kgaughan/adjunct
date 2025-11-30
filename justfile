@@ -7,18 +7,22 @@ devel:
 	@uv sync --frozen
 
 # tidy everything with ruff
+[group("Analysis/Fixing")]
 tidy:
 	@uv run --frozen ruff check --fix
 
 # run the test suite
+[group("Testing")]
 test:
 	@uv run --frozen pytest
 
 # run the tests with coverage
+[group("Testing")]
 coverage:
 	@uv run --frozen pytest --cov=adjunct --cov-report=html
 
 # run the typechecker
+[group("Analysis/Fixing")]
 typecheck:
 	@uv run --frozen mypy src
 
@@ -33,6 +37,7 @@ tools:
 	@uv tool install tox --with tox-uv
 
 # run the mkdocs server
+[group("Documentation")]
 serve-docs:
 	@# --livereload is needed because of https://github.com/squidfunk/mkdocs-material/issues/8478
 	@uv run mkdocs serve --livereload

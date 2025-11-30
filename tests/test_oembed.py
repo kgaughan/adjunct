@@ -6,7 +6,6 @@ from urllib import error
 
 import pytest
 
-from adjunct import fixtureutils
 from adjunct.fixtureutils import make_fake_http_response
 from adjunct.oembed import (
     _build_url,
@@ -162,22 +161,12 @@ class FetchTest(unittest.TestCase):
         self.assertIsNone(fetched)
 
 
-def app_400(environ, start_response):  # noqa: ARG001
-    headers = [("Content-Type", "text/plain; charset=utf-8")]
-    start_response("400 Bad Request", headers)
-    yield b"Bad request"
+def test_fetch_oembed_with_bad_request(fixture_app):
+    fetched = fetch(f"{fixture_app}400")
+    assert fetched is None
 
 
-def app_500(environ, start_response):  # noqa: ARG001
-    headers = [("Content-Type", "text/plain; charset=utf-8")]
-    start_response("500 Internal Server Error", headers)
-    yield b"Internal server error"
-
-
-def test_fetch_oembed_with_error():
-    with fixtureutils.fixture(app_400) as addr:
-        fetched = fetch(f"{addr}/oembed")
-        assert fetched is None
-
-    with fixtureutils.fixture(app_500) as addr, pytest.raises(error.HTTPError):
-        fetch(f"{addr}/oembed")
+def test_fetch_oembed_with_server_error(fixture_app):
+    with pytest.raises(error.HTTPError) as excinfo:
+        fetch(f"{fixture_app}500")
+    assert excinfo.value.code == 500

@@ -12,6 +12,7 @@ class OPMLTest(unittest.TestCase):
         with open(os.path.join(HERE, "sample.opml")) as fh:
             doc = opml.parse(fh)
 
+        assert doc is not None
         self.assertTrue(doc.root)
         self.assertEqual(len(doc.attrs), 1)
         self.assertEqual(doc.attrs["title"], "Sample OPML file")

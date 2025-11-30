@@ -16,7 +16,7 @@ test:
 
 # run the tests with coverage
 coverage:
-	@uv run --frozen pytest --cov=src --cov-report=term-missing
+	@uv run --frozen pytest --cov=adjunct --cov-report=html
 
 # run the typechecker
 typecheck:

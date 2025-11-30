@@ -120,7 +120,7 @@ ban-relative-imports = "all"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --doctest-modules --cov=adjunct --junitxml=tests/results.xml --cov-report html"
+addopts = "-ra -q --junitxml=tests/results.xml"
 junit_logging = "out-err"
 junit_family = "xunit2"
 pythonpath = ["src"]

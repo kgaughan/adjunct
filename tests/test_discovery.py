@@ -1,73 +1,48 @@
 import io
-import unittest
 
-from adjunct import discovery, fixtureutils
+from adjunct import discovery
 
 
-class ExtractorTest(unittest.TestCase):
-    def test_empty(self):
-        buf = io.BytesIO(
-            b"""<!DOCTYPE html>
+def test_empty():
+    buf = io.BytesIO(
+        b"""<!DOCTYPE html>
 <html></html>"""
-        )
-        self.assertListEqual(discovery.Extractor.extract(buf).collected, [])
+    )
+    assert discovery.Extractor.extract(buf).collected == []
 
-    def test_one_link(self):
-        buf = io.BytesIO(
-            b"""<!DOCTYPE html>
+
+def test_one_link():
+    buf = io.BytesIO(
+        b"""<!DOCTYPE html>
 <html>
     <head>
         <link rel="foo" href="bar">
     </head>
 </html>"""
-        )
-        self.assertListEqual(
-            discovery.Extractor.extract(buf).collected,
-            [{"href": "bar", "rel": "foo"}],
-        )
+    )
+    assert discovery.Extractor.extract(buf).collected == [{"href": "bar", "rel": "foo"}]
 
-    def test_one_link_with_base(self):
-        buf = io.BytesIO(
-            b"""<!DOCTYPE html>
+
+def test_one_link_with_base():
+    buf = io.BytesIO(
+        b"""<!DOCTYPE html>
 <html>
     <head>
         <link rel="foo" href="bar">
         <base href="http://example.com/">
     </head>
 </html>"""
-        )
-        self.assertListEqual(
-            discovery.Extractor.extract(buf).collected,
-            [{"href": "http://example.com/bar", "rel": "foo"}],
-        )
+    )
+    assert discovery.Extractor.extract(buf).collected == [{"href": "http://example.com/bar", "rel": "foo"}]
 
 
-def meta_app(environ, start_response):  # noqa: ARG001
-    headers = [
-        ("Content-Type", "text/html; charset=utf-8"),
-        ("Link", "http://malformed.example.com/"),
-        ("Link", '<http://example.com/>; rel="bar"'),
+def test_fetch_meta(fixture_app):
+    links, properties = discovery.fetch_meta(f"{fixture_app}meta")
+    assert links == [
+        {"href": "http://example.com/", "rel": "bar"},
+        {"href": f"{fixture_app}bar", "rel": "foo"},
     ]
-    start_response("200 OK", headers)
-    return [
-        b"""<!DOCTYPE html>
-<html>
-    <head>
-        <link rel="foo" href="bar">
-        <meta property="og:title" content="Example">
-    </head>
-</html>"""
-    ]
-
-
-def test_fetch_meta():
-    with fixtureutils.fixture(meta_app) as addr:
-        links, properties = discovery.fetch_meta(addr)
-        assert links == [
-            {"href": "http://example.com/", "rel": "bar"},
-            {"href": f"{addr}bar", "rel": "foo"},
-        ]
-        assert properties == [("og:title", "Example")]
+    assert properties == [("og:title", "Example")]
 
 
 def test_safe_slurp():

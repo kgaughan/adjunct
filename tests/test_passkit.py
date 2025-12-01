@@ -6,6 +6,7 @@ import pytest
 from adjunct import passkit
 
 
+@pytest.mark.slow
 def test_jsonpasswdfile(tmp_path):
     ht = passkit.JSONPasswdFile(tmp_path / "passwd.json")
 
@@ -31,6 +32,7 @@ def test_jsonpasswdfile(tmp_path):
     assert set(ht.users.keys()) == {"barney"}
 
 
+@pytest.mark.slow
 def test_jsonpasswdfile_existing():
     path = os.path.join(os.path.dirname(__file__), "passwd.json")
     ht = passkit.JSONPasswdFile(path)

@@ -27,7 +27,7 @@ def test_access(ogp_properties):
 
 def test_invalid(ogp_properties):
     _, parsed = ogp_properties
-    assert len(list(ogp.find(parsed, "audio"))) == 0
+    assert not list(ogp.find(parsed, "audio"))
 
 
 def test_video(ogp_properties):

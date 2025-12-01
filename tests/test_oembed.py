@@ -1,7 +1,5 @@
 import io
 import json
-import unittest
-from unittest import mock
 from urllib import error
 
 import pytest
@@ -85,22 +83,19 @@ def test_get_oembed_none():
     assert result is None
 
 
-class OEmbedFinderTest(unittest.TestCase):
-    @mock.patch("urllib.request.urlopen")
-    def test_get_oembed(self, mock_urlopen):
-        doc = {
-            "version": "1.0",
-            "type": "video",
-            "html": "<video/>",
-            "width": 480,
-            "height": 270,
-            "author_name": "John Doe",
-            "title": "A video",
-        }
-        mock_urlopen.return_value = make_response(doc)
-        result = get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
-        assert result is not None
-        self.assertDictEqual(result, doc)
+def test_get_oembed(monkeypatch):
+    doc = {
+        "version": "1.0",
+        "type": "video",
+        "html": "<video/>",
+        "width": 480,
+        "height": 270,
+        "author_name": "John Doe",
+        "title": "A video",
+    }
+    monkeypatch.setattr("urllib.request.urlopen", lambda *_a, **_kw: make_response(doc))
+    result = get_oembed([*LINKS_WITHOUT, *LINKS_WITH])
+    assert result == doc
 
 
 def test_parse():
@@ -133,32 +128,33 @@ def make_response(dct, content_type="application/json+oembed; charset=UTF-8"):
     )
 
 
-class FetchTest(unittest.TestCase):
-    @mock.patch("urllib.request.urlopen")
-    def test_fetch(self, mock_urlopen):
-        orig = {
-            "version": "1.0",
-            "type": "video",
-            "html": "<video/>",
-            "width": 480,
-            "height": 270,
-            "author_name": "John Doe",
-            "title": "A video",
-        }
-        mock_urlopen.return_value = make_response(orig)
+def test_fetch(monkeypatch):
+    orig = {
+        "version": "1.0",
+        "type": "video",
+        "html": "<video/>",
+        "width": 480,
+        "height": 270,
+        "author_name": "John Doe",
+        "title": "A video",
+    }
+    monkeypatch.setattr(
+        "urllib.request.urlopen",
+        lambda *_a, **_kw: make_response(orig),
+    )
 
-        fetched = fetch("https://example.com/oembed?type=json")
-        mock_urlopen.assert_called_once()
-        self.assertIsInstance(fetched, dict)
-        self.assertDictEqual(fetched, orig)  # type: ignore
+    fetched = fetch("https://example.com/oembed?type=json")
+    assert isinstance(fetched, dict)
+    assert fetched == orig
 
-    @mock.patch("urllib.request.urlopen")
-    def test_fetch_bad(self, mock_urlopen):
-        mock_urlopen.return_value = make_response({}, content_type="text/plain")
 
-        fetched = fetch("https://example.com/oembed?type=json")
-        mock_urlopen.assert_called_once()
-        self.assertIsNone(fetched)
+def test_fetch_bad(monkeypatch):
+    monkeypatch.setattr(
+        "urllib.request.urlopen",
+        lambda *_a, **_kw: make_response({}, content_type="text/plain"),
+    )
+    fetched = fetch("https://example.com/oembed?type=json")
+    assert fetched is None
 
 
 def test_fetch_oembed_with_bad_request(fixture_app):

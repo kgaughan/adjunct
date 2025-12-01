@@ -16,14 +16,14 @@ from adjunct.oembed import (
 )
 
 
-class BuildUrlTest(unittest.TestCase):
-    def test_base(self):
-        self.assertEqual(_build_url("foo", None, None), "foo")
+def test_base():
+    assert _build_url("foo", None, None) == "foo"
 
-    def test_dimension(self):
-        self.assertEqual(_build_url("foo", 5, None), "foo&maxwidth=5")
-        self.assertEqual(_build_url("foo", None, 8), "foo&maxheight=8")
-        self.assertEqual(_build_url("foo", 5, 8), "foo&maxwidth=5&maxheight=8")
+
+def test_dimension():
+    assert _build_url("foo", 5, None) == "foo&maxwidth=5"
+    assert _build_url("foo", None, 8) == "foo&maxheight=8"
+    assert _build_url("foo", 5, 8) == "foo&maxwidth=5&maxheight=8"
 
 
 LINKS_WITHOUT = [
@@ -50,38 +50,42 @@ LINKS_WITH = [
 ]
 
 
+def test_none():
+    assert _find_first_oembed_link(LINKS_WITHOUT) is None
+
+
+def test_find():
+    links = [
+        *LINKS_WITHOUT,
+        {
+            "href": "http://www.example.com/oembed?format=json",
+            "rel": "alternate",
+            "title": "JSON Example",
+            "type": "application/json+oembed",
+        },
+        {
+            "href": "http://www.example.com/oembed?format=xml",
+            "rel": "alternate",
+            "title": "XML Example",
+            "type": "text/xml+oembed",
+        },
+    ]
+    result = _find_first_oembed_link(links)
+    assert result == "http://www.example.com/oembed?format=json"
+
+
+def test_no_href():
+    links = [*LINKS_WITHOUT, *LINKS_WITH]
+    result = _find_first_oembed_link(links)
+    assert result == "http://www.example.com/oembed?format=xml"
+
+
+def test_get_oembed_none():
+    result = get_oembed(LINKS_WITHOUT)
+    assert result is None
+
+
 class OEmbedFinderTest(unittest.TestCase):
-    def test_none(self):
-        self.assertIsNone(_find_first_oembed_link(LINKS_WITHOUT))
-
-    def test_find(self):
-        links = [
-            *LINKS_WITHOUT,
-            {
-                "href": "http://www.example.com/oembed?format=json",
-                "rel": "alternate",
-                "title": "JSON Example",
-                "type": "application/json+oembed",
-            },
-            {
-                "href": "http://www.example.com/oembed?format=xml",
-                "rel": "alternate",
-                "title": "XML Example",
-                "type": "text/xml+oembed",
-            },
-        ]
-        result = _find_first_oembed_link(links)
-        self.assertEqual(result, "http://www.example.com/oembed?format=json")
-
-    def test_no_href(self):
-        links = [*LINKS_WITHOUT, *LINKS_WITH]
-        result = _find_first_oembed_link(links)
-        self.assertEqual(result, "http://www.example.com/oembed?format=xml")
-
-    def test_get_oembed_none(self):
-        result = get_oembed(LINKS_WITHOUT)
-        self.assertIsNone(result)
-
     @mock.patch("urllib.request.urlopen")
     def test_get_oembed(self, mock_urlopen):
         doc = {
@@ -99,10 +103,9 @@ class OEmbedFinderTest(unittest.TestCase):
         self.assertDictEqual(result, doc)
 
 
-class OEmbedXMLParserTest(unittest.TestCase):
-    def test_parse(self):
-        fh = io.StringIO(
-            """<?xml version="1.0" encoding="utf-8"?>
+def test_parse():
+    fh = io.StringIO(
+        """<?xml version="1.0" encoding="utf-8"?>
 <oembed>
     <version>1.0</version>
     <type>photo</type>
@@ -112,18 +115,15 @@ class OEmbedXMLParserTest(unittest.TestCase):
     <width>300</width>
 </oembed>
 """
-        )
-        fields = _parse_xml_oembed_response(fh)
-        self.assertDictEqual(
-            fields,
-            {
-                "version": "1.0",
-                "type": "photo",
-                "title": "This is a title",
-                "width": "300",
-                "height": "300",
-            },
-        )
+    )
+    fields = _parse_xml_oembed_response(fh)
+    assert fields == {
+        "version": "1.0",
+        "type": "photo",
+        "title": "This is a title",
+        "width": "300",
+        "height": "300",
+    }
 
 
 def make_response(dct, content_type="application/json+oembed; charset=UTF-8"):

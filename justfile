@@ -16,6 +16,16 @@ tidy:
 test:
 	@uv run --frozen pytest
 
+# run only fast tests
+[group("Testing")]
+fast-test:
+	@uv run --frozen pytest -m "not slow"
+
+# run test suite showing the slowest of those not marked as slow
+[group("Testing")]
+test-show-slow:
+	@uv run --frozen pytest -m "not slow" --durations 10
+
 # run the tests with coverage
 [group("Testing")]
 coverage:

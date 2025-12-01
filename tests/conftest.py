@@ -25,9 +25,18 @@ DISCOVER_FEEDS_ANCHORS = b"""<!DOCTYPE html>
 </html>
 """
 
+META = b"""<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="foo" href="bar">
+        <meta property="og:title" content="Example">
+    </head>
+</html>"""
+
 
 def app(environ, start_response):
-    headers = [("Content-Type", "text/plain; charset=UTF-8")]
+    status = "200 OK"
+    headers = [("Content-Type", "text/html; charset=UTF-8")]
     match environ["PATH_INFO"]:
         case "/400":
             status = "400 Bad Request"
@@ -36,21 +45,24 @@ def app(environ, start_response):
             status = "500 Internal Server Error"
             body = [b"Internal Server Error"]
         case "/discoverfeeds":
-            status = "200 OK"
-            headers = [("Content-Type", "text/html; charset=UTF-8")]
             body = [DISCOVER_FEEDS]
         case "/discoveranchorfeeds":
-            status = "200 OK"
-            headers = [("Content-Type", "text/html; charset=UTF-8")]
             body = [DISCOVER_FEEDS_ANCHORS]
+        case "/meta":
+            headers = [
+                ("Content-Type", "text/html; charset=utf-8"),
+                ("Link", "http://malformed.example.com/"),
+                ("Link", '<http://example.com/>; rel="bar"'),
+            ]
+            body = [META]
         case _:
-            status = "200 OK"
+            headers = [("Content-Type", "text/plain; charset=UTF-8")]
             body = [b"Fixture App Response"]
     start_response(status, headers)
     return body
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="session")
 def fixture_app():
     with fixtureutils.fixture(app) as addr:
         yield addr

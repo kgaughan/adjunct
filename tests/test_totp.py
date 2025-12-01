@@ -113,7 +113,7 @@ def check_vector(key: bytes, alg: str, now: int, expected: str):
 
 
 @pytest.mark.parametrize(
-    "now,expected",
+    ("now", "expected"),
     [
         (59, "94287082"),
         (1111111109, "07081804"),
@@ -133,7 +133,7 @@ def test_sha1_vectors(now: int, expected: str):
 
 
 @pytest.mark.parametrize(
-    "now,expected",
+    ("now", "expected"),
     [
         (59, "46119246"),
         (1111111109, "68084774"),
@@ -153,7 +153,7 @@ def test_sha256_vectors(now: int, expected: str):
 
 
 @pytest.mark.parametrize(
-    "now,expected",
+    ("now", "expected"),
     [
         (59, "90693936"),
         (1111111109, "25091201"),

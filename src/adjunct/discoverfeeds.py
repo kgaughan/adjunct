@@ -1,7 +1,5 @@
 """Feed discovery."""
 
-import typing as t
-
 from . import discovery
 
 __all__ = ["discover_feeds"]
@@ -81,7 +79,7 @@ class _FeedExtractor(discovery.Extractor):
             self.added.add(attrs["href"])
 
 
-def discover_feeds(url: str) -> t.Collection[dict[str, str]]:
+def discover_feeds(url: str) -> list[dict[str, str]]:
     """Discover any feeds at the given URL.
 
     Args:

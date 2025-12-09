@@ -41,5 +41,6 @@ jobs:
         with:
           version: "0.9.5"
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
       - name: Run tests
         run: uv run --frozen pytest

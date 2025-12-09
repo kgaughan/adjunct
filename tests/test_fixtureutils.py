@@ -126,3 +126,21 @@ def test_read_json_malformed_json():
     }
     with pytest.raises(json.JSONDecodeError):
         fixtureutils.read_json(env)
+
+
+def test_basic_response():
+    response_status = ""
+    response_headers = []
+
+    def start_response(status, headers):
+        nonlocal response_status, response_headers
+        response_status = status
+        response_headers = headers
+
+    body = "Hello, World!"
+    result = fixtureutils.basic_response(start_response, 200, body)
+
+    assert b"".join(result) == body.encode("utf-8")
+    assert response_status.startswith("200")
+    headers_dict = dict(response_headers)
+    assert headers_dict["Content-Length"] == str(len(body.encode("utf-8")))

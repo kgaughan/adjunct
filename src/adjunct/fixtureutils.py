@@ -146,7 +146,7 @@ class _FakeSocket:
         self._body = io.BytesIO(body)
 
     def makefile(self, mode, bufsize=None):  # noqa: ARG002
-        if mode != "rb":
+        if mode != "rb":  # pragma: no cover
             raise client.UnimplementedFileMode()  # noqa: RSE102
         return self._body
 

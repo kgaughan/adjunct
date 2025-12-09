@@ -69,6 +69,11 @@ def test_single_property_to_meta():
     assert meta == expected
 
 
+def test_to_meta_empty_sequence():
+    meta = ogp.to_meta([])
+    assert meta == ""
+
+
 def test_bad_metadata_handling():
     properties = [
         ("og:title", "Example Title"),

@@ -36,6 +36,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        # Check out the PR head commit (not the merge commit) so coverage line numbers map correctly to the diff.
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
           persist-credentials: false
 
@@ -56,7 +58,7 @@ jobs:
 
   upload-coverage:
     needs: test
-    if: ${{ !cancelled() && needs.test.result == 'success' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -71,4 +73,4 @@ jobs:
         with:
           file: coverage.xml
           language: python
-          label: code-coverage/adjunct
+          label: code-coverage/pytest

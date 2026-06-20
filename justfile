@@ -29,7 +29,7 @@ test-show-slow:
 # run the tests with coverage
 [group("Testing")]
 coverage:
-	@uv run --frozen pytest --cov=adjunct --cov-report=html
+	@uv run --frozen pytest --cov=adjunct --cov-report=html --cov-report=term
 
 # run the typechecker
 [group("Analysis/Fixing")]

@@ -106,6 +106,7 @@ ignore = [
   "EM101",   # Exceptions must not use strings
   "EM102",   # Exception must not use f-string literal
   "TRY003",  # Avoid specifying long messages outside the exception class
+  "PYI034",  # `__enter__` methods in classes like ??? usually return `self` at runtime (disabled for compatibility)
 ]
 
 [tool.ruff.lint.isort]

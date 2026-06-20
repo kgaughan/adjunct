@@ -16,12 +16,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: astral-sh/ruff-action@v3
+
+      - uses: astral-sh/ruff-action@v4
         with:
-          version: "0.14.3"
+          version: "0.15.18"
 
   test:
     runs-on: ubuntu-latest
@@ -34,13 +35,15 @@ jobs:
           - "3.14"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@v6
+
+      - uses: astral-sh/setup-uv@v8
         with:
-          version: "0.9.5"
+          version: "0.11.23"
           python-version: ${{ matrix.python-version }}
           enable-cache: true
+
       - name: Run tests
         run: uv run --frozen pytest

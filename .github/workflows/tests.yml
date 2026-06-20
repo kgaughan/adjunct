@@ -46,4 +46,4 @@ jobs:
           enable-cache: true
 
       - name: Run tests
-        run: uv run --frozen pytest
+        run: uv run --frozen pytest --cov=adjunct --cov-report=term

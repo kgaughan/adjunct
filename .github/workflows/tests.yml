@@ -36,9 +36,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-        # Check out the PR head commit (not the merge commit) so coverage line numbers map correctly to the diff.
-        ref: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
+          # Check out the PR head commit (not the merge commit) so coverage line numbers map correctly to the diff.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - uses: astral-sh/setup-uv@v6

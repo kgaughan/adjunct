@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
+
       - uses: astral-sh/ruff-action@v3
         with:
           version: "0.14.3"
@@ -37,10 +38,37 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
+
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.5"
           python-version: ${{ matrix.python-version }}
           enable-cache: true
+
       - name: Run tests
-        run: uv run --frozen pytest
+        run: uv run --frozen pytest --cov=adjunct --cov-report=xml --cov-report=term
+
+      - uses: actions/upload-artifact@v4
+        if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && matrix.python-version == "3.14"
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  upload-coverage:
+    needs: test
+    if: ${{ !cancelled() && needs.build.result == 'success' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      code-quality: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+
+      - uses: actions/upload-code-coverage@v1
+        with:
+          file: coverage.xml
+          language: python
+          label: code-coverage/adjunct

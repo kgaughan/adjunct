@@ -37,8 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          # Check out the PR head commit (not the merge commit) so coverage line numbers map correctly to the diff.
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - uses: astral-sh/setup-uv@v6
@@ -48,29 +46,4 @@ jobs:
           enable-cache: true
 
       - name: Run tests
-        run: uv run --frozen pytest --cov=adjunct --cov-report=xml --cov-report=term
-
-      - uses: actions/upload-artifact@v4
-        if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && matrix.python-version == '3.14'
-        with:
-          name: coverage-report
-          path: coverage.xml
-
-  upload-coverage:
-    needs: test
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      code-quality: write
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: coverage-report
-
-      - uses: actions/upload-code-coverage@v1
-        with:
-          file: coverage.xml
-          language: python
-          label: code-coverage/pytest
+        run: uv run --frozen pytest --cov=adjunct --cov-report=term

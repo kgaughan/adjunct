@@ -55,9 +55,7 @@ class _FeedExtractor(discovery.Extractor):
             super().handle_endtag(tag)
 
     def guess_feed_type(self, href: str) -> str | None:
-        """
-        Guess the MIME type of a link based off of its ending.
-        """
+        """Guess the MIME type of a link based off of its ending."""
         # Reasonable assumption: we're dealing with <a> elements, and by this
         # time, we should've encountered any <base> elements we care about.
         href = self._fix_href(href)
@@ -88,6 +86,7 @@ def discover_feeds(url: str) -> list[dict[str, str]]:
     Returns:
         The feeds in order of priority. Atom feeds are prioritised first,
             followed by RDF, and then finally RSS feeds.
+
     """
     links, _ = discovery.fetch_meta(url, _FeedExtractor)
     return sorted(links, key=(lambda feed: _ORDER[feed["type"]]))

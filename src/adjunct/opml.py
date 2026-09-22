@@ -36,6 +36,7 @@ class Outline(list):
     Attributes:
         attrs: any attributes on the element
         root: is this outline the root outline?
+
     """
 
     def __init__(
@@ -98,9 +99,7 @@ class _Handler(xml.sax.handler.ContentHandler):
         self.current = None
 
     def _get_parent_tag(self):
-        """
-        Oh, guess!
-        """
+        """Oh, guess!"""
         return None if len(self.tag_stack) == 0 else self.tag_stack[-1]
 
     def startDocument(self):  # noqa: N802
@@ -145,6 +144,7 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
 
     Returns:
         A timezone-aware datetime, or `None` if the timestamp could not be parsed.
+
     """
     tt = email.utils.parsedate_tz(ts)
     if tt is None:
@@ -153,13 +153,14 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
 
 
 def parse(fh: t.TextIO) -> Outline | None:
-    """Parses an OPML file from the given file object.
+    """Parse an OPML file from the given file object.
 
     Args:
         fh: a file-like object containing an OPML document
 
     Returns:
         An outline if the document could be parsed, otherwise `None`.
+
     """
     handler = _Handler()
     xml.sax.parse(fh, handler)
@@ -167,13 +168,14 @@ def parse(fh: t.TextIO) -> Outline | None:
 
 
 def parse_string(s: str) -> Outline | None:
-    """Parses an OPML document from the given string.
+    """Parse an OPML document from the given string.
 
     Args:
         s: an OPML document.
 
     Returns:
         An outline if the document could be parsed, otherwise `None`.
+
     """
     handler = _Handler()
     xml.sax.parseString(s, handler)

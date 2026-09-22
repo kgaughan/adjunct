@@ -27,8 +27,8 @@ def load_json_documents(payloads: str) -> t.Iterator[dict | list]:
         {'name': 'Alice'}
         {'name': 'Bob'}
         [1, 2, 3]
-    """
 
+    """
     decoder = json.JSONDecoder()
     while True:
         payloads = payloads.lstrip()

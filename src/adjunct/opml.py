@@ -153,7 +153,7 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
 
 
 def parse(fh: t.TextIO) -> Outline | None:
-    """Parses an OPML file from the given file object.
+    """Parse an OPML file from the given file object.
 
     Args:
         fh: a file-like object containing an OPML document
@@ -168,7 +168,7 @@ def parse(fh: t.TextIO) -> Outline | None:
 
 
 def parse_string(s: str) -> Outline | None:
-    """Parses an OPML document from the given string.
+    """Parse an OPML document from the given string.
 
     Args:
         s: an OPML document.

@@ -19,19 +19,21 @@ def parse(ns: bytes) -> t.Sequence[bytes]:
 
     Returns:
         All the netstrings found in the input buffer
+
     """
     with io.BytesIO(ns) as fh:
         return list(netstring_reader(fh))
 
 
 def netstring_reader(fd: io.BufferedIOBase) -> t.Iterable[bytes]:  # noqa: C901
-    """Reads a sequence of netstrings from the given file object.
+    """Read a sequence of netstrings from the given file object.
 
     Args:
         fd: a file-like object to read from
 
     Yields:
         netstrings
+
     """
     while True:
         buffered = b""

@@ -12,9 +12,7 @@ def paginator(
     max_page: int,
     buffer_size: int = 3,
 ) -> t.Iterator[int | None]:
-    """Pagination generator.
-
-    Generates a sequence of page numbers, giving the pages at the beginning
+    """Generate a sequence of page numbers, giving the pages at the beginning
     and end, and around the current page, with a number of buffer pages on
     each side of both. Omitted pages in the sequence are elided into a `None`.
 
@@ -25,6 +23,7 @@ def paginator(
 
     Yields:
         A page number, or `None` to indicate an elided series of pages.
+
     """
     if page_num < 1 or page_num > max_page or max_page < 1:
         raise InvalidPageError("Requested page is out of bounds")

@@ -44,6 +44,7 @@ def fixture(app: _app, *, returns_app: bool = False, timeout: int = 5) -> abc.Ge
 
     Yields:
         The URL serving the WSGI application.
+
     """
     queue: multiprocessing.Queue[tuple[str, int]] = multiprocessing.Queue()
 
@@ -156,7 +157,7 @@ def _make_fake_http_response_msg(
     body: str = "",
     headers: list[tuple[str, t.Any]] | None = None,
 ) -> bytes:
-    """Creates a HTTP message and serialises it as bytes.
+    """Create a HTTP message and serialises it as bytes.
 
     Args:
         code: a HTTP status code
@@ -165,6 +166,7 @@ def _make_fake_http_response_msg(
 
     Returns:
         The serialised HTTP message.
+
     """
     if headers is None:
         headers = []

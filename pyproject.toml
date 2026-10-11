@@ -112,6 +112,7 @@ ignore = [
   "EM102",   # Exception must not use f-string literal
   "TRY003",  # Avoid specifying long messages outside the exception class
   "PYI034",  # `__enter__` methods in classes like ??? usually return `self` at runtime (disabled for compatibility)
+  "ICN001",  # `datetime` should be imported as `dt`
 ]
 
 [tool.ruff.lint.isort]
@@ -163,7 +164,7 @@ ignore_missing_imports = true
 
 [tool.tox]
 requires = ["tox>=4", "tox-uv>=1"]
-env_list = ["py312", "py313", "py314"]
+env_list = ["py312", "py313", "py314", "py315"]
 
 [tool.tox.env_run_base]
 runner = "uv-venv-lock-runner"

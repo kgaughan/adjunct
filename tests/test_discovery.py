@@ -6,7 +6,7 @@ from adjunct import discovery
 def test_empty():
     buf = io.BytesIO(
         b"""<!DOCTYPE html>
-<html></html>"""
+<html></html>""",
     )
     assert discovery.Extractor.extract(buf).collected == []
 
@@ -18,7 +18,7 @@ def test_one_link():
     <head>
         <link rel="foo" href="bar">
     </head>
-</html>"""
+</html>""",
     )
     assert discovery.Extractor.extract(buf).collected == [{"href": "bar", "rel": "foo"}]
 
@@ -31,7 +31,7 @@ def test_one_link_with_base():
         <link rel="foo" href="bar">
         <base href="http://example.com/">
     </head>
-</html>"""
+</html>""",
     )
     assert discovery.Extractor.extract(buf).collected == [{"href": "http://example.com/bar", "rel": "foo"}]
 
@@ -70,7 +70,7 @@ def test_fix_attributes():
             ("data-value", None),
             ("Type", "TEXT/HTML"),
             ("TITLE", "Preserve Case"),
-        ]
+        ],
     ) == {
         "rel": "foo",
         "data-value": "",

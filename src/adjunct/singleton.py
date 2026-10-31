@@ -34,7 +34,7 @@ def mutex(filename: str):
             fcntl.flock(fh, fcntl.LOCK_UN)
 
 
-def main():  # pragma: no cover
+def main() -> None:  # pragma: no cover
     while True:
         print("Sleeping for a few seconds...")  # noqa: T201
         time.sleep(5)

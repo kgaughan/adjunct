@@ -17,7 +17,7 @@ _start_response = abc.Callable[[str, list[tuple[str, str]]], None]
 _app = abc.Callable[[dict[str, t.Any], _start_response], t.Iterable[bytes]]
 
 
-def _start_server(app, queue, returns_app):  # pragma: no cover
+def _start_server(app, queue, returns_app) -> None:  # pragma: no cover
     """Run a fixture application."""
     # This is excluded from coverage as it's only run in a separate process.
     # If there were an issue, the tests using fixtures would fail.
@@ -142,7 +142,7 @@ class _FakeSocket:
         body: a buffer containing the full response message
     """
 
-    def __init__(self, body: bytes):
+    def __init__(self, body: bytes) -> None:
         super()
         self._body = io.BytesIO(body)
 

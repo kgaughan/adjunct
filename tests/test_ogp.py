@@ -64,7 +64,7 @@ def test_single_property_to_meta():
             '<meta property="og:title" content="Example Title">',
             '<meta property="og:title:lang" content="en">',
             '<meta property="og:title:alternate" content="true">',
-        ]
+        ],
     )
     assert meta == expected
 

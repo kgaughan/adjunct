@@ -13,7 +13,7 @@ class UnknownHashAlgorithmError(Exception):
         alg: Hash algorithm name given
     """
 
-    def __init__(self, alg: str):
+    def __init__(self, alg: str) -> None:
         self.alg = alg
         message = f"'{alg}' is not a supported TOTP hash algorithm"
         super().__init__(message)

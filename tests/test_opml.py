@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import os.path
 
 import pytest
@@ -43,5 +43,5 @@ def test_exception():
 
 def test_date_parse():
     # Note: the resulting date is in UTC.
-    expected = datetime.datetime(1997, 11, 21, 15, 55, 6, tzinfo=datetime.UTC)
+    expected = dt.datetime(1997, 11, 21, 15, 55, 6, tzinfo=dt.UTC)
     assert opml.parse_timestamp("Fri, 21 Nov 1997 09:55:06 -0600") == expected

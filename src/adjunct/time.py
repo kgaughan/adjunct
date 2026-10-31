@@ -16,7 +16,7 @@ def parse_dt(
     Returns:
         the parsed datetime.
     """
-    parsed = dt.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+    parsed = dt.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")  # noqa: DTZ007
     return parsed if tz is None else parsed.replace(tzinfo=tz)
 
 

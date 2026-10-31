@@ -97,7 +97,7 @@ class _Handler(xml.sax.handler.ContentHandler):
         self.outline_stack: list[Outline] = []
         self.root: Outline | None = None
 
-    def _get_parent_tag(self) -> None | str:
+    def _get_parent_tag(self) -> str | None:
         """Oh, guess!"""
         return None if len(self.tag_stack) == 0 else self.tag_stack[-1]
 

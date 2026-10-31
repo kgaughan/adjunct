@@ -15,7 +15,7 @@ class _Cursor(t.Protocol):
 
     lastrowid: int
 
-    def callproc(self, procname: str, args: abc.Sequence[Scalar]):
+    def callproc(self, procname: str, args: abc.Sequence[Scalar]) -> None:
         """Call a stored procedure with the given name."""
         ...
 
@@ -23,11 +23,11 @@ class _Cursor(t.Protocol):
         """Close the cursor immediately."""
         ...
 
-    def execute(self, operation: str, args: abc.Sequence[Scalar]):
+    def execute(self, operation: str, args: abc.Sequence[Scalar]) -> None:
         """Prepare and execute a database operation/query."""
         ...
 
-    def executemany(self, operation: str, seq_of_parameters: abc.Iterable[abc.Sequence[Scalar]]):
+    def executemany(self, operation: str, seq_of_parameters: abc.Iterable[abc.Sequence[Scalar]]) -> None:
         """Prepare an operation and execute it against all the parameter sequences."""
         ...
 

@@ -109,7 +109,7 @@ def test_parse():
     <height>300</height>
     <width>300</width>
 </oembed>
-"""
+""",
     )
     fields = _parse_xml_oembed_response(fh)
     assert fields == {

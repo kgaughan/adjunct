@@ -21,12 +21,12 @@ _GUESSES = {
 class _FeedExtractor(discovery.Extractor):
     """Extract any links or anchors that look like they might refer to feeds."""
 
-    def __init__(self, base: str):
+    def __init__(self, base: str) -> None:
         super().__init__(base)
         self.anchor: dict[str, str] | None = None
         self.added: set[str] = set()
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag.lower() == "a" and self.anchor is None:
             fixed_attrs = discovery.fix_attributes(attrs)
             if "href" in fixed_attrs:
@@ -39,13 +39,13 @@ class _FeedExtractor(discovery.Extractor):
         else:
             super().handle_starttag(tag, attrs)
 
-    def handle_data(self, data: str):
+    def handle_data(self, data: str) -> None:
         # We only use the interstitial text as the title if none was provided
         # on the anchor element itself.
         if self.anchor is not None and "title" not in self.anchor:
             self.anchor["@data"] += data
 
-    def handle_endtag(self, tag: str):
+    def handle_endtag(self, tag: str) -> None:
         if tag.lower() == "a" and self.anchor is not None:
             self.anchor.setdefault("title", self.anchor["@data"])
             del self.anchor["@data"]
@@ -64,7 +64,7 @@ class _FeedExtractor(discovery.Extractor):
             None,
         )
 
-    def _append(self, attrs: dict[str, str]):
+    def _append(self, attrs: dict[str, str]) -> None:
         if (
             attrs["rel"] in ("alternate", "feed")
             and "type" in attrs

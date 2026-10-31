@@ -100,7 +100,7 @@ class _SpanStack:
         """Add additional context to the current span."""
         self._stack[-1].update(kwargs)
 
-    def __enter__(self) -> "_SpanStack":
+    def __enter__(self) -> t.Self:
         return self
 
     def __exit__(self, *_) -> None:
@@ -241,7 +241,7 @@ class LogfmtFormatter(_BaseFormatter):
             "\r": "\\r",
             "\t": "\\t",
             '"': '\\"',
-        }
+        },
     )
 
     def _serialise(self, record_dict: dict[str, Scalar]) -> str:

@@ -3,7 +3,7 @@
 [OPML]: http://dev.opml.org/spec2.html
 """
 
-import datetime
+import datetime as dt
 import email.utils
 import typing as t
 import xml.sax
@@ -45,13 +45,13 @@ class Outline(list):
         items: t.Sequence["Outline"] = (),
         *,
         root: bool = False,
-    ):
+    ) -> None:
         super().__init__()
         self.attrs: dict[str, str] = {} if attrs is None else attrs
         self.root: bool = root
         self.extend(items)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         args = []
         if self.root:
             args.append("root=True")
@@ -91,26 +91,22 @@ class _Handler(xml.sax.handler.ContentHandler):
         "outline": ["outline"],
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.tag_stack = []
-        self.outline_stack = []
-        self.root = None
-        self.current = None
+        self.tag_stack: list[str] = []
+        self.outline_stack: list[Outline] = []
+        self.root: Outline | None = None
 
-    def _get_parent_tag(self):
+    def _get_parent_tag(self) -> None | str:
         """Oh, guess!"""
         return None if len(self.tag_stack) == 0 else self.tag_stack[-1]
 
-    def startDocument(self):  # noqa: N802
+    def startDocument(self) -> None:  # noqa: N802
         self.root = Outline(root=True)
         self.outline_stack = [self.root]
         self.tag_stack = []
 
-    def endDocument(self):  # noqa: N802
-        self.current = None
-
-    def startElement(self, name, attrs):  # noqa: N802
+    def startElement(self, name, attrs) -> None:  # noqa: N802
         expected = self._NESTING[self._get_parent_tag()]
         if name not in expected:
             raise OpmlError(f"Got <{name}>, expected <{'|'.join(expected)}>")
@@ -124,19 +120,19 @@ class _Handler(xml.sax.handler.ContentHandler):
             for attr in ("isComment", "isBreakpoint"):
                 outline.attrs.setdefault(attr, "false")
 
-    def endElement(self, name):  # noqa: N802
+    def endElement(self, name) -> None:  # noqa: N802
         self.tag_stack.pop()
         if name == "outline":
             self.outline_stack.pop()
 
-    def characters(self, content):
+    def characters(self, content) -> None:
         content = content.strip()
         parent = self._get_parent_tag()
         if content != "" and parent in self._HEAD_TAGS and self.root is not None:
             self.root.attrs[parent] = content
 
 
-def parse_timestamp(ts: str) -> datetime.datetime | None:
+def parse_timestamp(ts: str) -> dt.datetime | None:
     """Convert an RFC 2822 timestamp (as used in OPML) to a UTC DateTime object.
 
     Args:
@@ -149,7 +145,7 @@ def parse_timestamp(ts: str) -> datetime.datetime | None:
     tt = email.utils.parsedate_tz(ts)
     if tt is None:
         return None
-    return datetime.datetime.fromtimestamp(email.utils.mktime_tz(tt), tz=datetime.UTC)
+    return dt.datetime.fromtimestamp(email.utils.mktime_tz(tt), tz=dt.UTC)
 
 
 def parse(fh: t.TextIO) -> Outline | None:
